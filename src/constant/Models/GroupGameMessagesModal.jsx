@@ -9,12 +9,14 @@ const GetGroupMessagesModal = ({ groupId, gameName, periodDate, periodType, user
   const [show, setShow] = useState(false);
   const [messages, setMessages] = useState([]);
   const periodDateStr = dayjs(periodDate).format("YYYY-MM-DD");
+  const usertimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const fetchMessages = async () => {
     try {
       const baseParams = {
         group_id: groupId,
         game_name: gameName,
-        created_at: periodDateStr
+        created_at: periodDateStr,
+        userTimezone: usertimezone
       };
       const params =
         gameName === 'phrazle' ? { ...baseParams, period: periodType } : baseParams;

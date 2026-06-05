@@ -23,9 +23,7 @@ const ConnectionsScoreModal = ({ showForm, handleFormClose, onSubmit, score, set
   
       // Game number starts at 1
       const currentGameNumber = diffInDays;
-  
-      // console.log("Now Local Time:", now.toString());
-      // console.log("Calculated Game Number:", currentGameNumber);
+
   
       return currentGameNumber;
   };
@@ -44,12 +42,11 @@ const ConnectionsScoreModal = ({ showForm, handleFormClose, onSubmit, score, set
       return () => clearInterval(interval);
   }, []);
   
-
   const handlePaste = (event) => {
       const pastedData = event.clipboardData.getData('Text');
       const connectionsTextExists = pastedData.includes('Connections');
-      const gamenumberExists = pastedData.includes(gameNumber.toLocaleString());
-  
+      //const gamenumberExists = pastedData.includes(gameNumber.toLocaleString());
+      const gamenumberExists = pastedData.includes(`Puzzle #${gameNumber}`);
       if (!connectionsTextExists) {
         toast.error('This is not a Connections game!', { position: 'top-center' });
       } else if (!gamenumberExists) {

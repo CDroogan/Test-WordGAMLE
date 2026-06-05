@@ -24,6 +24,7 @@ function GamesLayout() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
   const [lastGroup, setLastGroup] = useState(null);
+  const [allGroup, setAllGroup] = useState(null);
   const navigate = useNavigate();
   
   const handleFormClose = () => {
@@ -101,7 +102,24 @@ function GamesLayout() {
   }, [userId]);
   
   
-  
+  //get all group id
+ useEffect(() => {
+  const fetchUserGroups = async () => {
+      try {
+      const response = await Axios.get(`${baseURL}/groups/get-user-groups-data.php`, {
+          params: { user_id: userId },
+      });
+      setAllGroup(response.data);
+      
+      } catch (error) {
+      console.error("Error fetching user joined groups:", error);
+      }
+  };
+
+  if (userId) fetchUserGroups();
+  }, [userId]);
+
+
   const onSubmit = async (event) => {
     event.preventDefault();
     
@@ -131,25 +149,32 @@ function GamesLayout() {
     // Get the adjusted time in 24-hour format, e.g., "2024-12-02T15:10:29.476"
     const adjustedCreatedAt = adjustedDate.toISOString().slice(0, -1);  // "2024-12-02T15:10:29.476" (24-hour format)
   
-    // console.log(adjustedCreatedAt);  // Output: Local time in 24-hour format (without 'Z')
-  
-  
+    const period = adjustedDate.getHours() < 12 ? "AM" : "PM";
+
+    const groupGameMap = allGroup.map(group => ({
+          groupId: group.id,
+          selectedGame: group.selected_games,
+          groupName: group.group_name
+        }));
+
     const scoreObject = {
+      baseURL,
       username: loginUsername,
       useremail: loginUserEmail,
-      connectionscore: score,
+      connectionsscore: score,
       gamleScore: mistakeCount,
       createdAt: adjustedCreatedAt,
       currentUserTime: adjustedCreatedAt,
+      urrentPeriod: period,
       lastgameisWin: isWin,
       guessDistribution: updatedDistribution,
       handleHighlight: mistakeCount,
       timeZone,
-      groupId:lastGroup?.group_id,
+      // groupId:lastGroup?.group_id,
+      groups: groupGameMap,
       gameName:"connections",
       userId
     };
-   // console.log(scoreObject);
     try {
       const res = await Axios.post(
         `${baseURL}/games/connections/create-score.php`,
@@ -190,32 +215,32 @@ function GamesLayout() {
   
         await updateTotalGamesPlayed(TotalGameObject);
         setScore("");
-        const latest_group_id = lastGroup?.group_id;
-        if(latest_group_id){
-          navigate(`/group/${latest_group_id}/stats/connections`);
-        }
-        else{
-          navigate("/connectionstats");
-        }
+        navigate("/connectionstats");
+        // const latest_group_id = lastGroup?.group_id;
+        // if(latest_group_id){
+        //   navigate(`/group/${latest_group_id}/stats/connections`);
+        // }
+        // else{
+        //   navigate("/connectionstats");
+        // }
       } else {
-        toast.error(res.data.message);
+        toast.error(res.data.message,{ autoClose: 3000 });
       }
     } catch (err) {
       toast.error(
         err.response?.data?.message || "An unexpected error occurred.",
-        { position: "top-center" }
+        { position: "top-center" },
+        { autoClose: 3000 }
       );
     }
   };
   
     
   const updateTotalGamesPlayed = async (TotalGameObject) => {
-    // console.log(TotalGameObject);
     try {
       const res = await Axios.post(`${baseURL}/games/connections/update-statistics.php`, TotalGameObject);
-      // console.log(res);
     } catch (err) {
-      toast.error('Failed to update total games played');
+      toast.error('Failed to update total games played',{ autoClose: 3000 });
     }
   };
 

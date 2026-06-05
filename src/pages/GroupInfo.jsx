@@ -13,6 +13,7 @@ import { FaTrash } from 'react-icons/fa';
 import InviteGroupandSite from './InviteGroupAndSite';
 import GroupDeletePreference from '../constant/Models/GroupDeletePreference';
 import RemoveMemberConfirmModal from '../constant/Models/RemoveMemberConfirmModal';
+import AddMembers from '../constant/Models/AddMembers';
 
 function GroupInfo() {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -37,7 +38,7 @@ function GroupInfo() {
     const [selectedInviteId, setSelectedInviteId] = useState(null);
     const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
     const [selectedMemberId, setSelectedMemberId] = useState(null);
-
+    const [showMemberForm, setShowMemberForm] = useState(false);
     useEffect(() => {
         fetchGroupInfo();
     }, [id]);
@@ -177,7 +178,7 @@ function GroupInfo() {
             setShowExitConfirm(false);
             navigate('/groups'); 
         } else {
-            console.log('error');
+            
         }
         } catch (error) {
         console.error("Exit error:", error);
@@ -224,7 +225,7 @@ function GroupInfo() {
                 prevInvites.filter((invite) => invite.id !== inviteId)
             );
         } else {
-            console.log('error');
+            
         }
         } catch (error) {
         console.error("Exit error:", error);
@@ -338,12 +339,18 @@ function GroupInfo() {
                                 >
                                     Group Leaderboards
                                 </Button>
-                                <InviteGroupandSite/>
+                                <Col>
+                                    {userId === captainid && 
+                                        <Button className="mb-2 me-md-2 w-100" onClick={() => setShowMemberForm(true)}>
+                                            Add Group Members
+                                        </Button>
+                                    }
+                                </Col>
                             </Col>
                             {userId === captainid ? (
                             <>
                                 <Col xs={10} md={6}>
-                                <Button className="btn btn-warning w-100" onClick={handleShowModal}>
+                                <Button className="btn btn-warning w-100 mb-2 me-md-2" onClick={handleShowModal}>
                                     Edit Group Name
                                 </Button>
                                 <Button variant="danger" className="w-100" onClick={() => {setShowDeleteConfirm(true);}} disabled={loading}>
@@ -481,6 +488,12 @@ function GroupInfo() {
                 loading={loading}
             />
 
+            <AddMembers
+                showForm={showMemberForm}
+                handleFormClose={() => setShowMemberForm(false)}
+                groupName={group.name}
+                groupId={group.id}
+            />
         </Container>
     );
 }

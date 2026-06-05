@@ -32,11 +32,13 @@ import AdminRoute from './auth/AdminRoute';
 import UsersList from './pages/UsersList';
 import GamleIntro from './pages/GamleIntro';
 import FAQPage from './pages/FAQPage';
-import Games from './pages/Games';
+// import Games from './pages/Games';
+import { LeaderboardProvider } from "./context/LeaderboardContext";
 
 function App() {
   return (
     <Layout>
+      <LeaderboardProvider>
       <Routes>
         <Route exact path="/" element={<Home/>} />
         <Route exact path="/:group_id" element={<Home/>} />
@@ -46,11 +48,11 @@ function App() {
         <Route exact path="/register" element={<Registerform />} />
         <Route path="/register/:group_id" element={<Registerform />} />
         <Route exact path="*" element={<NotFound/>} />
-        <Route exact path='/games' element={<Games/>}/>
+        {/* <Route exact path='/games' element={<Games/>}/> */}
         <Route exact path='/wordle' element={<Statistics/>}/>
         <Route exact path= '/connections' element={<Connectionsgame/>}/>
         <Route exact path= '/phrazle' element={<Phrazlegame/>}/>
-        <Route exact path='/quordle' element={<Quordlegame/>}/>
+        {/* <Route exact path='/quordle' element={<Quordlegame/>}/> */}
         <Route exact path="/reset-password" element={<Resetpwd />} />
         <Route exact path="/reset-password/:id/:token" element={<Resetpwdform />} />
         <Route  path='/' element={<ProtectedRouter/>}>
@@ -68,10 +70,11 @@ function App() {
           <Route exact path= '/wordlestats' element={<Wordlestats/>}/>
           <Route exact path= '/connectionstats' element={<ConnectionStat/>}/>
           <Route exact path= '/phrazlestats' element={<PhrazleStat/>}/>
-          <Route exact path= '/quordlestats' element={<QuordleStat/>}/>
+          {/* <Route exact path= '/quordlestats' element={<QuordleStat/>}/> */}
           <Route exact path= '/edit-profile' element={<UserProfile/>}/>
         </Route>
       </Routes>
+      </LeaderboardProvider>
     <ToastContainer position="top-right" autoClose={1000}/>
     </Layout>
     

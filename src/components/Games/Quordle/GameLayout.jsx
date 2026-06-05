@@ -11,7 +11,7 @@ function GamesLayout() {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth')) || {};
   const { username: loginUsername, email: loginUserEmail } = USER_AUTH_DATA;
-  const userId = USER_AUTH_DATA?.id;
+  
   const [showForm, setShowForm] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [score, setScore] = useState('');
@@ -22,7 +22,7 @@ function GamesLayout() {
   const [totalWinGames, setTotalWinGames] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
-  const [lastGroup, setLastGroup] = useState(null);
+  
   const navigate = useNavigate();
   
   const handleFormClose = () => {
@@ -128,25 +128,9 @@ const determineAttempts = (score) => {
     };
 };
 
-  //get latest group intraction
-  useEffect(() => {
-    const fetchLastGroup = async () => {
-      try {
-        const response = await Axios.get(
-          `${baseURL}/games/wordle/get-last-group.php`,
-          { params: { user_id: userId } }
-        );
-        setLastGroup(response.data);
-      } catch (error) {
-        console.error("Error fetching last group:", error);
-      }
-    };
-  
-    if (userId) {
-      fetchLastGroup();
-    }
-  }, [userId]);
 
+  
+  
   const onSubmit = async (event) => {
     event.preventDefault();
     
@@ -174,8 +158,6 @@ const determineAttempts = (score) => {
     // Get the adjusted time in 24-hour format, e.g., "2024-12-02T15:10:29.476"
     const adjustedCreatedAt = adjustedDate.toISOString().slice(0, -1);  // "2024-12-02T15:10:29.476" (24-hour format)
   
-    // console.log(adjustedCreatedAt);  // Output: Local time in 24-hour format (without 'Z')
-  
   
     const scoreObject = {
       username: loginUsername,
@@ -189,11 +171,8 @@ const determineAttempts = (score) => {
       guessDistribution: updatedDistribution,
       handleHighlight: attempts,
       timeZone,
-      groupId:lastGroup?.group_id,
-      gameName:"quordle",
-      userId
     };
-    // console.log(scoreObject);
+    
     try {
       const res = await Axios.post(
         `${baseURL}/games/quordle/create-score.php`,
@@ -234,13 +213,7 @@ const determineAttempts = (score) => {
   
         await updateTotalGamesPlayed(TotalGameObject);
         setScore("");
-        const latest_group_id = lastGroup?.group_id;
-        if(latest_group_id){
-          navigate(`/group/${latest_group_id}/stats/quordle`);
-        }
-        else{
-          navigate("/quordlestats");
-        }
+        navigate("/quordlestats");
       } else {
         toast.error(res.data.message);
       }
@@ -254,10 +227,10 @@ const determineAttempts = (score) => {
   
     
   const updateTotalGamesPlayed = async (TotalGameObject) => {
-    // console.log(TotalGameObject);
+    
     try {
       const res = await Axios.post(`${baseURL}/games/quordle/update-statistics.php`, TotalGameObject);
-      // console.log(res);
+      
     } catch (err) {
       toast.error('Failed to update total games played');
     }

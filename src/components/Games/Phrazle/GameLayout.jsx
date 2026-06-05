@@ -23,6 +23,7 @@ function GamesLayout() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
   const [lastGroup, setLastGroup] = useState(null);
+  const [allGroup, setAllGroup] = useState(null);
   const navigate = useNavigate();
 
   const handleFormClose = () => {
@@ -62,6 +63,22 @@ function GamesLayout() {
     }
   }, [userId]);
 
+  //get all group id
+  useEffect(() => {
+    const fetchUserGroups = async () => {
+      try {
+      const response = await Axios.get(`${baseURL}/groups/get-user-groups-data.php`, {
+          params: { user_id: userId },
+      });
+      setAllGroup(response.data);
+      } catch (error) {
+      console.error("Error fetching user joined groups:", error);
+      }
+    };
+
+  if (userId) fetchUserGroups();
+  }, [userId]);
+  
   const onSubmit = async (event) => {
     event.preventDefault();
     setShowForm(false);
@@ -91,7 +108,13 @@ function GamesLayout() {
     // Get the adjusted time in 24-hour format, e.g., "2024-12-02T15:10:29.476"
     const adjustedCreatedAt = adjustedDate.toISOString().slice(0, -1);  // "2024-12-02T15:10:29.476" (24-hour format)
 
-    // console.log(adjustedCreatedAt);  // Output: Local time in 24-hour format (without 'Z')
+    const period = adjustedDate.getHours() < 12 ? "AM" : "PM";
+
+    const groupGameMap = allGroup.map(group => ({
+          groupId: group.id,
+          selectedGame: group.selected_games,
+          groupName: group.group_name
+        }));
   
     // Process the Wordle score and match it against a valid format
     const phrazleScore = score.replace(/[🟩🟨⬜🟪]/g, "");
@@ -112,8 +135,11 @@ function GamesLayout() {
         updatedGuessDistribution[guessesUsed - 1] += 1;
       }
       setGuessDistribution(updatedGuessDistribution);
-  
+      
+      const userGroupIds = allGroup.map(group => group.id); 
+
       const phrazleObject = {
+        baseURL,
         username: loginUsername,
         useremail: loginUserEmail,
         phrazlescore: score,
@@ -121,14 +147,16 @@ function GamesLayout() {
         gamleScore:guessesUsed,
         createdAt:adjustedCreatedAt,
         currentUserTime: adjustedCreatedAt,
+        currentPeriod: period,
         timeZone,
-        groupId:lastGroup?.group_id,
+        // groupId:lastGroup?.group_id,
+        groups: groupGameMap,
         gameName:"phrazle",
         userId
       };
       try {
         const res = await Axios.post(`${baseURL}/games/phrazle/create-score.php`, phrazleObject);
-        // console.log(res.data.status);
+        
         if (res.data.status === 'success') {
           if (typeof updateStatsChart === 'function') {
             updateStatsChart();
@@ -146,32 +174,33 @@ function GamesLayout() {
             guessDistribution: updatedGuessDistribution,
             updatedDate: adjustedCreatedAt
           };
-          // console.log(TotalGameObject);
+          
           
           await updateTotalGamesPlayed(TotalGameObject);
           setScore('');
-          const latest_group_id = lastGroup?.group_id;
-          if(latest_group_id){
-            navigate(`/group/${latest_group_id}/stats/phrazle`);
-          }
-          else{
-            navigate("/phrazlestats");
-          }
+          navigate("/phrazlestats");
+          // const latest_group_id = lastGroup?.group_id;
+          // if(latest_group_id){
+          //   navigate(`/group/${latest_group_id}/stats/phrazle`);
+          // }
+          // else{
+          //   navigate("/phrazlestats");
+          // }
          
         } else {
-          toast.error(res.data.message);
+          toast.error(res.data.message,{ autoClose: 3000 });
         }
       } catch (err) {
-        toast.error(err.res?.data?.message || 'An unexpected error occurred.');
+        toast.error(err.res?.data?.message || 'An unexpected error occurred.',{ autoClose: 3000 });
       }
     }
   };
   const updateTotalGamesPlayed = async (TotalGameObject) => {
-    // console.log(TotalGameObject);
+    
       try {
           await Axios.post(`${baseURL}/games/phrazle/update-statistics.php`, TotalGameObject);
       } catch (err) {
-          toast.error('Failed to update total games played');
+          toast.error('Failed to update total games played',{ autoClose: 3000 });
       }
   };
   return (

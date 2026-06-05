@@ -22,6 +22,8 @@ function PhrazlePlayService({ updateStatsChart}) {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
   const [lastGroup, setLastGroup] = useState(null);
+  const [allGroup, setAllGroup] = useState(null);
+
   const navigate = useNavigate();
 
   const handleFormClose = () => {
@@ -61,6 +63,23 @@ useEffect(() => {
   }
 }, [userId]);
 
+//get all group id
+useEffect(() => {
+	const fetchUserGroups = async () => {
+	  try {
+	  const response = await Axios.get(`${baseURL}/groups/get-user-groups-data.php`, {
+	      params: { user_id: userId },
+	  });
+	  setAllGroup(response.data);
+	  
+	  } catch (error) {
+	  console.error("Error fetching user joined groups:", error);
+	  }
+	};
+
+if (userId) fetchUserGroups();
+}, [userId]);
+
 const onSubmit = async (event) => {
   event.preventDefault();
   setShowForm(false);
@@ -69,10 +88,20 @@ const onSubmit = async (event) => {
     updateStatsChart();
   }
 
-  // Get time zone offset in minutes
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const localDate = new Date();
+
+  // Get current time in ISO format (without 'Z' for UTC)
+  const createdAt = localDate.toISOString().slice(0, -1);  // "2024-12-02T10:10:29.476"
+
+  // Get time zone offset in minutes
   const offsetMinutes = localDate.getTimezoneOffset();  // Offset in minutes (positive for behind UTC, negative for ahead)
+  const offsetSign = offsetMinutes > 0 ? '-' : '+';  // Determine if it's ahead or behind UTC
+  const offsetHours = String(Math.abs(offsetMinutes) / 60).padStart(2, '0');  // Convert minutes to hours and format
+  const offsetMinutesStr = String(Math.abs(offsetMinutes) % 60).padStart(2, '0');  // Get the remaining minutes and format
+
+  // Format the offset in +05:30 or -05:30 format
+  const offsetFormatted = `${offsetSign}${offsetHours}:${offsetMinutesStr}`;
 
   // Now adjust the time by adding the time zone offset (this does not affect UTC, it gives the correct local time)
   const adjustedDate = new Date(localDate.getTime() - offsetMinutes * 60 * 1000); // Adjust time by the offset in milliseconds
@@ -80,7 +109,13 @@ const onSubmit = async (event) => {
   // Get the adjusted time in 24-hour format, e.g., "2024-12-02T15:10:29.476"
   const adjustedCreatedAt = adjustedDate.toISOString().slice(0, -1);  // "2024-12-02T15:10:29.476" (24-hour format)
 
-  // console.log(adjustedCreatedAt);  // Output: Local time in 24-hour format (without 'Z')
+  const period = adjustedDate.getHours() < 12 ? "AM" : "PM";
+
+  const groupGameMap = allGroup.map(group => ({
+        groupId: group.id,
+        selectedGame: group.selected_games,
+        groupName: group.group_name
+      }));
 
   // Process the Wordle score and match it against a valid format
   const phrazleScore = score.replace(/[🟩🟨⬜🟪]/g, "");
@@ -100,9 +135,10 @@ const onSubmit = async (event) => {
     if (isWin && guessesUsed <= 6) {
       updatedGuessDistribution[guessesUsed - 1] += 1;
     }
-    setGuessDistribution(updatedGuessDistribution);
+    setGuessDistribution(updatedGuessDistribution); 
 
     const phrazleObject = {
+      baseURL,
       username: loginUsername,
       useremail: loginUserEmail,
       phrazlescore: score,
@@ -110,12 +146,13 @@ const onSubmit = async (event) => {
       gamleScore:guessesUsed,
       createdAt:adjustedCreatedAt,
       currentUserTime: adjustedCreatedAt,
+      currentPeriod: period,
       timeZone,
-      groupId:lastGroup?.group_id,
+      // groupId:lastGroup?.group_id,
+      groups: groupGameMap,
       gameName:"phrazle",
       userId
     };
-    // console.log(phrazleObject);
     try {
       const res = await Axios.post(`${baseURL}/games/phrazle/create-score.php`, phrazleObject);
       
@@ -136,30 +173,33 @@ const onSubmit = async (event) => {
           guessDistribution: updatedGuessDistribution,
           updatedDate: adjustedCreatedAt
         };
-       
+        
+        
         await updateTotalGamesPlayed(TotalGameObject);
         setScore('');
-        const latest_group_id = lastGroup?.group_id;
-        if(latest_group_id){
-          navigate(`/group/${latest_group_id}/stats/phrazle`);
-        }
-        else{
-          navigate("/phrazlestats");
-        }
+        navigate("/phrazlestats");
+        // const latest_group_id = lastGroup?.group_id;
+        // if(latest_group_id){
+        //   navigate(`/group/${latest_group_id}/stats/phrazle`);
+        // }
+        // else{
+        //   navigate("/phrazlestats");
+        // }
+        
       } else {
-        toast.error(res.data.message);
+        toast.error(res.data.message,{ autoClose: 3000 });
       }
     } catch (err) {
-      toast.error(err.res?.data?.message || 'An unexpected error occurred.');
+      toast.error(err.res?.data?.message || 'An unexpected error occurred.',{ autoClose: 3000 });
     }
   }
 };
 const updateTotalGamesPlayed = async (TotalGameObject) => {
-  // console.log(TotalGameObject);
+  
     try {
         await Axios.post(`${baseURL}/games/phrazle/update-statistics.php`, TotalGameObject);
     } catch (err) {
-        toast.error('Failed to update total games played');
+        toast.error('Failed to update total games played',{ autoClose: 3000 });
     }
 };
 

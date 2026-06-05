@@ -1,5 +1,5 @@
 import React, { useEffect, useState, forwardRef } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams  } from "react-router-dom";
 import axios from 'axios';
 import { Button, Alert, Row, Col, ProgressBar, Modal  } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
@@ -9,8 +9,7 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import dayjs from "dayjs";
 import GetGroupMessagesModal from '../../constant/Models/GetGroupMessagesModal';
 
-function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }) {
-    // console.log(latestJoinDate);
+function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile, msgReportDate, msgPeriod}) {
     const baseURL = import.meta.env.VITE_BASE_URL;
     const { id, groupName, game } = useParams();
     const [todayLeaderboard, setTodayLeaderboard] = useState([]);
@@ -35,7 +34,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
     const date = new Date(latestJoinDate);
     const hours = date.getHours();
     const groupPeriod = hours < 12 ? "AM" : "PM";
-    
+    const [searchParams, setSearchParams] = useSearchParams();
     let minDate = new Date(); // fallback
 
     if (formattedDateStr && typeof formattedDateStr === 'string') {
@@ -52,7 +51,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
             console.error('Unexpected date format:', formattedDateStr);
         }
     }
-    //console.log('minDate:', minDate.toISOString());
+
 
 
     const minDateStr = minDate.toISOString().split('T')[0];
@@ -89,6 +88,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
     };
    
     const handleDateChange = (date) => {
+       
         if (!date || isNaN(date.getTime())) return;
 
         const formattedDateStr = formatDateForBackend(date); // "YYYY-MM-DD"
@@ -153,12 +153,19 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
             });
     };
 
+    const removeMsgPeriod = () => {
+        const params = new URLSearchParams(searchParams);
+        params.delete("msgReportDate");
+        params.delete("msgPeriod");
+        setSearchParams(params);
+    };
 
     const goToPreviousDay = () => {
+       
         const prevDate = dayjs(startDate).subtract(1, 'day').toDate();
         const latest = dayjs(latestJoinDate);
         const latestDateOnly = latest.startOf('day');
-    
+        
         if (game === 'phrazle') {
             if (period === 'PM') {
                 const newPeriod = 'AM';
@@ -170,10 +177,10 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
                 setPeriod(newPeriod);
                 setStartDate(startDate);
                 fetchDataByDate(formattedDateStr, newPeriod);
+                
             } else {
                 // Going from AM ➝ PM of previous day
                 if (dayjs(prevDate).isBefore(latestDateOnly)) return;
-    
                 const newPeriod = 'PM';
                 const formattedDateStr = formatDateForBackend(prevDate);
                 setStartDate(prevDate);
@@ -182,6 +189,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
             }
         } else {
             if (dayjs(prevDate).isBefore(latestDateOnly)) return;
+     
             handleDateChange(prevDate);
         }
     };
@@ -190,7 +198,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
         const now = dayjs();
         const today = now.startOf('day');
         const currentHour = now.hour();
-
+        
         if (game === 'phrazle') {
             const isToday = dayjs(startDate).isSame(today, 'day');
 
@@ -237,145 +245,222 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
         );
     });
     
-    useEffect(() => {
-        if (!scoringMethod || !game) return;
+    // helper used in both places
+    const isMsgPeriodNull = (p) => p === null || p === undefined || p === "null";
 
-        const now = dayjs();
-        const currentHour = now.hour();
+    // ------------------ useEffect ------------------
+//     useEffect(() => {
+//   if (!scoringMethod || !game) return;
 
-        if (game === 'phrazle') {
-            let date, period;
+//   // If msgReportDate exists → ALWAYS use it directly
+//   if (msgReportDate) {
+//     const parsed = dayjs(msgReportDate, "YYYY-MM-DD", true);
 
-            if (currentHour < 12) {
-                date = now.subtract(1, 'day').toDate();
-                period = 'PM';
-            } else {
-                date = now.toDate();
-                period = 'AM';
-            }
+//     if (parsed.isValid()) {
+//       const finalDate = parsed.toDate();
+//       const finalDateStr = formatDateForBackend(finalDate);
 
-            const currrentDate = formatDateForBackend(date);
-            if (currrentDate >= formattedDateStr) {
-                setStartDate(date); // Pass Date object
-                setPeriod(period);
-                fetchDataByDate(currrentDate, period);
-            }
+//       if (game === "phrazle") {
+//         // Use msgPeriod directly (no shifting, no auto logic)
+//         const finalPeriod = msgPeriod || "AM"; 
+        
+//         setStartDate(finalDate);
+//         setPeriod(finalPeriod);
+//         fetchDataByDate(finalDateStr, finalPeriod);
+//       } else {
+//         // WORDLE + CONNECTIONS → no period
+//         setStartDate(finalDate);
+//         fetchDataByDate(finalDateStr);
+//       }
+//       return; // STOP HERE → prevents auto adjustments
+//     }
+//   }
+useEffect(() => {
+  if (!scoringMethod || !game) return;
 
-        } else {
-            const prevDate = now.subtract(1, 'day').toDate();
-            const prevDateStr = formatDateForBackend(prevDate);
-            if (prevDateStr >= formattedDateStr) {
-                setStartDate(prevDate); // Pass Date object
-                fetchDataByDate(prevDateStr);
-            }
-        }
-    }, [scoringMethod, game]);
+  const now = dayjs();
+  const today = now.toDate();
+
+  let finalDate;
+  let finalPeriod;
+
+  // ----------------------------------
+  // PHRAZLE LOGIC
+  // ----------------------------------
+  if (game === "phrazle") {
+
+    /* ----------------------------------
+       DEFAULT PHRAZLE RULE
+       Morning   → yesterday PM
+       Afternoon → today AM
+    ---------------------------------- */
+    if (now.hour() < 12) {
+      finalDate = now.subtract(1, "day").startOf("day").toDate();
+      finalPeriod = "PM";
+    } else {
+      finalDate = now.startOf("day").toDate();
+      finalPeriod = "AM";
+    }
+
+    /* ----------------------------------
+       URL OVERRIDE (msgReportDate)
+       - PM → msgPeriod === "PM"
+       - AM → msgPeriod is undefined
+    ---------------------------------- */
+    if (msgReportDate) {
+      finalDate = dayjs(msgReportDate, "YYYY-MM-DD").startOf("day").toDate();
+
+      if (msgPeriod === "PM") {
+        // PM message → show SAME date PM stats
+        finalPeriod = "PM";
+      } else {
+        // AM message → show SAME date AM stats
+        finalPeriod = "AM";
+      }
+    }
+
+    const finalDateStr = formatDateForBackend(finalDate);
+
+    setStartDate(finalDate);
+    setPeriod(finalPeriod);
+    fetchDataByDate(finalDateStr, finalPeriod);
+    return;
+  }
+  else{
+    // ----------------------------------
+    // NON-PHRAZLE GAMES
+    // ----------------------------------
+    if (msgReportDate) {
+        finalDate = dayjs(msgReportDate, "YYYY-MM-DD").startOf("day").toDate();
+        const finalDateStr = formatDateForBackend(finalDate);
+        setStartDate(finalDate);
+        setPeriod(finalPeriod);
+        fetchDataByDate(finalDateStr, finalPeriod);
+    }
+    else{
+        const defaultDate = dayjs().subtract(1, "day").startOf("day").toDate();
+        const defaultDateStr = formatDateForBackend(defaultDate);
+        setStartDate(defaultDate);
+        fetchDataByDate(defaultDateStr);
+    }
+  }
+
+}, [scoringMethod, game, msgReportDate, msgPeriod]);
 
 
 
+
+    // ------------------ fetchDataByDate ------------------
     const fetchDataByDate = async (date, currentPeriod = null) => {
-        try {
-            const timeZone = moment.tz.guess();
+    try {
+        const timeZone = moment.tz.guess();
 
-            const baseParams = {
-                groupId: id,
-                groupName,
-                game,
-                groupCreatedDate: formattedDateStr,
-                groupPeriod,
-                today: date,
-                timeZone,
-                formattedYesterday: date,
-                scoringMethod
-            };
+        // normalize source: prefer msgReportDate if present, else use provided startDate
+        const baseDay = msgReportDate ? dayjs(msgReportDate, "YYYY-MM-DD", true) : dayjs(startDate);
+        let finalDay = baseDay.isValid() ? baseDay.clone() : dayjs(startDate);
+        let finalPeriod = msgPeriod;
 
-            const params = game === 'phrazle'
-                ? { ...baseParams, period: currentPeriod || period }
-                : baseParams;
 
-            let todayResponse, cumulativeAverageResponse, cumulativeDailyResponse;
-            
-            if (scoringMethod === 'Pesce') {
-                const todayPromise = axios.get(`${baseURL}/groups/pesce-get-group-score.php`, { params });
+        // if (game === "phrazle") {
+        //     // apply the same exact mapping here to be consistent with useEffect
+        //     if (msgReportDate) {
+        //         // If msgPeriod is PM => same date, AM
+        //         if (msgPeriod === "PM") {
+        //         finalPeriod = "AM";
+        //         // finalDay unchanged
+        //         }
+        //         // If msgPeriod is AM => previous date, AM
+        //         else if (msgPeriod === "AM") {
+        //         finalDay = finalDay.subtract(1, "day");
+        //         finalPeriod = "AM";
+        //         }
+        //         // if msgPeriod nullish => let finalDay/finalPeriod remain as-is (or you can choose defaults)
+        //     } else {
+        //         // no msgReportDate: use current logic (defaults based on time of day)
+        //         const now = dayjs();
+        //         if (now.hour() < 12) {
+        //         finalDay = now.subtract(1, "day");
+        //         finalPeriod = "PM";
+        //         } else {
+        //         finalDay = now;
+        //         finalPeriod = "AM";
+        //         }
+        //     }
+        //     } else {
+        //     // Non-phrazle: if msgPeriod explicitly 'null' => previous date
+        //     if (isMsgPeriodNull(msgPeriod)) {
+        //         finalDay = finalDay.subtract(1, "day");
+        //     }
+        // }
 
-                // Wait 300ms before firing the other two
-                await new Promise(resolve => setTimeout(resolve, 300));
+        const finalDateStr = formatDateForBackend(finalDay.toDate());
 
-                const cumulativeAveragePromise = axios.get(`${baseURL}/groups/get-cumulative-average-score.php`, { params });
-                const cumulativeDailyPromise = axios.get(`${baseURL}/groups/get-cumulative-score-bydate.php`, { params });
+        
 
-                [todayResponse, cumulativeAverageResponse, cumulativeDailyResponse] = await Promise.all([
-                    todayPromise,
-                    cumulativeAveragePromise,
-                    cumulativeDailyPromise
-                ]);
-            }
-            else {
-                [todayResponse, cumulativeAverageResponse, cumulativeDailyResponse] = await Promise.all([
-                    axios.get(`${baseURL}/groups/get-group-score.php`, { params }),
-                    axios.get(`${baseURL}/groups/get-cumulative-average-score.php`, { params }),
-                    axios.get(`${baseURL}/groups/get-cumulative-score-bydate.php`, { params }),
-                ]);
-            }
+        // Build params (same as you had)
+        const baseParams = {
+        groupId: id,
+        groupName,
+        game,
+        groupCreatedDate: formattedDateStr,
+        groupPeriod: groupPeriod,
+        today: date,
+        timeZone,
+        formattedYesterday: finalDateStr,
+        scoringMethod
+        };
 
-            if (
-                todayResponse.data.status === "success" &&
-                Array.isArray(todayResponse.data.data)
-            ) {
-                setTodayLeaderboard(todayResponse.data.data);
-            } else {
-                setTodayLeaderboard([]);
-                setFetchedError(true);
-            }
+        const params = game === "phrazle"
+        ? { ...baseParams, period: currentPeriod || finalPeriod }
+        : baseParams;
 
-            settotalGames(cumulativeDailyResponse.data.totalGames || []);
-            setcumulativeAverageScore(cumulativeAverageResponse.data.data || []);
-            setcumulativeDailyScore(cumulativeDailyResponse.data.data || []);
-            setDataFetched(true);
+        // (the rest of your axios logic remains unchanged)
+        let todayResponse, cumulativeAverageResponse, cumulativeDailyResponse;
 
-        } catch (error) {
-            console.error("API Error:", error);
-            setTodayLeaderboard([]);
-            setFetchedError(true);
-            setDataFetched(true);
+        [todayResponse, cumulativeAverageResponse, cumulativeDailyResponse] = await Promise.all([
+            axios.get(`${baseURL}/groups/get-group-score.php`, { params }),
+            axios.get(`${baseURL}/groups/get-cumulative-average-score.php`, { params }),
+            axios.get(`${baseURL}/groups/get-cumulative-score-bydate.php`, { params })
+        ]);
+        // if (scoringMethod == "Pesce") {
+        // const todayPromise = axios.get(`${baseURL}/groups/get-group-score.php`, { params });
+        // await new Promise(resolve => setTimeout(resolve, 300));
+        // const cumulativeAveragePromise = axios.get(`${baseURL}/groups/get-cumulative-average-score.php`, { params });
+        // const cumulativeDailyPromise = axios.get(`${baseURL}/groups/get-cumulative-score-bydate.php`, { params });
+
+        // [todayResponse, cumulativeAverageResponse, cumulativeDailyResponse] = await Promise.all([
+        //     todayPromise,
+        //     cumulativeAveragePromise,
+        //     cumulativeDailyPromise
+        // ]);
+        // } else {
+        // [todayResponse, cumulativeAverageResponse, cumulativeDailyResponse] = await Promise.all([
+        //     axios.get(`${baseURL}/groups/get-group-score.php`, { params }),
+        //     axios.get(`${baseURL}/groups/get-cumulative-average-score.php`, { params }),
+        //     axios.get(`${baseURL}/groups/get-cumulative-score-bydate.php`, { params })
+        // ]);
+        // }
+
+        if (todayResponse.data.status === "success" && Array.isArray(todayResponse.data.data)) {
+        setTodayLeaderboard(todayResponse.data.data);
+        } else {
+        setTodayLeaderboard([]);
+        setFetchedError(true);
         }
+
+        settotalGames(cumulativeDailyResponse.data.totalGames || []);
+        setcumulativeAverageScore(cumulativeAverageResponse.data.data || []);
+        setcumulativeDailyScore(cumulativeDailyResponse.data.data || []);
+        setDataFetched(true);
+    } catch (error) {
+        console.error("API Error:", error);
+        setTodayLeaderboard([]);
+        setFetchedError(true);
+        setDataFetched(true);
+    }
     };
 
     
-    
-    // console.log('todayLeaderboard',todayLeaderboard);
-    // Custom input button for DatePicker
-    // const ExampleCustomInput = forwardRef(({ value, onClick }, ref) => (
-    //     <Button className={`example-custom-input px-5 btn btn-primary ${game}-btn`} onClick={onClick} ref={ref}>
-    //     Go To Date
-    // </Button>
-    // ));
-    
-
-    // const getTotalScore = (gameName, score) => {
-    //     const cleanedName = gameName ? gameName.trim().toLowerCase() : "";
-
-    //     if (cleanedName === "wordle") return 7;         // max 6
-    //     if (cleanedName === "connections") return 4;    // 4 groups
-    //     if (cleanedName === "phrazle") return 7;        // like Wordle
-
-    //     if (cleanedName === "quordle") {
-    //         // Quordle special logic
-    //         const numScore = Number(score);
-
-    //         if (isNaN(numScore)) return null;
-
-    //         // Valid wins: usually between 4 (best) and ~27
-    //         if (numScore > 0 && numScore < 30) {
-    //         return numScore;
-    //         }
-
-    //         // Scores >= 31 mean loss
-    //         return "LOSS";
-    //     }
-
-    //     return 1; // default
-    // };
 
     // Function to get the max possible score for a game
     const getTotalScore = (gameName) => {
@@ -410,7 +495,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
     maxSelectableDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
     }
 
-    // console.log("maxSelectableDate", maxSelectableDate);
+    
 
 
     const handleShowProfile = (data) => {
@@ -439,6 +524,39 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
     quordle: "Gamle Score 31"
     }[game] || "No data available.";
 
+    
+   // COMMON date/time
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    // Helper
+    const formatLocalDateTime = (date) => {
+        const pad = (n) => n.toString().padStart(2, '0');
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} `
+            + `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    };
+
+    let todayFormatted = "";
+    let yesterdayFormatted = "";
+
+    if (game === "phrazle") {
+        // Send pure date only
+        todayFormatted = dayjs(startDate).format("YYYY-MM-DD"); 
+        yesterdayFormatted = "";
+    } else {
+        todayFormatted = formatLocalDateTime(today);
+        yesterdayFormatted = formatLocalDateTime(yesterday);
+    }
+
+
+ 
+
+
+
+
+
+    
     return (
         <>
             <div className='text-center'>
@@ -457,7 +575,19 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
                     maxDate={game === 'phrazle' ? maxSelectableDate : dayjs().subtract(1, 'day').toDate()}
                     />
             </div>
-            <Row className="justify-content-center leaderboard">
+            <Row
+                className="justify-content-center leaderboard"
+                id={
+                msgReportDate
+                    ? msgPeriod === "AM"
+                    ? `report-${msgReportDate}-AM`
+                    : msgPeriod === "PM"
+                        ? `report-${msgReportDate}-PM`
+                        : `report-${msgReportDate}`
+                    : ""
+                }
+
+                >
                 <Col md={5} className="text-center">
                     {dataFetched && todayLeaderboard.length > 0 ? (
                         <>
@@ -602,7 +732,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
                                     const isSharedWinner = winners.length > 1 && winners.some(w => w.username === data.username);
 
                                     const allLost = minScore === 7;
-                                    const worldCupScore = allLost ? 0 : (isSingleWinner ? 3 : isSharedWinner ? 1 : 0);
+                                    const worldCupScore = allLost ? 0 : (isSheriff(data.username) ? 3 : isSheriff(data.username) ? 1 : 0);
                                     const pesceScore = isSheriff(data.username) ? 1 : 0;
 
                                     return (
@@ -620,12 +750,13 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
 
                                             <Col xs={4} className="text-start fw-semibold" onClick={() => handleShowProfile(data)} style={{ cursor: 'pointer' }}>
                                                 {data.username}
+                                                
                                                 {/* <p>Score is:{data.gamlescore}</p> */}
                                             </Col>
 
                                             <Col xs={5}>
                                                 <Row className="align-items-center">
-                                                    <Col xs={7}>
+                                                    <Col md={7} xs={6} >
                                                         <ProgressBar
                                                             className={`${data.gamename}-progressbar`}
                                                             variant="success"
@@ -643,7 +774,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
                                                         />
                                                     </Col>
                                                     
-                                                    <Col xs={5} className="text-center d-flex fw-bold">
+                                                    <Col md={5} xs={6} className="text-center d-flex fw-bold">
                                                         <span
                                                             onClick={() => showDayResult(data.createdat, data.useremail, data.gamename, period)}
                                                             style={{ cursor: "pointer" }}
@@ -657,7 +788,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
                                                             scoringMethod === "Pesce" &&
                                                             isSheriff(data.username) &&
                                                             " 🤠"}
-                                                            {scoringMethod !== "Pesce" && isSingleWinner && " 🏆"}
+                                                            {scoringMethod !== "Pesce" && isSheriff(data.username) && " 🏆"}
                                                         </span>
                                                     </Col>
                                                 </Row>
@@ -698,8 +829,17 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
                             });
 
                             // Define sheriff checker before using it
-                            const isSheriff = (username) =>
-                                todayLeaderboard.some(user => user.username === username && user.sheriff === true);
+                            const isSheriff = (username) => {
+                            const found = filteredLeaderboard.find(
+                                user =>
+                                user.username?.trim().toLowerCase() === username?.trim().toLowerCase() &&
+                                user.sheriff === true
+                            );
+
+                            // console.log("Sheriff check:", username, found);
+                            return Boolean(found);
+                            };
+
                         
                             return (
                                 <>
@@ -737,7 +877,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
                                         isQuordleValidScore &&
                                         topScorers.length === 1 &&
                                         topScorers[0].username === data.username;
-                                    // console.log(isSingleWinner);
+                                   
 
                                     const isSharedWinner =
                                         isQuordleValidScore &&
@@ -750,7 +890,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
                                     (data.gamename === "wordle" && minScore === 7) ||
                                     (data.gamename === "quordle" && (minScore === 9 || data.gamlescore < 10 || data.gamlescore > 30));
 
-                                    const worldCupScore = allLost ? 0 : (isSingleWinner ? 3 : isSharedWinner ? 1 : 0);
+                                    const worldCupScore = allLost ? 0 : (isSheriff(data.username) ? 3 : isSheriff(data.username) ? 1 : 0);
                                     // const pesceScore = allLost ? 0 : (isSingleWinner || isSharedWinner ? 1 : 0);
                                     const pesceScore = allLost ? 0 : (isSheriff(data.username) ? 1 : 0);
                                     
@@ -782,7 +922,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
 
                                         <Col xs={5}>
                                             <Row className="align-items-center">
-                                            <Col xs={7}>
+                                            <Col md={7} xs={6}>
                                                 <ProgressBar
                                                 className={`${data.gamename}-progressbar`}
                                                 variant="success"
@@ -800,7 +940,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
                                                 />
                                             </Col>
                                             
-                                            <Col xs={5} className="text-center d-flex fw-bold">
+                                            <Col md={5} xs={6} className="text-center d-flex fw-bold">
                                                 <span
                                                     onClick={() => showDayResult(data.createdat, data.useremail, data.gamename)}
                                                     style={{ cursor: "pointer" }}
@@ -838,7 +978,7 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
                                                     " 🤠"}
 
                                                     {/* Trophy for top scorer */}
-                                                    {scoringMethod !== "Pesce" && isSingleWinner && " 🏆"}
+                                                    {scoringMethod !== "Pesce" && isSheriff(data.username) && " 🏆"}
                                                 </span>
                                                 </Col>
 
@@ -1193,9 +1333,10 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
 
                         if (game === 'phrazle') {
                         // For phrazle, remove colored squares and tags
-                        const cleanedScore = item.phrazlescore.replace(/[🟨,🟩,🟦,🟪,⬜]/g, "");
+                            const rawScore = item.phrazlescore || "";
+                            const cleanedScore = rawScore.replace(/[🟨,🟩,🟦,🟪,⬜]/g, "");
                             const phrazle_score_text = cleanedScore.replace(/#phrazle|https:\/\/solitaired.com\/phrazle/g, '');
-                            const lettersAndNumbersRemoved = item.phrazlescore.replace(/[a-zA-Z0-9,#:./\\]/g, "");
+                            const lettersAndNumbersRemoved = rawScore.replace(/[a-zA-Z0-9,#:./\\]/g, "");
                             const phrazleScore = splitIntoRowsByNewline(lettersAndNumbersRemoved);
                             const gamleScore = item.gamlescore;
 
@@ -1226,9 +1367,10 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
                         } 
                         else if (game === 'wordle') {
                         // Example Wordle display - customize as needed
-                        const cleanedScore = item.wordlescore.replace(/[🟩🟨⬜⬛]/g, "");
+                        const rawScore = item.wordlescore || "";
+                        const cleanedScore = rawScore.replace(/[🟩🟨⬜⬛]/g, "");
                         const scoreParts = cleanedScore.split(" ");
-                        const lettersAndNumbersRemoved = item.wordlescore.replace(/[a-zA-Z0-9,/\\]/g, "");
+                        const lettersAndNumbersRemoved = rawScore.replace(/[a-zA-Z0-9,/\\]/g, "");
                         const removespace = lettersAndNumbersRemoved.replace(/\s+/g, '');
                         const wordleScores = splitIntoRowsByLength(removespace, 5);
                         const createDate = item.createdat;
@@ -1248,8 +1390,9 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile  }
                         } 
                         else if (game === 'connections') {
                         // Example Connection game display
-                        const cleanedScore = item.connectionsscore.replace(/[🟨,🟩,🟦,🟪]/g, "");
-                        const lettersAndNumbersRemoved = item.connectionsscore.replace(/[a-zA-Z0-9,#:/\\]/g, "");
+                        const rawScore = item.connectionsscore || "";
+                        const cleanedScore = rawScore.replace(/[🟨,🟩,🟦,🟪]/g, "");
+                        const lettersAndNumbersRemoved = rawScore.replace(/[a-zA-Z0-9,#:/\\]/g, "");
                         const removespace = lettersAndNumbersRemoved.replace(/\s+/g, '');
                         const connectionsScore = splitIntoRowsByLength(removespace, 4);
                         const createDate = item.createdat; // Ensure this matches your database field name

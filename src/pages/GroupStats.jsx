@@ -16,7 +16,7 @@ function GroupStats() {
   // Get user ID from localStorage
   const userAuthData = JSON.parse(localStorage.getItem('auth')) || {};
   const userId = userAuthData.id;
-  
+  const usertimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   useEffect(() => {
     const fetchGroupDetails = async () => {
         try {
@@ -66,7 +66,7 @@ function GroupStats() {
     }
 }, [userId]);
 
-  // console.log('selectedGames',selectedGames);
+
   return (
     <Container>
       <Row className="justify-content-center">
@@ -90,6 +90,7 @@ function GroupStats() {
               <GroupGameChat
                 groupId={id}
                 createdAt={dayjs().format("YYYY-MM-DD HH:mm:ss")}
+                userTimezone = {usertimezone}
                 generalChat = "true"
                 userId={userId}
                 // highlightMsgId={msgId}

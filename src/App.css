@@ -149,15 +149,21 @@ body{
   font-size: 15px;
 }
 span.notification-count.badge.bg-danger {
-  position: absolute;
-  border-radius: 50%;
-  top: -3px;
-  right: -5px;
-  width: 18px;
-  height: 18px;
-  text-align: center;
-  padding: 2px;
-  font-size: 14px;
+    position: absolute;
+    top: -5px;
+    right: -8px;
+
+    min-width: 18px;
+    height: 18px;
+
+    padding: 2px 5px;   /* allow width to grow */
+    font-size: 11px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50px; /* pill shape for 2+ digits */
 }
 .leaderboard .progress{
   height: 25px !important;
@@ -209,7 +215,7 @@ span.notification-count.badge.bg-danger {
 .fas{
   font-size: 15px;
 }
-.header-section .game-btn {
+.header-section .custom-btn {
   font-size: 15px;
   padding: 5px;
 }
@@ -290,6 +296,66 @@ cursor: pointer;
 .cwd-swiper-animation .swiper-wrapper{
   justify-content: center !important;
 }
+.white-btn{
+  background-color: #ffffff !important;
+  border: none;
+  color:#000000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+}
+.cwd-group-message{
+  font-size:16px !important;
+  margin: 0px !important;
+
+}
+.list-group-item{
+  border:none;
+  box-shadow: inset 0 -1px 0 0 rgba(100, 121, 143, 0.12);
+}
+.unread-msg {
+  background: none;
+  font-weight: 600;
+}
+
+.read-msg {
+  background: rgb(0 0 0 / 9%);
+}
+.msg-row {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.msg-left {
+  flex: 1;
+}
+
+.unread-dot {
+  height: 10px;
+  width: 10px;
+  background-color: #0B66FF;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 10px;
+}
+.unread-msg .time-ago{
+  color:#0B66FF;
+}
+ .time-ago{
+  color:#777777;
+}
+.delete-icon {
+  cursor: pointer;
+  /* Button styling */
+  font-size: 13px;
+  color: #d11a2a;
+  border-radius: 50%;
+}
+.delete-icon:hover {
+  background-color: #ffe8e8;
+  color: #b30f1d;
+}
+
 /* Hide on larger screens */
 @media only screen and (max-width: 600px)  {
   .navbar-collapse {
@@ -312,5 +378,9 @@ cursor: pointer;
 .cwd-swiper-animation .swiper-wrapper{
   justify-content: start !important;
 }
-
+.custom-button-row{
+  display: block;
+  margin: auto;
+  width: 70%;
+}
 }

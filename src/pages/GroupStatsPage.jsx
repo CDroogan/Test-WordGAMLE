@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import GroupLeaderboardScores from './GroupLeaderboard/GroupLeaderboardScores';
@@ -9,6 +9,7 @@ import MemberProfile from '../constant/Models/MemberProfile';
 import GroupGameChat  from '../pages/GroupLeaderboard/GroupGameChat';
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
+//import MessageLeaderboard from './GroupLeaderboard/MessageLeaderboard';
 
 function GroupStatsPage() {
 
@@ -23,10 +24,20 @@ function GroupStatsPage() {
   // Get user ID from localStorage
   const userAuthData = JSON.parse(localStorage.getItem('auth')) || {};
   const userId = userAuthData.id;
+  const usertimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const [showProfile, setShowProfile] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const now = new Date();
   const period = now.getHours() < 12 ? "AM" : "PM";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const msgFrom = searchParams.get("msg_from");
+  const msgReportDate = searchParams.get("msgReportDate");
+  const msgPeriod = searchParams.get("msgPeriod");
+
+  const [reportDate, setReportDate] = useState(null);
+  useEffect(() => {
+    setReportDate(msgReportDate);
+  }, [msgReportDate]);
   
   useEffect(() => {
     const fetchGroupDetails = async () => {
@@ -52,17 +63,45 @@ function GroupStatsPage() {
   //   const hour = new Date().getHours();
   //   return hour < 12 ? 'AM' : 'PM';
   // };
+  
+  const today = dayjs().format("YYYY-MM-DD"); 
 
   return (
     <>
     <Container>
       <Row>
-        <Col className="text-center mt-4">
-          <h2 className='text-capitalize py-3'>{group?.name || ""} - {game}</h2>
-          {/* <h3 className='text-capitalize py-3'>{game} Leaderboard</h3> */}
-          {/* <h3 className='text-capitalize py-3'>{game.charAt(0).toUpperCase() + game.slice(1)} Stats</h3> */}
-          <GroupLeaderboardScores setLatestJoinDate={setLatestJoinDate}  setSelectedMember={setSelectedMember} setShowProfile={setShowProfile}/>
+        <Col className="text-center my-4">
+          <h2 className='text-capitalize py-3'>
+            {group?.name || ""} - {game}
+          </h2>
+          <GroupLeaderboardScores
+            setLatestJoinDate={setLatestJoinDate}
+            setSelectedMember={setSelectedMember}
+            setShowProfile={setShowProfile}
+          />
+          {/* {reportDate && reportDate !== today ? (
+            <>
+            <MessageLeaderboard
+              latestJoinDate={latestJoinDate}
+              setSelectedMember={setSelectedMember}
+              setShowProfile={setShowProfile}
+              msgReportDate={msgReportDate}
+              msgPeriod={msgPeriod}
+              groupId={id}
+              groupName={group?.name}
+              gameName={game}
+            />
+            </>
+          ) : (
+            <GroupLeaderboardScores
+              setLatestJoinDate={setLatestJoinDate}
+              setSelectedMember={setSelectedMember}
+              setShowProfile={setShowProfile}
+            />
+          )} */}
         </Col>
+
+
       </Row>
       <Row className="justify-content-center"> 
         <Col md={6}>
@@ -70,9 +109,11 @@ function GroupStatsPage() {
             groupId={id}
             gameName={game}
             createdAt={dayjs().format("YYYY-MM-DD HH:mm:ss")}
+            userTimezone = {usertimezone}
             periodType={game === "phrazle" ? period : ""}
             userId={userId}
             highlightMsgId={msgId}
+            
           />
         </Col>
       </Row>
@@ -82,6 +123,8 @@ function GroupStatsPage() {
             latestJoinDate={latestJoinDate}
             setSelectedMember={setSelectedMember}
             setShowProfile={setShowProfile}
+            msgReportDate={msgReportDate}
+            msgPeriod={msgPeriod}
           />
 
         </Col>

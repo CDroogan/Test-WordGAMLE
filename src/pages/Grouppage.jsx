@@ -6,6 +6,7 @@ import AddMembers from '../constant/Models/AddMembers';
 import { toast } from 'react-toastify';
 import MemberGameSelections from './MemberGameSelections';
 import SelectScoringMethod from './SelectScoringMethod';
+import GameNotificationToggle from './GameNotificationToggle';
 // import InviteGroupAndSite from './InviteGroupAndSite';
 
 function GroupPage() {
@@ -79,7 +80,7 @@ function GroupPage() {
     }, [baseURL]);
     
     if (!group) return null;
-    // console.log('existingMembers',existingMembers)
+    
     return (
         <Container className="text-center">
             <Row>
@@ -123,6 +124,7 @@ function GroupPage() {
             </Button>
 
             <MemberGameSelections leaderboardText={leaderboardText} />
+            <GameNotificationToggle/>
             {isCaptain && <SelectScoringMethod  leaderboardText={leaderboardText}/>}
             <AddMembers
                 showForm={showMemberForm}

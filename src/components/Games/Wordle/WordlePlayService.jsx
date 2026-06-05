@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import WordleModal from './Modals/WordleScoreModal';
 
-function WordlePlayService({ updateStatsChart}) {
+function WordlePlayService({ updateStatsChart, groupId, gameName  }) {
     const baseURL = import.meta.env.VITE_BASE_URL;
     const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth')) || {};
     const { username: loginUsername, email: loginUserEmail } = USER_AUTH_DATA;
@@ -16,6 +16,7 @@ function WordlePlayService({ updateStatsChart}) {
     const [score, setScore] = useState('');
     const [guessDistribution, setGuessDistribution] = useState([0, 0, 0, 0, 0, 0]);
     const [gameIsWin, setGameIsWin] = useState(false);
+    const [allGroup, setAllGroup] = useState(null);
     const [lastGroup, setLastGroup] = useState(null);
     const navigate = useNavigate();
 
@@ -55,7 +56,24 @@ function WordlePlayService({ updateStatsChart}) {
         fetchLastGroup();
       }
     }, [userId]);
-    
+
+    //get all group id
+    useEffect(() => {
+    const fetchUserGroups = async () => {
+        try {
+        const response = await Axios.get(`${baseURL}/groups/get-user-groups-data.php`, {
+            params: { user_id: userId },
+        });
+        setAllGroup(response.data);
+       
+        } catch (error) {
+        console.error("Error fetching user joined groups:", error);
+        }
+    };
+
+    if (userId) fetchUserGroups();
+    }, [userId]);
+
     const onSubmit = async (event) => {
         event.preventDefault();
         setShowForm(false);
@@ -70,21 +88,20 @@ function WordlePlayService({ updateStatsChart}) {
     
         // Get time zone offset in minutes
         const offsetMinutes = localDate.getTimezoneOffset();  // Offset in minutes (positive for behind UTC, negative for ahead)
-
+    
         // Now adjust the time by adding the time zone offset (this does not affect UTC, it gives the correct local time)
         const adjustedDate = new Date(localDate.getTime() - offsetMinutes * 60 * 1000); // Adjust time by the offset in milliseconds
     
         // Get the adjusted time in 24-hour format, e.g., "2024-12-02T15:10:29.476"
         const adjustedCreatedAt = adjustedDate.toISOString().slice(0, -1);  // "2024-12-02T15:10:29.476" (24-hour format)
     
-        // console.log(adjustedCreatedAt);  // Output: Local time in 24-hour format (without 'Z')
+        const period = adjustedDate.getHours() < 12 ? "AM" : "PM";
     
     
     
         const wordleScore = score.replace(/[🟩🟨⬜⬛]/g, "");
         const match = wordleScore.match(/(\d+|X)\/(\d+)/);
-        // console.log(match);
-    
+        
         if (match) {
             let guessesUsed = match[1] === "X" ? 7 : parseInt(match[1], 10); // Assign 7 for failed attempts ("X")
             const totalGuesses = parseInt(match[2], 10);
@@ -96,8 +113,14 @@ function WordlePlayService({ updateStatsChart}) {
                 updatedGuessDistribution[guessesUsed - 1] += 1;
             }
             setGuessDistribution(updatedGuessDistribution);
+            const groupGameMap = allGroup.map(group => ({
+              groupId: group.id,
+              selectedGame: group.selected_games,
+              groupName: group.group_name
+            }));
     
             const wordleObject = {
+                baseURL,
                 username: loginUsername,
                 useremail: loginUserEmail,
                 wordlescore: score,
@@ -106,15 +129,17 @@ function WordlePlayService({ updateStatsChart}) {
                 gamleScore: guessesUsed,
                 createdAt: adjustedCreatedAt,
                 currentUserTime: adjustedCreatedAt,
+                currentPeriod: period,
                 timeZone,
-                groupId:lastGroup?.group_id,
+                // groupId:lastGroup?.group_id,
+                groups: groupGameMap,
                 gameName:"wordle",
                 userId
             };
-            // console.log(wordleObject);
+           
             try {
                 const res = await Axios.post(`${baseURL}/games/wordle/create-score.php`, wordleObject);
-                // console.log(res.data.status);
+               
                 if (res.data.status === 'success') {
                     if (typeof updateStatsChart === 'function') {
                         updateStatsChart();
@@ -131,23 +156,23 @@ function WordlePlayService({ updateStatsChart}) {
                         guessDistribution: updatedGuessDistribution,
                         updatedDate: adjustedCreatedAt
                     };
-                    // console.log(TotalGameObject);
+                    
                     await updateTotalGamesPlayed(TotalGameObject);
                     setScore('');
-                    const latest_group_id = lastGroup?.group_id;
-                    if(latest_group_id){
-                    navigate(`/group/${latest_group_id}/stats/wordle`);
-                    }
-                    else{
                     navigate("/wordlestats");
-                    }
-                    
+                    // const latest_group_id = lastGroup?.group_id;
+                    // if(latest_group_id){
+                    // navigate(`/group/${latest_group_id}/stats/wordle`);
+                    // }
+                    // else{
+                    // navigate("/wordlestats");
+                    // }
                 }
                 else{
-                    toast.error(res.data.message );
+                    toast.error(res.data.message,{ autoClose: 3000 });
                 }
             } catch (err) {
-                toast.error(err.res?.data?.message || 'An unexpected error occurred.');
+                toast.error(err.res?.data?.message || 'An unexpected error occurred.',{ autoClose: 3000 });
             }
         }
     };
@@ -156,7 +181,7 @@ function WordlePlayService({ updateStatsChart}) {
         try {
             await Axios.post(`${baseURL}/games/wordle/update-statistics.php`, TotalGameObject);
         } catch (err) {
-            toast.error('Failed to update total games played');
+            toast.error('Failed to update total games played',{ autoClose: 3000 });
         }
     };
 

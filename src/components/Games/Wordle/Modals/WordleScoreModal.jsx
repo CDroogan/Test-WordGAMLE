@@ -7,7 +7,6 @@ const WordleScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScore
   const [isPasted, setIsPasted] = useState(false);
   const [gameNumber, setGameNumber] = useState(null);
 
-
   const calculateGameNumber = () => {
     // Start Date: June 19, 2021, 12:00 AM (Midnight Local Time)
     const firstGameDate = new Date(2021, 5, 19); // Ensures local midnight
@@ -25,8 +24,7 @@ const WordleScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScore
     // Game number starts at 1
     const currentGameNumber = diffInDays;
 
-    // console.log("Now Local Time:", now.toString());
-    // console.log("Calculated Game Number:", currentGameNumber);
+   
 
     return currentGameNumber;
 };
@@ -58,7 +56,7 @@ useEffect(() => {
     const pastedData = event.clipboardData.getData('Text');
     const wordleTextExists = pastedData.includes('Wordle');
     const gamenumberExists = pastedData.includes(gameNumber.toLocaleString());
-    // console.log(gameNumber.toLocaleString());
+    
     const todaysGameNumber = calculateGameNumber();
 
     if (!wordleTextExists) {

@@ -11,7 +11,7 @@ const GetGroupMessagesModal = ({ groupId, gameName, periodDate, periodType, user
   const [messages, setMessages] = useState([]);
   const messagesEndRef = useRef(null);
   const [latestCreatedAt,setLatestCreatedAt] = useState(null);
-  
+  const usertimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   useEffect(() => {
     // don't run until these required props are available
     if (!groupId || !gameName || !userId || !periodDate) return;
@@ -25,7 +25,7 @@ const GetGroupMessagesModal = ({ groupId, gameName, periodDate, periodType, user
 
         // compute formatted periodDate inside effect (prevents dayjs(undefined) or stale capture)
         const periodDateStr = dayjs(periodDate).format("YYYY-MM-DD");
-        
+       
 
         // normalize archive (handles boolean or 'true'/'false' strings)
         const archiveBool = archive === true || archive === "true";
@@ -58,7 +58,7 @@ const GetGroupMessagesModal = ({ groupId, gameName, periodDate, periodType, user
         }
       } catch (err) {
         if (!mounted) return;
-        
+        console.error("Failed to fetch latest created_at:", err);
         setLatestCreatedAt(null);
       }
     };
@@ -82,7 +82,8 @@ const GetGroupMessagesModal = ({ groupId, gameName, periodDate, periodType, user
       const baseParams = {
         group_id: groupId,
         game_name: gameName,
-        created_at: periodDateStr
+        created_at: periodDateStr,
+        userTimezone : usertimezone
       };
       const params =
         gameName === 'phrazle' ? { ...baseParams, period: periodType } : baseParams;

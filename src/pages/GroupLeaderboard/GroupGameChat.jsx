@@ -2,20 +2,20 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Row, Col } from "react-bootstrap";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import GroupChatMessagesByDate from "./GroupChatMessagesByDate";
 import GroupChatInput from "./GroupChatInput";
 
-function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highlightMsgId, generalChat }) {
-  // console.log(groupId);
+function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highlightMsgId, generalChat, userTimezone }) {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const [messages, setMessages] = useState([]);
-  
   // Fetch messages
   const fetchMessages = async () => {
     
    const created_at = dayjs(createdAt, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD");
     try {
-      const baseParams = { group_id: groupId, game_name: gameName, created_at };
+      const baseParams = { group_id: groupId, game_name: gameName, created_at, userTimezone };
       const params = gameName === "phrazle" ? { ...baseParams, period: periodType } : baseParams;
 
       const response = await axios.get(
@@ -38,7 +38,7 @@ function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highl
   const fetchGeneralMessages = async () => {
    const created_at = dayjs().format("YYYY-MM-DD");
     try {
-      const baseParams = { group_id: groupId, game_name: gameName, created_at, general_chat: generalChat };
+      const baseParams = { group_id: groupId, game_name: gameName, created_at, general_chat: generalChat, userTimezone };
       const params = gameName === "phrazle" ? { ...baseParams, period: periodType } : baseParams;
 
       const response = await axios.get(
@@ -80,7 +80,6 @@ function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highl
     }
   };
 
-
   return (
         <>
         <div
@@ -88,6 +87,7 @@ function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highl
           style={{ height: "350px", overflowY: "auto", background: "#e8f3fb" }}
         >
           <GroupChatMessagesByDate
+            gameName={gameName}
             messages={messages}
             userId={userId}
             baseURL={baseURL}

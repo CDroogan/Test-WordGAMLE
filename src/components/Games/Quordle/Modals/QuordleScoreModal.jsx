@@ -6,56 +6,34 @@ const QuordleScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScor
   
   const [isPasted, setIsPasted] = useState(false);
   const [gameNumber, setGameNumber] = useState(null);
-  const [currentDateTime, setcurrentDateTime] = useState();
 
-  // const calculateGameNumber = () => {
-  //   const firstGameDate = Date.UTC(2022, 0, 24); // Quordle Day 1
-  //   const now = new Date();
-  //   console.log(now);
-  //   // Today’s UTC midnight
-  //   const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const calculateGameNumber = () => {
+  const firstGameDate = Date.UTC(2022, 0, 24); // Quordle Day 1
+  const now = new Date();
 
-  //   // Difference in days
-  //   const diffInDays = Math.floor((todayUTC - firstGameDate) / (24 * 60 * 60 * 1000));
+  // Today’s UTC midnight
+  const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
 
-  //   return diffInDays; // Game # starts at 1
-  // };
+  // Difference in days
+  const diffInDays = Math.floor((todayUTC - firstGameDate) / (24 * 60 * 60 * 1000));
 
-    const calculateGameNumberUTC = () => {
-      const firstGameUTC = new Date(Date.UTC(2022, 0, 24)); // Jan 24, 2022 UTC
-      const now = new Date();
-      console.log(now);
-      const firstUTC = Date.UTC(
-        firstGameUTC.getUTCFullYear(),
-        firstGameUTC.getUTCMonth(),
-        firstGameUTC.getUTCDate()
-      );
+  return diffInDays; // Game # starts at 1
+};
 
-      const todayUTC = Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate()
-      );
+useEffect(() => {
+    setGameNumber(calculateGameNumber());
 
-      const diffDays = Math.floor((todayUTC - firstUTC) / (1000 * 60 * 60 * 24));
-      return diffDays; // first game = 0
-  };
+    // Check every minute and update exactly at 12:00 AM (Midnight)
+    const interval = setInterval(() => {
+        const now = new Date();
+        if (now.getHours() === 0 && now.getMinutes() === 0) {
+            setGameNumber(calculateGameNumber());
+        }
+    }, 60 * 1000); // Check every minute
 
-    
-    useEffect(() => {
-        setGameNumber(calculateGameNumberUTC());
-    
-        // Check every minute and update exactly at 12:00 AM (Midnight)
-        const interval = setInterval(() => {
-            const now = new Date();
-            if (now.getHours() === 0 && now.getMinutes() === 0) {
-                setGameNumber(calculateGameNumberUTC());
-            }
-        }, 60 * 1000); // Check every minute
-    
-        return () => clearInterval(interval);
-    }, []);
-    
+    return () => clearInterval(interval);
+}, []);
+
 
   // Function to validate Wordle score
   // const validateScore = (data) => {
@@ -67,9 +45,9 @@ const QuordleScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScor
   // This function is triggered when a paste happens
   const handlePaste = (event) => {
     const pastedData = event.clipboardData.getData('Text');
-    const quordleTextExists = pastedData.includes('Daily Quordle');
+    const quordleTextExists = pastedData.includes('Quordle');
     const gamenumberExists = pastedData.includes(String(gameNumber)); // FIXED
-    const todaysGameNumber = calculateGameNumberUTC(); // Assuming this is used elsewhere
+    const todaysGameNumber = calculateGameNumber(); // Assuming this is used elsewhere
 
     if (!quordleTextExists) {
       toast.error('This is not a Quordle game score!', { position: 'top-center' });
@@ -96,7 +74,7 @@ const QuordleScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScor
   return (
     <Modal show={showForm} onHide={handleFormClose}>
       <Modal.Header closeButton>
-        <p>Game No: {gameNumber}</p><br></br>
+        <p>Game No: {gameNumber}</p>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={onSubmit}>

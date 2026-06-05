@@ -14,10 +14,13 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation, FreeMode } from "swiper/modules";
 import { FaRunning, FaDumbbell, FaTree } from "react-icons/fa"; // Example icons
+import GroupScoreByDate from "../pages/GroupLeaderboard/GroupScoreByDate";
+import dayjs from "dayjs";
 
 function Home() {
     const baseURL = import.meta.env.VITE_BASE_URL;
     const userAuthData = JSON.parse(localStorage.getItem('auth')) || {};
+     const userId = userAuthData?.id;
     const navigate = useNavigate();
     const [show, setShow] = useState(false);
     // Password Protection State
@@ -30,6 +33,54 @@ function Home() {
     const encryptedId = params.get('group_id');
     const groupId = encryptedId;
     const registerPath = groupId ? `/register?group_id=${groupId}` : `/register`;
+    const [allGroup, setAllGroup] = useState([]);
+
+    const formattedDate = dayjs().format("YYYY-MM-DD");
+
+    
+    // //get all group id
+    // useEffect(() => {
+    // const fetchUserGroups = async () => {
+    //     try {
+    //     // 1️⃣ Get all user groups
+    //     const res = await Axios.get(`${baseURL}/groups/get-user-groups-data.php`, {
+    //         params: { user_id: userId },
+    //     });
+        
+    //     const groups = res.data; // assuming this is an array of groups
+       
+
+    //     // 2️⃣ Fetch data for each group individually
+    //     const groupDetailsPromises = groups.map(group =>
+    //         Axios.get(`${baseURL}/groups/get-all-game-current-group-score.php`, {
+    //         params: {
+    //             user_id: userId,
+    //             groupId: group.id,
+    //             game: group.selected_games.toLowerCase(),
+    //             today: "2025-12-10"
+    //             }
+    //         })
+    //     );
+
+    //     const groupDetailsResponses = await Promise.all(groupDetailsPromises);
+
+    //     // 3️⃣ Extract data from each response
+    //     const detailedGroups = groupDetailsResponses.map(res => res.data);
+
+    //     // 4️⃣ Update state once
+    //     setAllGroup(detailedGroups);
+
+    //     } catch (error) {
+    //     console.error("Error fetching user joined groups:", error);
+    //     }
+    // };
+
+    // if (userId) fetchUserGroups();
+    // }, [userId]);
+
+
+
+
 
     // Check if the user already entered the password
     useEffect(() => {
@@ -102,7 +153,7 @@ function Home() {
         };
 
         if (navigator.share) {
-            console.log(message);
+            
             try {
             await navigator.share(shareData);
             
@@ -118,6 +169,63 @@ function Home() {
             }
         }
     };
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+
+        // Helper
+        const formatLocalDateTime = (date) => {
+            const pad = (n) => n.toString().padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} `
+                + `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+        };
+
+        let todayFormatted = "";
+        let yesterdayFormatted = "";
+
+       
+        //get all group id
+        useEffect(() => {
+        const fetchUserGroups = async () => {
+            try {
+            const response = await Axios.get(`${baseURL}/groups/get-user-groups-data.php`, {
+                params: { user_id: userId },
+            });
+            setAllGroup(response.data);
+            
+            } catch (error) {
+            console.error("Error fetching user joined groups:", error);
+            }
+        };
+    
+        if (userId) fetchUserGroups();
+        }, [userId]);
+        
+       useEffect(() => {
+        if (!userAuthData?.id) return;
+        const localDate = new Date();
+        const offsetMinutes = localDate.getTimezoneOffset();
+        const adjustedDate = new Date(localDate.getTime() - offsetMinutes * 60000);
+        const todayFormatted = adjustedDate.toISOString().slice(0, 10);
+        const hours = localDate.getHours();
+        const groupPeriod = hours < 12 ? "AM" : "PM";
+
+        const groupGameMap = allGroup.map(group => ({
+          groupId: group.id,
+          selectedGame: group.selected_games
+        }));
+
+        const params = { 
+            baseURL: baseURL,
+            user_id: userAuthData.id,  
+            today: todayFormatted,
+            period: groupPeriod,
+            game: groupGameMap,
+            createdat : formatLocalDateTime(today)
+        };
+        Axios.get(`${baseURL}/user/get-day-winner.php`, { params })
+        }, [userAuthData?.id]);
+
     return isAuthenticated ? (
         <Container className="login-section">
             <Row className="justify-content-center align-items-center py-2 text-center">
@@ -133,91 +241,80 @@ function Home() {
                         <Col>
                             
                             {!userAuthData || isEmptyObject ? (
+
                                 <>
                                     {/* Content for users who have NOT created an account */}
                                     <p className='fs-4 text-center' dangerouslySetInnerHTML={{ __html: homepageText.heading_pre }}></p>
-                                    <Row>
+                                    <div dangerouslySetInnerHTML={{ __html: homepageText.text1_pre }} />
+                                    <Row className='custom-button-row pb-3'>
                                         <Col>
-                                            <Link className="btn btn-primary my-3 w-100" to={registerPath}>Create Profile</Link>
+                                            <Link className="btn btn-primary my-2 w-100" to={registerPath}>Create Account</Link>
                                         </Col>
                                         <Col>
-                                            <Button className="mt-3 w-100" onClick={loginformClick}>Login</Button>
+                                            <Button className="my-2 w-100 white-btn" onClick={loginformClick}>Log In</Button>
                                         </Col>
                                     </Row>
-                                    <div dangerouslySetInnerHTML={{ __html: homepageText.text1_pre }} />
+                                    <Row className="pb-3">
+                                        <Col className="">
+                                            <p className="text-center m-0">
+                                                {parts[0]}
+                                                <a href="#" onClick={inviteFriends}> Invite Friends</a>
+                                                {parts[1]}
+                                            </p>
+                                        </Col>
+                                    </Row>
+                                    <Row className="cwd-swiper-animation custom-button-row">
+                                        <Col className="text-center py-1" md={4} s={12}>
+                                            <Button className="wordle-btn w-100" onClick={() => handleNavigation('wordle')}>Wordle</Button>
+                                        </Col>
+                                        <Col className="text-center py-1" md={4} s={12}>
+                                            <Button className="connections-btn w-100" onClick={() => handleNavigation('connections')}>Connections</Button>
+                                        </Col>
+                                        <Col className="text-center py-1" md={4} s={12}>
+                                            <Button className="phrazle-btn w-100" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col className="py-3">
+                                            <p className='text-center m-0' dangerouslySetInnerHTML={{ __html: homepageText.text2 }}></p>
+                                        </Col>
+                                    </Row>
                                 </>
                             ) : (
                                 <>
                                     {/* Content for users who HAVE created an account */}
                                     <p className='fs-4 text-center' dangerouslySetInnerHTML={{ __html: homepageText.heading_post }}></p>
                                     <div dangerouslySetInnerHTML={{ __html: homepageText.text1_post }} />
+                                    <Row className="cwd-swiper-animation custom-button-row">
+                                        <Col className="text-center py-1" md={4} s={12}>
+                                            <Button className="wordle-btn w-100" onClick={() => handleNavigation('wordle')}>Wordle</Button>
+                                        </Col>
+                                        <Col className="text-center py-1" md={4} s={12}>
+                                            <Button className="connections-btn w-100" onClick={() => handleNavigation('connections')}>Connections</Button>
+                                        </Col>
+                                        <Col className="text-center py-1" md={4} s={12}>
+                                            <Button className="phrazle-btn w-100" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>
+                                        </Col>
+                                    </Row>
+                                    <Row className='mt-3'>
+                                        <Col className="">
+                                            <p className="text-center">
+                                                {parts[0]}
+                                                <a href="#" onClick={inviteFriends}> Invite Friends</a>
+                                                {parts[1]}
+                                            </p>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col className="">
+                                            <p className='text-center' dangerouslySetInnerHTML={{ __html: homepageText.text2 }}></p>
+                                        </Col>
+                                    </Row>
                                 </>
                             )}
 
                         </Col>
                     </Row>
-                    <Row className="cwd-swiper-animation">
-                        <Swiper
-                            modules={[FreeMode]}
-                            spaceBetween={10}
-                            slidesPerView="auto"
-                            freeMode
-                            >
-                            <SwiperSlide style={{ width: "auto" }}>
-                                <Button className="btn-lg w-100" onClick={() => handleNavigation('wordle')}>
-                                Wordle
-                                </Button>      
-                            </SwiperSlide>
-
-                            <SwiperSlide style={{ width: "auto" }}>
-                                <Button className="btn-lg w-100" onClick={() => handleNavigation('connections')}>
-                                Connections
-                                </Button>
-                            </SwiperSlide>
-
-                            <SwiperSlide style={{ width: "auto" }}>
-                               <Button className="btn-lg w-100" onClick={() => handleNavigation('phrazle')}>
-                                Phrazle
-                                </Button>
-                            </SwiperSlide>
-                            <SwiperSlide style={{ width: "auto" }}>
-                               <Button className="btn-lg w-100" onClick={() => handleNavigation('quordle')}>
-                                Quordle
-                                </Button>
-                            </SwiperSlide>
-                        </Swiper>
-                        {/* <Col className="text-center py-1" md={4} s={12}>
-                            <Button className="btn-lg" onClick={() => handleNavigation('wordle')}>Wordle</Button>
-                        </Col>
-                        <Col className="text-center py-1" md={4} s={12}>
-                            <Button className="btn-lg" onClick={() => handleNavigation('connections')}>Connections</Button>
-                        </Col>
-                        <Col className="text-center py-1" md={4} s={12}>
-                            <Button className="btn-lg" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>
-                        </Col> */}
-                    </Row>
-                    <Row>
-                        <Col className="py-3">
-                            <p className="text-center">
-                                {parts[0]}
-                                <a href="#" onClick={inviteFriends}> Invite Friends</a>
-                                {parts[1]}
-                            </p>
-                            <p className='text-center' dangerouslySetInnerHTML={{ __html: homepageText.text2 }}></p>
-                        </Col>
-                    </Row>
-
-                    {/* {!userAuthData || isEmptyObject ? (
-                        <div>
-                            <p className='text-center'>Please create your profile and then click the game buttons and go from there!</p>
-                            <Link className="btn btn-primary btn-lg my-3" to={registerPath} style={{ width: "60%" }}>Create Profile</Link>
-                            <Button className="btn-lg mt-3" onClick={loginformClick} style={{ width: "60%" }}>Login</Button>
-                        </div>
-                    ) : (
-                        <div>
-                            
-                        </div>
-                    )} */}
                 </Col>
             </Row>
             
