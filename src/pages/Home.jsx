@@ -131,11 +131,12 @@ function Home() {
             });
     }, [baseURL]);
 
-    const cleanText = homepageText.text1
-    .replace(/<[^>]*>/g, '')         // remove HTML tags
-    .replace(/&nbsp;/g, ' ')         // replace &nbsp; with space
-    .replace(/\s+/g, ' ')            // optional: collapse multiple spaces
-    .trim();    
+    const cleanText = (homepageText?.text1 || '')
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
     const parts = cleanText.split('[Invite Friends]');
 
     const inviteFriends = async () => {
