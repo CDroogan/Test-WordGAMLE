@@ -23,7 +23,7 @@ function FeedbackButton() {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShow(false)}>Close</Button>
+          <Button variant="primary" onClick={() => setShow(false)}>Close</Button>
         </Modal.Footer>
       </Modal>
     </>
