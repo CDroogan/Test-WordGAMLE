@@ -245,7 +245,7 @@ function Home() {
 
                                 <>
                                     {/* Content for users who have NOT created an account */}
-                                    <p className='fs-4 text-center' dangerouslySetInnerHTML={{ __html: homepageText.heading_pre }}></p>
+                                    <p className='fs-4 text-center' style={{ color: 'red' }} dangerouslySetInnerHTML={{ __html: homepageText.heading_pre }}></p>
                                     <div dangerouslySetInnerHTML={{ __html: homepageText.text1_pre }} />
                                     <Row className='custom-button-row pb-3'>
                                         <Col>
