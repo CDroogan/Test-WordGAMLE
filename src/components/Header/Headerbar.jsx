@@ -241,6 +241,9 @@ const handleInviteFriends = async () => {
                   <Button className="custom-btn m-2" onClick={() => { setExpanded(false); navigate('/faq'); }}>
                     FAQ
                   </Button>
+                  <Button className="custom-btn m-2">
+                    Claude
+                  </Button>
 
                 </Nav>
               </Navbar.Collapse>
