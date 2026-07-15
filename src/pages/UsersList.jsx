@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Axios from 'axios';
 import DataTable from 'react-data-table-component';
+import moment from 'moment';
 
 function UsersList() {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -51,6 +52,12 @@ function UsersList() {
           {row.is_paused === '1' ? 'Inactive' : 'Active'}
         </span>
       ),
+      sortable: true,
+    },
+    {
+      name: 'Registered',
+      selector: row => row.createdAt,
+      cell: row => row.createdAt ? moment(row.createdAt).format('MMM D, YYYY h:mm A') : '-',
       sortable: true,
     },
   ];
