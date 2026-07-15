@@ -57,7 +57,9 @@ function UsersList() {
     {
       name: 'Registered',
       selector: row => row.createdAt,
-      cell: row => row.createdAt ? moment(row.createdAt).format('MMM D, YYYY h:mm A') : '-',
+      cell: row => row.createdAt && row.createdAt !== '0000-00-00 00:00:00'
+        ? moment(row.createdAt).format('MMM D, YYYY h:mm A')
+        : '-',
       sortable: true,
     },
   ];
