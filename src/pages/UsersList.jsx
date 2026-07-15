@@ -55,9 +55,16 @@ function UsersList() {
     },
   ];
 
+  const activeCount = users.filter(user => user.is_paused !== '1').length;
+  const inactiveCount = users.filter(user => user.is_paused === '1').length;
+
   return (
     <div className="container mt-5">
       <h3 className="mb-4">Users List</h3>
+      <div className="mb-3">
+        <span className="badge bg-success me-2">Active: {activeCount}</span>
+        <span className="badge bg-danger">Inactive: {inactiveCount}</span>
+      </div>
       <DataTable
         columns={columns}
         data={users}
