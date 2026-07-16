@@ -54,7 +54,7 @@ function App() {
         <Route exact path='/wordle' element={<Statistics/>}/>
         <Route exact path= '/connections' element={<Connectionsgame/>}/>
         <Route exact path= '/phrazle' element={<Phrazlegame/>}/>
-        {/* <Route exact path='/quordle' element={<Quordlegame/>}/> */}
+        <Route exact path='/quordle' element={<Quordlegame/>}/>
         <Route exact path="/reset-password" element={<Resetpwd />} />
         <Route exact path="/reset-password/:id/:token" element={<Resetpwdform />} />
         <Route  path='/' element={<ProtectedRouter/>}>
@@ -72,7 +72,7 @@ function App() {
           <Route exact path= '/wordlestats' element={<Wordlestats/>}/>
           <Route exact path= '/connectionstats' element={<ConnectionStat/>}/>
           <Route exact path= '/phrazlestats' element={<PhrazleStat/>}/>
-          {/* <Route exact path= '/quordlestats' element={<QuordleStat/>}/> */}
+          <Route exact path= '/quordlestats' element={<QuordleStat/>}/>
           <Route exact path= '/edit-profile' element={<UserProfile/>}/>
         </Route>
       </Routes>
