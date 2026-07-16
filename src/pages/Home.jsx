@@ -300,7 +300,7 @@ function Home() {
                                             <Button className="phrazle-btn w-100" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>
                                         </Col>
                                         <Col className="text-center py-1" md={4} s={12}>
-                                            <Button className="quordle-btn w-100" onClick={() => handleNavigation('quordle')}>quordle</Button>
+                                            <Button className="quordle-btn w-100" onClick={() => handleNavigation('quordle')}>Quordle</Button>
                                         </Col>
                                     </Row>
                                     <Row className='mt-3'>
