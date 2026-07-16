@@ -127,11 +127,11 @@ function Quordletat() {
                             <Quordlestatistics statschart={statschart}/>
                         </Col>
                     </Row>
-                    {/* <Row className='align-items-center justify-content-center'>
+                    <Row className='align-items-center justify-content-center'>
                         <Col md={4}>
                             <QuordleGuessDistribution/>
                         </Col>
-                    </Row> */}
+                    </Row>
                     <Row className='align-items-center justify-content-center'>
                         <Col md={4} className='text-align-center py-5'>
                             <QuordleScoreByDate/>
