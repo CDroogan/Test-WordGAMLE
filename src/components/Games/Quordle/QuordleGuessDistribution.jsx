@@ -15,7 +15,7 @@ function QuordleGuessDistribution() {
   }, []);
 
   function getGuessValue() {
-    Axios.get(`${baseURL}/games/Quordle/get-guessdistribution.php?useremail=${loginuserEmail}`)
+    Axios.get(`${baseURL}/games/quordle/get-guessdistribution.php?useremail=${loginuserEmail}`)
     .then((response) => {
      
       const guessdistribution = response.data.guessdistribution;
