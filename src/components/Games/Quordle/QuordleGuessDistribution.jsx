@@ -5,7 +5,7 @@ function QuordleGuessDistribution() {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth'));
   const loginuserEmail = USER_AUTH_DATA?.email;
-  const [QuordleGuessData, setQuordleGuessData] = useState([]);
+  const [quordleGuessData, setquordleGuessData] = useState([]);
   const [highlightData, sethandlehighlightData] = useState([]);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ function QuordleGuessDistribution() {
     .then((response) => {
      
       const guessdistribution = response.data.guessdistribution;
-      setQuordleGuessData(guessdistribution);
+      setquordleGuessData(guessdistribution);
       const today = new Date();
       const year = today.getFullYear();
       const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
@@ -47,7 +47,7 @@ function QuordleGuessDistribution() {
 
   return (
     <div>
-      {QuordleGuessData.map((data, index) => {
+      {quordleGuessData.map((data, index) => {
         const totalSum = data.guessDistribution.reduce((sum, guess) => sum + parseFloat(guess), 0);
         return (
           <div key={index} className='guess-distribution my-4'>
