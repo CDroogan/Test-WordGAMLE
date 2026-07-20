@@ -14,7 +14,7 @@ function QuordlePlayService({ updateStatsChart }) {
   const [showForm, setShowForm] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [score, setScore] = useState('');
-  const [guessDistribution, setGuessDistribution] = useState([0, 0, 0, 0, 0]);
+  const [guessDistribution, setGuessDistribution] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0]);
   const [gameIsWin, setGameIsWin] = useState(false);
   
   const [totalGamesPlayed, setTotalGamesPlayed] = useState(0);
@@ -52,78 +52,38 @@ const splitIntoRows = (inputString, rowLength) => {
 };
 
 const determineAttempts = (score) => {
-    // 1. Keep only rows with tiles
-    let matrixLines = score
-      .split("\n")
-      .map(l => l.trim())
-      .filter(l => /(⬛|⬜|🟨|🟩)/.test(l) || l === "");
- 
-    // 2. Split into groups by blank line
-    let groups = [];
-    let current = [];
-    for (let line of matrixLines) {
-      if (line === "") {
-        if (current.length) {
-          groups.push(current);
-          current = [];
-        }
-      } else {
-        current.push(line);
-      }
-    }
-    if (current.length) groups.push(current);
- 
-    // 3. For each group, split into left/right
-    let word1 = groups[0]?.map(r => r.split(" ")[0]) || [];
-    let word2 = groups[0]?.map(r => r.split(" ")[1]) || [];
-    let word3 = groups[1]?.map(r => r.split(" ")[0]) || [];
-    let word4 = groups[1]?.map(r => r.split(" ")[1]) || [];
- 
-    // 4. Build attemptsBlocks (each row = [w1, w2, w3, w4])
-    let maxLen = Math.max(word1.length, word2.length, word3.length, word4.length);
-    let attemptsBlocks = [];
-    for (let i = 0; i < maxLen; i++) {
-      attemptsBlocks.push([
-        word1[i] || null,
-        word2[i] || null,
-        word3[i] || null,
-        word4[i] || null
-      ]);
-    }
- 
-    // 5. Track solvedAt (first row each word = 🟩🟩🟩🟩🟩)
-    let solvedAt = {};
-    [word1, word2, word3, word4].forEach((w, idx) => {
-      for (let i = 0; i < w.length; i++) {
-        if (w[i] === "🟩🟩🟩🟩🟩") {
-          solvedAt[idx + 1] = i + 1; // 1-based attempt number
-          break;
-        }
+    // Real Quordle share text is a 2x2 grid of per-board results, e.g.
+    //   4️⃣1️⃣
+    //   2️⃣3️⃣
+    // where each token is either a keycap digit (guesses used to solve that
+    // board) or 🟥 for a board that wasn't solved within 9 tries.
+    const TOKEN_RE = /[0-9]️?⃣|\u{1F7E5}/gu;
+    const RED_SQUARE = '\u{1F7E5}';
+    const tokens = score.match(TOKEN_RE) || [];
+    const boardResults = tokens.slice(0, 4);
+
+    const solvedAt = {};
+    boardResults.forEach((token, idx) => {
+      if (token !== RED_SQUARE) {
+        solvedAt[idx + 1] = parseInt(token, 10);
       }
     });
- 
+
     // 6. Stats
     const solvedWords = Object.keys(solvedAt).length;
-    const isWin = solvedWords === 4;
-    const attempts = attemptsBlocks.length;
-    const winAttempt = isWin ? Math.max(...Object.values(solvedAt)) : null;
- 
+    const isWin = boardResults.length === 4 && solvedWords === 4;
+    const attempts = isWin ? Math.max(...Object.values(solvedAt)) : null;
+    const winAttempt = attempts;
+
     // 7. Sum solvedAt values
     const sumSolvedAt = Object.values(solvedAt).reduce((a, b) => a + b, 0);
- 
+
     return {
       isWin,
       solvedAt,
       sumSolvedAt,
       winAttempt,
       attempts
-      // solvedWords,
-      // sumSolvedAt,
-      // attemptsBlocks,
-      // word1,
-      // word2,
-      // word3,
-      // word4
     };
 };
 

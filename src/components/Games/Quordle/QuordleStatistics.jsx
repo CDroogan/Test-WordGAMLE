@@ -73,9 +73,7 @@ function QuordleStatistics({ statschart }) {
                         </ul>
                         <div className="guess-distribution my-4">
                             <h2 className="text-uppercase">Guess Distribution</h2>
-                            {Object.entries(guessDistribution).map(([guess, data]) => {
-                                // const total = Object.values(guessDistribution).reduce((a, b) => a + b, 0);
-                                // const percent = total > 0 ? (data.count / total) * 100 : 0;
+                            {Object.entries(guessDistribution || {}).map(([guess, data]) => {
                                 return (
                                     <div key={guess} className="mb-2">
                                     <div className="d-flex align-items-center">
@@ -83,7 +81,7 @@ function QuordleStatistics({ statschart }) {
                                       <div className='text-end' style={{ width: "15%", textAlign: "center", fontWeight: "bold" }}>
                                         {guess}
                                       </div>
-                                  
+
                                       {/* Progress Bar */}
                                       <div style={{ width: "75%", margin: "0 10px", position: "relative" }}>
                                         <ProgressBar
@@ -99,7 +97,7 @@ function QuordleStatistics({ statschart }) {
                                       </div>
                                     </div>
                                   </div>
-                                  
+
                                 );
                             })}
                             </div>

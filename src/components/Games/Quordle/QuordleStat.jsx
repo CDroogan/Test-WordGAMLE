@@ -87,7 +87,7 @@ function Quordletat() {
                                             const quordleScore = char.quordlescore
                                             .split("\n")                        // split into lines
                                             .map(l => l.trim())                 // trim spaces
-                                            .filter(l => /^[⬛⬜🟨🟩 ]+$/.test(l)) // allow tiles + space
+                                            .filter(l => l.length > 0 && /^(?:[0-9]️?⃣|\u{1F7E5}|\s)+$/u.test(l)) // allow keycap digits/red squares + space
                                             .join("\n");
                                             //const quordleScore = splitIntoRows(lettersAndNumbersRemoved);
                                             const createDate = char.createdat; // Ensure this matches your database field name
