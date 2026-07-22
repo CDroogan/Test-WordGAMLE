@@ -60,15 +60,24 @@ const determineAttempts = (score) => {
     // board) or 🟥 for a board that wasn't solved within 9 tries.
     const TOKEN_RE = /[0-9]️?⃣|\u{1F7E5}/gu;
     const RED_SQUARE = '\u{1F7E5}';
+    const FAILED_BOARD_ATTEMPTS = 10;
     const tokens = score.match(TOKEN_RE) || [];
     const boardResults = tokens.slice(0, 4);
+    console.log('[Quordle] Parsed board results:', boardResults);
 
     const solvedAt = {};
-    boardResults.forEach((token, idx) => {
-      if (token !== RED_SQUARE) {
-        solvedAt[idx + 1] = parseInt(token, 10);
+    // boardAttempts is the score-relevant value for every board: the actual
+    // guess count when solved, or 10 when failed (🟥) — previously failed
+    // boards were skipped entirely and contributed 0 instead of 10.
+    const boardAttempts = boardResults.map((token, idx) => {
+      if (token === RED_SQUARE) {
+        return FAILED_BOARD_ATTEMPTS;
       }
+      const guesses = parseInt(token, 10);
+      solvedAt[idx + 1] = guesses;
+      return guesses;
     });
+    console.log('[Quordle] Attempts per board:', boardAttempts);
 
     // 6. Stats
     const solvedWords = Object.keys(solvedAt).length;
@@ -76,8 +85,9 @@ const determineAttempts = (score) => {
     const attempts = isWin ? Math.max(...Object.values(solvedAt)) : null;
     const winAttempt = attempts;
 
-    // 7. Sum solvedAt values
-    const sumSolvedAt = Object.values(solvedAt).reduce((a, b) => a + b, 0);
+    // 7. Total score = sum of every board's attempts, counting failed boards as 10
+    const sumSolvedAt = boardAttempts.reduce((a, b) => a + b, 0);
+    console.log('[Quordle] Final calculated score:', sumSolvedAt);
 
     return {
       isWin,
