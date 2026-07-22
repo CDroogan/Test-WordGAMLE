@@ -81,8 +81,8 @@ function Quordletat() {
                                         statschart.map((char, index) => {
                                             
                                             const cleanedScore = char.quordlescore
-                                                .replace(/[🟨🟩⬛⬜🟥🙂]/gu, "")
-                                                .replace("m-w.com/games/quordle/", "")
+                                                .replace(/[🟥🟨🟩⬛⬜🙂]/gu, "") // remove tiles/emojis
+                                                .replace("m-w.com/games/quordle/", ""); // remove link
                                                 .trim();
 
                                             const quordleScore = char.quordlescore
