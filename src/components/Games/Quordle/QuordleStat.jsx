@@ -81,14 +81,15 @@ function Quordletat() {
                                         statschart.map((char, index) => {
                                             
                                             const cleanedScore = char.quordlescore
-                                                .replace(/[🟨🟩⬛⬜🙂]/g, "") // remove tiles/emojis
-                                                .replace("m-w.com/games/quordle/", ""); // remove link
+                                                .replace(/[🟨🟩⬛⬜🟥🙂]/gu, "")
+                                                .replace("m-w.com/games/quordle/", "")
+                                                .trim();
 
                                             const quordleScore = char.quordlescore
-                                            .split("\n")                        // split into lines
-                                            .map(l => l.trim())                 // trim spaces
-                                            .filter(l => l.length > 0 && /^(?:[0-9]️?⃣|\u{1F7E5}|\s)+$/u.test(l)) // allow keycap digits/red squares + space
-                                            .join("\n");
+                                                .split("\n")
+                                                .map(line => line.trim())
+                                                .filter(line => /^[🟥🟩🟨⬛⬜ ]+$/u.test(line))
+                                                .join("\n");
                                             //const quordleScore = splitIntoRows(lettersAndNumbersRemoved);
                                             const createDate = char.createdat; // Ensure this matches your database field name
                                             const date = new Date(createDate);
@@ -108,6 +109,7 @@ function Quordletat() {
                                                     <pre className='text-center'>
                                                        {quordleScore}
                                                     </pre>
+                                                    
                                                     </>                 
                                                 </div>
                                             );

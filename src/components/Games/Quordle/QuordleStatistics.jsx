@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { ProgressBar } from "react-bootstrap";
+import QuordleGuessDistribution from './QuordleGuessDistribution';
 
 function QuordleStatistics({ statschart }) {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -28,7 +28,7 @@ function QuordleStatistics({ statschart }) {
                     updateStatistics();
                 }
                 const statistics = response.data.statistics;
-               
+                console.log(statistics);
                 setQuordleStatsData(statistics);
                 setTotalGame(statistics.totalGamesPlayed);
                 setTotalWin(statistics.winPercentage);
@@ -72,35 +72,9 @@ function QuordleStatistics({ statschart }) {
                             </li>
                         </ul>
                         <div className="guess-distribution my-4">
-                            <h2 className="text-uppercase">Guess Distribution</h2>
-                            {Object.entries(guessDistribution || {}).map(([guess, data]) => {
-                                return (
-                                    <div key={guess} className="mb-2">
-                                    <div className="d-flex align-items-center">
-                                      {/* Guess Number */}
-                                      <div className='text-end' style={{ width: "15%", textAlign: "center", fontWeight: "bold" }}>
-                                        {guess}
-                                      </div>
-
-                                      {/* Progress Bar */}
-                                      <div style={{ width: "75%", margin: "0 10px", position: "relative" }}>
-                                        <ProgressBar
-                                            className="quordle-progress-bar"
-                                            now={data.percent}
-                                            label=""
-                                        />
-                                        <span className="progress-label">{data.count > 0 ? data.count : ''}</span>
-                                        </div>
-                                      {/* Percentage */}
-                                      <div style={{ width: "5%", textAlign: "right", fontSize: "0.9rem" }}>
-                                        {`${data.percent.toFixed(0)}%`}
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                );
-                            })}
-                            </div>
+                            <QuordleGuessDistribution guessDistribution={guessDistribution} />
+                        </div>
+    
                     </>
                 ) : (
                     <div>Data Not Found</div>

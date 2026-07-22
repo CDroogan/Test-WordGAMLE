@@ -139,15 +139,21 @@ function QuordleScoreByDate() {
 
                     {statsChart.length > 0 ? (
                         statsChart.map((item, index) => {
+                            console.log(item);
                             const cleanedScore = item.quordlescore
-                                .replace(/[🟨🟩⬛⬜🙂]/g, "") // remove tiles/emojis
-                                .replace("m-w.com/games/quordle/", ""); // remove link
+                                .replace(/[🟥🟨🟩⬛⬜🙂]/g, "") // remove emojis
+                                .replace(/m-w\.com\/games\/quordle\//g, "") // remove link
+                                .split("\n") // split lines
+                                .map(line => line.trim()) // remove spaces
+                                .find(line => line.startsWith("Daily Quordle")) || "";
 
-                            const quordleScore = item.quordlescore
-                            .split("\n")                        // split into lines
-                            .map(l => l.trim())                 // trim spaces
-                            .filter(l => l.length > 0 && /^(?:[0-9]️?⃣|\u{1F7E5}|\s)+$/u.test(l)) // allow keycap digits/red squares + space
-                            .join("\n");
+                           const quordleScore = item.quordlescore
+                                .split("\n")
+                                .map(l => l.trim())
+                                .filter(l => /^[1-9️⃣0️⃣]+$/.test(l)) // match number emojis like 3️⃣4️⃣
+                                .join("\n");
+
+                            console.log(quordleScore);
                             //const quordleScore = splitIntoRows(lettersAndNumbersRemoved);
                             const createDate = item.createdat; // Ensure this matches your database field name
                             const date = new Date(createDate);
