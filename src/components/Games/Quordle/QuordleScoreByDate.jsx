@@ -190,5 +190,4 @@ function QuordleScoreByDate() {
         </>
     );
 }
-
 export default QuordleScoreByDate;
