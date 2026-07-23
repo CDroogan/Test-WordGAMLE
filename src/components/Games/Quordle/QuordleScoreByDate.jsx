@@ -148,12 +148,12 @@ function QuordleScoreByDate() {
                                 .find(line => line.startsWith("Daily Quordle")) || "";
 
                            const quordleScore = item.quordlescore
-                                .split("\n")
-                                .map(l => l.trim())
-                                .filter(l => /^[1-9️⃣0️⃣]+$/.test(l)) // match number emojis like 3️⃣4️⃣
-                                .join("\n");
-
-                            console.log(quordleScore);
+                            .split("\n")
+                            .map(l => l.trim())
+                            .filter(l =>
+                                /^[0-9️⃣]+$/.test(l) || /^[🟥🟩🟨⬛⬜]+$/.test(l)
+                            )
+                            .join("\n");
                             //const quordleScore = splitIntoRows(lettersAndNumbersRemoved);
                             const createDate = item.createdat; // Ensure this matches your database field name
                             const date = new Date(createDate);
