@@ -86,7 +86,7 @@ function MemberGameSelections({ leaderboardText }) {
                         <h5>Select Leaderboard Games:</h5>
                         <p dangerouslySetInnerHTML={{ __html: leaderboardText.text4 }}></p>
                         <Form className="d-flex flex-wrap justify-content-center">
-                            {["Wordle", "Connections", "Phrazle"].map((game, index) => (
+                            {["Wordle", "Connections", "Phrazle", "Quordle"].map((game, index) => (
                                 <div key={index} className="form-check mx-2">
                                     <input
                                         type="checkbox"

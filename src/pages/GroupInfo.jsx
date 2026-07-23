@@ -283,7 +283,7 @@ function GroupInfo() {
                         {/* Selected Games */}
                         <Col xs={5}  md={6} lg={6}  className="text-start">
                             <ul style={{ listStyleType: 'none', padding: 0, marginBottom: 0 }}>
-                            {["Wordle", "Connections", "Phrazle"].map((game) => (
+                            {["Wordle", "Connections", "Phrazle", "Quordle"].map((game) => (
                                 <li key={game}>
                                 <span>
                                     {game}: {member.selected_games.includes(game) ? <FaCheck /> : <IoClose />}
