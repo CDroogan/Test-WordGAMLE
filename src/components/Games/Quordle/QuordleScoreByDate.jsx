@@ -147,7 +147,7 @@ function QuordleScoreByDate() {
                                 .map(line => line.trim()) // remove spaces
                                 .find(line => line.startsWith("Daily Quordle")) || "";
 
-                           cconst quordleScore = item.quordlescore
+                           const quordleScore = item.quordlescore
                             .split("\n")
                             .map(l => l.trim())
                             .filter(l =>
