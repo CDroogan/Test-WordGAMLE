@@ -264,20 +264,12 @@ function Home() {
                                             </p>
                                         </Col>
                                     </Row>
-                                    <Row className="cwd-swiper-animation custom-button-row">
-                                        <Col className="text-center py-1" md={4} s={12}>
-                                            <Button className="wordle-btn w-100" onClick={() => handleNavigation('wordle')}>Wordle</Button>
-                                        </Col>
-                                        <Col className="text-center py-1" md={4} s={12}>
-                                            <Button className="connections-btn w-100" onClick={() => handleNavigation('connections')}>Connections</Button>
-                                        </Col>
-                                        <Col className="text-center py-1" md={4} s={12}>
-                                            <Button className="phrazle-btn w-100" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>
-                                        </Col>
-                                        <Col className="text-center py-1" md={4} s={12}>
-                                            <Button className="quordle-btn w-100" onClick={() => handleNavigation('quordle')}>Quordle</Button>
-                                        </Col>
-                                    </Row>
+                                    <div className="game-select-row">
+                                        <Button className="wordle-btn game-select-btn" onClick={() => handleNavigation('wordle')}>Wordle</Button>
+                                        <Button className="connections-btn game-select-btn" onClick={() => handleNavigation('connections')}>Connections</Button>
+                                        <Button className="phrazle-btn game-select-btn" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>
+                                        <Button className="quordle-btn game-select-btn" onClick={() => handleNavigation('quordle')}>Quordle</Button>
+                                    </div>
                                     <Row>
                                         <Col className="py-3">
                                             <p className='text-center m-0' dangerouslySetInnerHTML={{ __html: homepageText.text2 }}></p>
@@ -289,20 +281,12 @@ function Home() {
                                     {/* Content for users who HAVE created an account */}
                                     <p className='fs-4 text-center' dangerouslySetInnerHTML={{ __html: homepageText.heading_post }}></p>
                                     <div dangerouslySetInnerHTML={{ __html: homepageText.text1_post }} />
-                                    <Row className="cwd-swiper-animation custom-button-row">
-                                        <Col className="text-center py-1" md={4} s={12}>
-                                            <Button className="wordle-btn w-100" onClick={() => handleNavigation('wordle')}>Wordle</Button>
-                                        </Col>
-                                        <Col className="text-center py-1" md={4} s={12}>
-                                            <Button className="connections-btn w-100" onClick={() => handleNavigation('connections')}>Connections</Button>
-                                        </Col>
-                                        <Col className="text-center py-1" md={4} s={12}>
-                                            <Button className="phrazle-btn w-100" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>
-                                        </Col>
-                                        <Col className="text-center py-1" md={4} s={12}>
-                                            <Button className="quordle-btn w-100" onClick={() => handleNavigation('quordle')}>Quordle</Button>
-                                        </Col>
-                                    </Row>
+                                    <div className="game-select-row">
+                                        <Button className="wordle-btn game-select-btn" onClick={() => handleNavigation('wordle')}>Wordle</Button>
+                                        <Button className="connections-btn game-select-btn" onClick={() => handleNavigation('connections')}>Connections</Button>
+                                        <Button className="phrazle-btn game-select-btn" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>
+                                        <Button className="quordle-btn game-select-btn" onClick={() => handleNavigation('quordle')}>Quordle</Button>
+                                    </div>
                                     <Row className='mt-3'>
                                         <Col className="">
                                             <p className="text-center">

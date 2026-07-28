@@ -31,6 +31,34 @@ body{
   background-color: #218838!important;
   border-color: #218838!important;
 }
+/* Game selector row (Wordle/Connections/Phrazle/Quordle): single row that never
+   wraps. Buttons size to their own text (no fixed width), so height stays
+   consistent while width follows word length. On mobile, if the buttons don't
+   all fit, the row scrolls horizontally and the last button is intentionally
+   left partially visible at the edge as a scroll affordance. Colors are set by
+   the existing wordle-btn/connections-btn/phrazle-btn/quordle-btn classes above
+   and are untouched here. */
+.game-select-row {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 10px;
+  padding: 4px 0 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.game-select-row .game-select-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+/* Above the site's existing mobile breakpoint (matches the max-width: 600px
+   cutoff used elsewhere in this file), center the row under the title/text
+   since it comfortably fits without needing to scroll there. Mobile keeps
+   its left-aligned, scrollable layout untouched. */
+@media (min-width: 601px) {
+  .game-select-row {
+    justify-content: center;
+  }
+}
 .score-board{
   width:135px;
   margin-bottom: 30px;
