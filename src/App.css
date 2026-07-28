@@ -45,10 +45,16 @@ body{
   gap: 10px;
   padding: 4px 0 12px;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge/IE */
+}
+.game-select-row::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, newer Edge */
 }
 .game-select-row .game-select-btn {
   flex: 0 0 auto;
   white-space: nowrap;
+  width: 140px; /* fits "Connections", the longest label, so all four match */
 }
 /* Above the site's existing mobile breakpoint (matches the max-width: 600px
    cutoff used elsewhere in this file), center the row under the title/text
