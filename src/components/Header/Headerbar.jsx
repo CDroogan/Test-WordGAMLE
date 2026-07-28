@@ -26,6 +26,17 @@ const Headerbar = () => {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState();
   const collapseRef = useRef();
+  // Desktop view (Bootstrap lg breakpoint, matches Navbar expand="lg") moves the
+  // profile button to the end of the nav, after FAQ. Mobile keeps its original spot.
+  const [isDesktop, setIsDesktop] = useState(
+    typeof window !== 'undefined' ? window.innerWidth >= 992 : true
+  );
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 992px)');
+    const handleChange = (e) => setIsDesktop(e.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
   // const { settings, loading } = useNotificationSettings(userId);
   
   useEffect(() => {
@@ -159,6 +170,32 @@ const handleInviteFriends = async () => {
     }
   }
 };
+
+  // The profile button is rendered in one of two spots depending on isDesktop
+  // (see the two usages below) rather than duplicated, so it keeps a single
+  // DOM node for the `ref` used by the click-outside handler and Overlay.
+  const profileButton = (
+    <div role="button" onClick={handleClick}>
+      <div ref={ref}>
+        {userData.avatar ? (
+           <img
+            src={`${baseURL}/user/uploads/${userData.avatar}`}
+            alt="User Avatar"
+            width="30"
+            height="30"
+            className="img-fluid user-avatar rounded-circle mb-2"
+            onError={(e) => (e.target.style.display = 'none')}
+          />
+
+        ) : (
+           <svg xmlns="http://www.w3.org/2000/svg" className="bi bi-bar-chart-fill" width="18" height="18" fill="#00BF63" viewBox="0 0 448 512">
+            <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"/>
+          </svg>
+        )}
+      </div>
+    </div>
+  );
+
   return (
 
     <Container className='header-section'>
@@ -210,25 +247,7 @@ const handleInviteFriends = async () => {
         />
           <Navbar.Collapse id="basic-navbar-nav" ref={collapseRef}>
                 <Nav className="align-items-center">
-                  <div role="button" onClick={handleClick}>
-                    <div ref={ref}>
-                      {userData.avatar ? (
-                         <img 
-                          src={`${baseURL}/user/uploads/${userData.avatar}`}
-                          alt="User Avatar" 
-                          width="30"
-                          height="30"
-                          className="img-fluid user-avatar rounded-circle mb-2"
-                          onError={(e) => (e.target.style.display = 'none')}
-                        />
-
-                      ) : (
-                         <svg xmlns="http://www.w3.org/2000/svg" className="bi bi-bar-chart-fill" width="18" height="18" fill="#00BF63" viewBox="0 0 448 512">
-                          <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"/>
-                        </svg>
-                      )}
-                    </div>
-                  </div>
+                  {!isDesktop && profileButton}
                 </Nav>
                 <Nav className="ms-auto align-items-center">
                   <Button className="custom-btn m-2" onClick={() => { setExpanded(false); navigate('/gamleintro'); }}>
@@ -244,6 +263,7 @@ const handleInviteFriends = async () => {
                   <Button className="custom-btn m-2" onClick={() => { setExpanded(false); navigate('/faq'); }}>
                     FAQ
                   </Button>
+                  {isDesktop && profileButton}
                 </Nav>
               </Navbar.Collapse>
           </Navbar>
