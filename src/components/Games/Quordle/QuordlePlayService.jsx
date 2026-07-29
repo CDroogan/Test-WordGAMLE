@@ -212,7 +212,7 @@ const determineAttempts = (score) => {
     return (
         <>
             <div className="my-3">
-                <Button className="quordle-btn px-5" onClick={() => handleShow('https://www.merriam-webster.com/games/quordle/#/')}>
+                <Button className="quordle-btn px-5" onClick={() => handleShow('https://www.merriam-webster.com/games/quordle/#/classic')}>
                     Play
                 </Button>
             </div>
