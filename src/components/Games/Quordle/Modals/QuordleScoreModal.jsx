@@ -8,14 +8,24 @@ const QuordleScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScor
   const [gameNumber, setGameNumber] = useState(null);
 
   const calculateGameNumber = () => {
-  const firstGameDate = Date.UTC(2022, 0, 24); // Quordle Day 1
+  // Start Date: January 24, 2022 (Local Midnight) — Quordle Day 1
+  const firstGameDate = new Date(2022, 0, 24); // Ensures local midnight
+
+  // Get current local time
   const now = new Date();
 
-  // Today’s UTC midnight
-  const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  // Read each date's LOCAL calendar day (so "today" is the user's local
+  // today, resetting at local midnight), then diff those calendar days via
+  // Date.UTC so the subtraction is an exact 24h multiple regardless of DST.
+  // (A plain `new Date(y, m, d) - new Date(y, m, d)` subtraction is off by
+  // one whenever the two dates fall on opposite sides of a DST transition —
+  // which happens here since the Jan 2022 epoch is standard time and most
+  // "today"s are daylight time.)
+  const firstDateOnly = Date.UTC(firstGameDate.getFullYear(), firstGameDate.getMonth(), firstGameDate.getDate());
+  const nowDateOnly = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
 
   // Difference in days
-  const diffInDays = Math.floor((todayUTC - firstGameDate) / (24 * 60 * 60 * 1000));
+  const diffInDays = Math.floor((nowDateOnly - firstDateOnly) / (24 * 60 * 60 * 1000));
 
   return diffInDays; // Game # starts at 1
 };
