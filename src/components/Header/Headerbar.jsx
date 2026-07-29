@@ -207,7 +207,7 @@ const handleInviteFriends = async () => {
         </Col>
         <Col md={10} xs={9} className='d-flex justify-content-end align-items-center gap-2'>
 
-          <Link to="/" className='btn btn-primary custom-btn'>
+          <Link to="/games" className='btn btn-primary custom-btn'>
             Games
           </Link>
           <Link to="/groups" className='btn btn-primary custom-btn'>

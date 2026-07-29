@@ -65,6 +65,15 @@ body{
     justify-content: center;
   }
 }
+/* Dedicated "Games" page: vertical, centered list, no scrolling needed. */
+.games-page-list {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  max-width: 320px;
+  margin: 0 auto;
+}
 .score-board{
   width:135px;
   margin-bottom: 30px;

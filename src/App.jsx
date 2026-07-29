@@ -33,7 +33,7 @@ import UsersList from './pages/UsersList';
 import GamleIntro from './pages/GamleIntro';
 import FAQPage from './pages/FAQPage';
 import GameTips from './pages/GameTips';
-// import Games from './pages/Games';
+import GamesPage from './pages/GamesPage';
 import { LeaderboardProvider } from "./context/LeaderboardContext";
 
 function App() {
@@ -50,7 +50,7 @@ function App() {
         <Route exact path="/register" element={<Registerform />} />
         <Route path="/register/:group_id" element={<Registerform />} />
         <Route exact path="*" element={<NotFound/>} />
-        {/* <Route exact path='/games' element={<Games/>}/> */}
+        <Route exact path='/games' element={<GamesPage/>}/>
         <Route exact path='/wordle' element={<Statistics/>}/>
         <Route exact path= '/connections' element={<Connectionsgame/>}/>
         <Route exact path= '/phrazle' element={<Phrazlegame/>}/>
