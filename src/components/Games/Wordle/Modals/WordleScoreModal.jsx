@@ -62,7 +62,7 @@ useEffect(() => {
     if (!wordleTextExists) {
       toast.error('This is not a Wordle game!', { position: 'top-center' });
     } else if (!gamenumberExists) {
-      toast.error('This is not today\'s game result!', { position: 'top-center' });
+      toast.error('This is not today\'s game result', { position: 'top-center' });
     } else {
       setIsPasted(true); // Mark that the data has been pasted
       setScore(pastedData); // Set the pasted value to the score

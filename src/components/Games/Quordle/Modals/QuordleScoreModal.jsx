@@ -62,7 +62,7 @@ useEffect(() => {
     if (!quordleTextExists) {
       toast.error('This is not a Quordle game score!', { position: 'top-center' });
     } else if (!gamenumberExists) {
-      toast.error('This is not today\'s game result!', { position: 'top-center' });
+      toast.error('This is not today\'s game result', { position: 'top-center' });
     } else {
       setIsPasted(true);
       setScore(pastedData);

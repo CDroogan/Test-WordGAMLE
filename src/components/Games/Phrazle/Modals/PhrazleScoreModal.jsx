@@ -54,7 +54,7 @@ useEffect(() => {
       if (!phrazleTextExists) {
         toast.error('This is not a Phrazle game!', { position: 'top-center' });
       } else if (!gamenumberExists) {
-        toast.error('This is not today\'s game result!', { position: 'top-center' });
+        toast.error('This is not today\'s game result', { position: 'top-center' });
       } else {
         setIsPasted(true);
         setScore(pastedData);
