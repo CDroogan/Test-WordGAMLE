@@ -81,14 +81,16 @@ function Quordletat() {
                                         statschart.map((char, index) => {
                                             
                                             const cleanedScore = char.quordlescore
-                                                .replace(/[🟨🟩⬛⬜🟥🙂]/gu, "")
-                                                .replace("m-w.com/games/quordle/", "")
-                                                .trim();
+                                                .replace(/[🟥🟨🟩⬛⬜🙂]/gu, "") // remove emojis
+                                                .replace(/m-w\.com\/games\/quordle\//g, "") // remove link
+                                                .split("\n")
+                                                .map(line => line.trim())
+                                                .find(line => line.startsWith("Daily Quordle")) || "";
 
                                             const quordleScore = char.quordlescore
                                                 .split("\n")
-                                                .map(line => line.trim())
-                                                .filter(line => /^[🟥🟩🟨⬛⬜ ]+$/u.test(line))
+                                                .map(l => l.trim())
+                                                .filter(l => /^[0-9️⃣]+$/u.test(l)) // attempt-count badges only, no color-square grid
                                                 .join("\n");
                                             //const quordleScore = splitIntoRows(lettersAndNumbersRemoved);
                                             const createDate = char.createdat; // Ensure this matches your database field name
