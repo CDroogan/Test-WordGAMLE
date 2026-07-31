@@ -14,7 +14,7 @@ import Home from './pages/Home';
 import Connectionsgame from './components/Games/Connections/GameLayout';
 import Phrazlegame from './components/Games/Phrazle/GameLayout';
 import Quordlegame from './components/Games/Quordle/GameLayout';
-import Wordlestats from './components/Games/Wordle/Gamelayout';
+import Wordlestats from './components/Games/Wordle/Wordlestats';
 import ConnectionStat from './components/Games/Connections/ConnectionStat';
 import PhrazleStat from './components/Games/Phrazle/PhrazleStat';
 import QuordleStat from './components/Games/Quordle/QuordleStat';
