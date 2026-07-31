@@ -90,7 +90,7 @@ function Quordletat() {
                                             const quordleScore = char.quordlescore
                                                 .split("\n")
                                                 .map(l => l.trim())
-                                                .filter(l => /^[0-9️⃣]+$/u.test(l)) // attempt-count badges only, no color-square grid
+                                                .filter(l => /^[0-9️⃣🟥]+$/u.test(l)) // attempt-count badges (incl. red "failed" squares), no color-square grid
                                                 .join("\n");
                                             //const quordleScore = splitIntoRows(lettersAndNumbersRemoved);
                                             const createDate = char.createdat; // Ensure this matches your database field name

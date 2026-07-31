@@ -151,7 +151,7 @@ function QuordleScoreByDate() {
                             .split("\n")
                             .map(l => l.trim())
                             .filter(l =>
-                                /^[0-9️⃣]+$/.test(l) || /^[🟥🟩🟨⬛⬜]+$/.test(l)
+                                /^[0-9️⃣🟥]+$/u.test(l) || /^[🟥🟩🟨⬛⬜]+$/.test(l)
                             )
                             .join("\n");
                             //const quordleScore = splitIntoRows(lettersAndNumbersRemoved);

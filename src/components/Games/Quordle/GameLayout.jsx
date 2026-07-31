@@ -67,6 +67,7 @@ const determineAttempts = (score) => {
             isWin: false,
             solvedAt: {},
             sumSolvedAt: 0,
+            gamleScore: 0,
             winAttempt: null,
             attempts: null
         };
@@ -88,7 +89,13 @@ const determineAttempts = (score) => {
 
     const sumSolvedAt = Object.values(solvedAt).reduce((a, b) => a + b, 0);
 
-    const isWin = !boardResults.includes(RED_SQUARE);
+    const redCount = boardResults.filter(token => token === RED_SQUARE).length;
+    const isWin = redCount === 0;
+
+    // Gamle score:
+    //  WIN  -> sum of the attempt-count "blue box" points across all 4 boards.
+    //  LOSS -> 30 + number of red (failed) boards, ie 31/32/33/34.
+    const gamleScore = isWin ? sumSolvedAt : 30 + redCount;
 
     const attempts = isWin
         ? Math.max(...Object.values(solvedAt))
@@ -98,6 +105,7 @@ const determineAttempts = (score) => {
         isWin,
         solvedAt,
         sumSolvedAt,
+        gamleScore,
         winAttempt: attempts,
         attempts
     };
@@ -114,7 +122,7 @@ const determineAttempts = (score) => {
     }
     setShowForm(false);
     
-    const { isWin, attempts, sumSolvedAt } = determineAttempts(score);
+    const { isWin, attempts, gamleScore } = determineAttempts(score);
 
     let updatedDistribution = [...guessDistribution];
     if (isWin && attempts !== null && attempts <= updatedDistribution.length) {
@@ -139,7 +147,7 @@ const determineAttempts = (score) => {
       useremail: loginUserEmail,
       quordlescore: score,
       isWin,
-      gamleScore: sumSolvedAt,
+      gamleScore,
       createdAt: adjustedCreatedAt,
       currentUserTime: adjustedCreatedAt,
       lastgameisWin: isWin,
