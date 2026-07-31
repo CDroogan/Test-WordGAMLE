@@ -11,7 +11,7 @@ import Resetpwd from './auth/Resetpwd';
 import Resetpwdform from './auth/Resetpwdform';
 import UserProfile from './components/Games/Wordle/UserProfile';
 import Home from './pages/Home';
-import Wordlegame from './components/Games/Wordle/GameLayout';
+import Wordlegame from './components/Games/Wordle/GameLayout.jsx';
 import Connectionsgame from './components/Games/Connections/GameLayout';
 import Phrazlegame from './components/Games/Phrazle/GameLayout';
 import Quordlegame from './components/Games/Quordle/GameLayout';
