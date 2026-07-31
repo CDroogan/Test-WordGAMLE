@@ -17,6 +17,7 @@ const Headerbar = () => {
   const userEmail = USER_AUTH_DATA?.email;
   const userAvatar = USER_AUTH_DATA?.avatar; 
   const [userData, setUserData] = useState({});
+  const [avatarFailed, setAvatarFailed] = useState(false);
   const [show, setShow] = useState(false);
   const [target, setTarget] = useState(null);
   const [showNotification, setShowNotification] = useState(false);  // State to control notification visibility
@@ -46,6 +47,7 @@ const Headerbar = () => {
     })
     .then(response => {
       setUserData(response.data.user || {});
+      setAvatarFailed(false); // reset so a new account's avatar gets a fresh chance to load
     })
     .catch(error => {
       console.error('Error fetching user data:', error);
@@ -177,17 +179,20 @@ const handleInviteFriends = async () => {
   const profileButton = (
     <div role="button" onClick={handleClick}>
       <div ref={ref}>
-        {userData.avatar ? (
+        {userData.avatar && !avatarFailed ? (
            <img
             src={`${baseURL}/user/uploads/${userData.avatar}`}
             alt="User Avatar"
             width="30"
             height="30"
             className="img-fluid user-avatar rounded-circle mb-2"
-            onError={(e) => (e.target.style.display = 'none')}
+            onError={() => setAvatarFailed(true)}
           />
 
         ) : (
+           // Fallback icon - shown when the account has no avatar set, or when
+           // the avatar file fails to load (broken/missing image), so the
+           // profile button (and access to Edit/Logout) is never invisible.
            <svg xmlns="http://www.w3.org/2000/svg" className="bi bi-bar-chart-fill" width="18" height="18" fill="#00BF63" viewBox="0 0 448 512">
             <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"/>
           </svg>
@@ -285,13 +290,14 @@ const handleInviteFriends = async () => {
                       <div>
                         <img
                             src={
-                                userData.avatar
+                                userData.avatar && !avatarFailed
                                     ? `${baseURL}/user/uploads/${userData.avatar}`
                                     : `${baseURL}/user/uploads/default_avatar.png`
                             }
                             alt="Profile"
                             className="rounded-circle mb-1"
                             style={{ width: '35px', height: '35px', objectFit: 'cover' }}
+                            onError={() => setAvatarFailed(true)}
                         />
                         <p className='fs-4 m-0 cwd-edit-profile' onClick={() => editUser(userData.name, userData.username, userData.email, userData.id, userData.avatar, true)}>
                           {userData.username}
