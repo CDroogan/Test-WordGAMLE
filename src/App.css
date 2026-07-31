@@ -215,9 +215,9 @@ span.notification-count.badge.bg-danger {
 }
 .wordle-progress-bar, .connections-progress-bar, .phrazle-progress-bar, .quordle-progress-bar{
   height: 20px !important;
-  border-radius: 0px;
+  border-radius: 0px !important;
   position: relative;
-  background-color: #787c7e;
+  background-color: #787c7e!important;
 }
 .progress-label {
   position: absolute;
