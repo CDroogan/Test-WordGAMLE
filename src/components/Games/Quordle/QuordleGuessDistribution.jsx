@@ -19,9 +19,10 @@ function QuordleGuessDistribution({ guessDistribution }) {
                         <div
                             className="text-end"
                             style={{
-                                width: "15%",
+                                width: "20%",
                                 textAlign: "center",
-                                fontWeight: "bold"
+                                fontWeight: "bold",
+                                whiteSpace: "nowrap"
                             }}
                         >
                             {guess}
@@ -31,7 +32,7 @@ function QuordleGuessDistribution({ guessDistribution }) {
                         {/* Progress Bar */}
                         <div
                             style={{
-                                width: "75%",
+                                width: "70%",
                                 margin: "0 10px",
                                 position: "relative"
                             }}

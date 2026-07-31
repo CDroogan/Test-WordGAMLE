@@ -179,7 +179,7 @@ function QuordleScoreByDate() {
                         })
                     ) : (
                         <div>
-                            <h6 className='text-center'>Gamle Score: 4</h6>
+                            <h6 className='text-center'>Gamle Score: 35</h6>
                             <p className='text-muted text-center'>No Play</p>
                         </div>
                     )}
