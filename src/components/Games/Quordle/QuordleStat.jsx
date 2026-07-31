@@ -101,8 +101,9 @@ function Quordletat() {
                                                             day: 'numeric',
                                                             });
                                             const gamleScore = char.gamlescore;
+                                            const gamlerAverage = char.gamlerAverage;
                                             return (
-                                                
+
                                                 <div key={index}>
                                                     <h5 className='text-center'>Gamle Score: {gamleScore}</h5>
                                                     <>
@@ -111,8 +112,12 @@ function Quordletat() {
                                                     <pre className='text-center'>
                                                        {quordleScore}
                                                     </pre>
-                                                    
-                                                    </>                 
+                                                    {gamlerAverage !== null && gamlerAverage !== undefined && (
+                                                        <div className='bg-light text-center fw-bold py-2 my-3 rounded text-uppercase'>
+                                                            Gamler Average: {gamlerAverage}
+                                                        </div>
+                                                    )}
+                                                    </>
                                                 </div>
                                             );
                                         })
