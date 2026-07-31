@@ -1,13 +1,13 @@
 import React, { useState, useEffect  } from 'react';
 import { Col, Container, Row, Button } from 'react-bootstrap';
-import Wordlegamesection from './Wordlegamesection';
+import Wordlegamesection from './Games/Wordle/Wordlegamesection';
 import Axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import LoginModal from './Modals/LoginModal';
-import WordleModal from './Modals/WordleScoreModal';
+import LoginModal from './Games/Wordle/Modals/LoginModal';
+import WordleModal from './Games/Wordle/Modals/WordleScoreModal';
 
-function GameLayout() {
+function GamesLayout() {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth')) || {};
   const { username, email } = USER_AUTH_DATA;
@@ -22,6 +22,8 @@ function GameLayout() {
   const navigate = useNavigate();
   const userEmail = USER_AUTH_DATA.email;
   const userId = USER_AUTH_DATA?.id;
+  const [lastGroup, setLastGroup] = useState(null);
+  const [allGroup, setAllGroup] = useState(null);
 
   useEffect(() => {
     if (userEmail) {
@@ -54,6 +56,7 @@ function GameLayout() {
           if (!hasPlayedToday) {
             
             const missedGameObj = {
+              baseURL,
               username: loginUsername,
               useremail: loginUserEmail,
               wordlescore: 'X/6',
@@ -63,6 +66,7 @@ function GameLayout() {
               createdAt: now.toISOString(),
               currentUserTime: now.toISOString(),
               timeZone
+              
             };
   
             Axios.post(`${baseURL}/games/wordle/create-score.php`, missedGameObj)
@@ -126,6 +130,24 @@ function GameLayout() {
     }
   }, [userId]);
   
+  //get all group id
+  useEffect(() => {
+  const fetchUserGroups = async () => {
+      try {
+      const response = await Axios.get(`${baseURL}/groups/get-user-groups-data.php`, {
+          params: { user_id: userId },
+      });
+      console.log(response);
+      setAllGroup(response.data);
+      
+      } catch (error) {
+      console.error("Error fetching user joined groups:", error);
+      }
+  };
+
+  if (userId) fetchUserGroups();
+  }, [userId]);
+  
   const onSubmit = async (event) => {
     event.preventDefault();
     setShowForm(false);
@@ -147,7 +169,7 @@ function GameLayout() {
     // Get the adjusted time in 24-hour format, e.g., "2024-12-02T15:10:29.476"
     const adjustedCreatedAt = adjustedDate.toISOString().slice(0, -1);  // "2024-12-02T15:10:29.476" (24-hour format)
 
-    
+    const period = adjustedDate.getHours() < 12 ? "AM" : "PM";
 
 
 
@@ -165,8 +187,14 @@ function GameLayout() {
             updatedGuessDistribution[guessesUsed - 1] += 1;
         }
         setGuessDistribution(updatedGuessDistribution);
+        const groupGameMap = allGroup.map(group => ({
+          groupId: group.id,
+          selectedGame: group.selected_games,
+          groupName: group.group_name
+        }));
 
         const wordleObject = {
+            baseURL,
             username: loginUsername,
             useremail: loginUserEmail,
             wordlescore: score,
@@ -175,7 +203,12 @@ function GameLayout() {
             gamleScore: guessesUsed,
             createdAt: adjustedCreatedAt,
             currentUserTime: adjustedCreatedAt,
-            timeZone
+            currentPeriod: period,
+            timeZone,
+            // groupId:lastGroup?.group_id,
+            groups: groupGameMap,
+            gameName:"wordle",
+            userId
         };
        
         try {
@@ -200,19 +233,20 @@ function GameLayout() {
                 
                 await updateTotalGamesPlayed(TotalGameObject);
                 setScore('');
-                const latest_group_id = lastGroup?.group_id;
-                if(latest_group_id){
-                navigate(`/group/${latest_group_id}/stats/wordle`);
-                }
-                else{
                 navigate("/wordlestats");
-                }
+                // const latest_group_id = lastGroup?.group_id;
+                // if(latest_group_id){
+                // navigate(`/group/${latest_group_id}/stats/wordle`);
+                // }
+                // else{
+                // navigate("/wordlestats");
+                // }
             }
             else{
-                toast.error(res.data.message );
+                toast.error(res.data.message,{ autoClose: 3000 });
             }
         } catch (err) {
-            toast.error(err.res?.data?.message || 'An unexpected error occurred.');
+            toast.error(err.res?.data?.message || 'An unexpected error occurred.',{ autoClose: 3000 });
         }
     }
 };
@@ -221,7 +255,7 @@ const updateTotalGamesPlayed = async (TotalGameObject) => {
     try {
         await Axios.post(`${baseURL}/games/wordle/update-statistics.php`, TotalGameObject);
     } catch (err) {
-        toast.error('Failed to update total games played');
+        toast.error('Failed to update total games played',{ autoClose: 3000 });
     }
 };
 
@@ -279,4 +313,4 @@ const updateTotalGamesPlayed = async (TotalGameObject) => {
   );
 }
 
-export default GameLayout;
+export default GamesLayout;
