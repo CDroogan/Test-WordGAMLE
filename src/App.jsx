@@ -6,12 +6,11 @@ import Userlogin from './auth/Userlogin';
 import Registerform from './auth/Registerform';
 import ProtectedRouter from './auth/Protect';
 import NotFound from './pages/NotFound';
-
+import Statistics from './pages/Statistics';
 import Resetpwd from './auth/Resetpwd';
 import Resetpwdform from './auth/Resetpwdform';
 import UserProfile from './components/Games/Wordle/UserProfile';
 import Home from './pages/Home';
-import Wordlegame from './components/Games/Wordle/GameLayout';
 import Connectionsgame from './components/Games/Connections/GameLayout';
 import Phrazlegame from './components/Games/Phrazle/GameLayout';
 import Quordlegame from './components/Games/Quordle/GameLayout';
@@ -52,7 +51,7 @@ function App() {
         <Route path="/register/:group_id" element={<Registerform />} />
         <Route exact path="*" element={<NotFound/>} />
         <Route exact path='/games' element={<GamesPage/>}/>
-        <Route exact path='/wordle' element={<Wordlegame/>}/>
+        <Route exact path='/wordle' element={<Statistics/>}/>
         <Route exact path= '/connections' element={<Connectionsgame/>}/>
         <Route exact path= '/phrazle' element={<Phrazlegame/>}/>
         <Route exact path='/quordle' element={<Quordlegame/>}/>

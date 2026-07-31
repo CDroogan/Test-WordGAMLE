@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import WordleModal from './Modals/WordleScoreModal';
 
-function GameLayout() {
+function GamesLayout() {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth')) || {};
   const { username, email } = USER_AUTH_DATA;
@@ -22,8 +22,6 @@ function GameLayout() {
   const navigate = useNavigate();
   const userEmail = USER_AUTH_DATA.email;
   const userId = USER_AUTH_DATA?.id;
-  const [lastGroup, setLastGroup] = useState(null);
-  const [allGroup, setAllGroup] = useState(null);
 
   useEffect(() => {
     if (userEmail) {
@@ -39,57 +37,55 @@ function GameLayout() {
     }
   }, [userEmail]);
 
-  // useEffect(() => {
-  //   const now = new Date();
-  //   const hours = now.getHours();
-  //   const minutes = now.getMinutes();
-  //   // Check if time is between 11:59:00 PM and 11:59:59 PM
-  //   if (hours === 23  && minutes > 50) {
-  //     const today = now.toISOString().split('T')[0];
-  //     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  useEffect(() => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    // Check if time is between 11:59:00 PM and 11:59:59 PM
+    if (hours === 23  && minutes > 50) {
+      const today = now.toISOString().split('T')[0];
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       
-  //     Axios.get(`${baseURL}/games/wordle/get-score.php?useremail=${loginUserEmail}&today=${today}`)
-  //       .then(res => {
+      Axios.get(`${baseURL}/games/wordle/get-score.php?useremail=${loginUserEmail}&today=${today}`)
+        .then(res => {
          
-  //         const hasPlayedToday = res.data.wordlescore;
+          const hasPlayedToday = res.data.wordlescore;
           
-  //         if (!hasPlayedToday) {
+          if (!hasPlayedToday) {
             
-  //           const missedGameObj = {
-  //             baseURL,
-  //             username: loginUsername,
-  //             useremail: loginUserEmail,
-  //             wordlescore: 'X/6',
-  //             guessDistribution: guessDistribution,
-  //             isWin: false,
-  //             gamleScore: 7,
-  //             createdAt: now.toISOString(),
-  //             currentUserTime: now.toISOString(),
-  //             timeZone
-              
-  //           };
+            const missedGameObj = {
+              username: loginUsername,
+              useremail: loginUserEmail,
+              wordlescore: 'X/6',
+              guessDistribution: guessDistribution,
+              isWin: false,
+              gamleScore: 7,
+              createdAt: now.toISOString(),
+              currentUserTime: now.toISOString(),
+              timeZone
+            };
   
-  //           Axios.post(`${baseURL}/games/wordle/create-score.php`, missedGameObj)
-  //             .then(() => {
-  //               Axios.get(`${baseURL}/games/wordle/create-statistics.php/${loginUserEmail}`)
-  //                 .then(statsRes => {
-  //                   const TotalGameObject = {
-  //                     username: loginUsername,
-  //                     useremail: loginUserEmail,
-  //                     totalWinGames: statsRes.data.totalWinGames || 0,
-  //                     lastgameisWin: false,
-  //                     currentStreak: 0,
-  //                     guessDistribution: guessDistribution,
-  //                     updatedDate: now.toISOString()
-  //                   };
+            Axios.post(`${baseURL}/games/wordle/create-score.php`, missedGameObj)
+              .then(() => {
+                Axios.get(`${baseURL}/games/wordle/create-statistics.php/${loginUserEmail}`)
+                  .then(statsRes => {
+                    const TotalGameObject = {
+                      username: loginUsername,
+                      useremail: loginUserEmail,
+                      totalWinGames: statsRes.data.totalWinGames || 0,
+                      lastgameisWin: false,
+                      currentStreak: 0,
+                      guessDistribution: guessDistribution,
+                      updatedDate: now.toISOString()
+                    };
   
-  //                   updateTotalGamesPlayed(TotalGameObject);
-  //                 });
-  //             });
-  //         }
-  //       });
-  //   }
-  // }, [userEmail]);
+                    updateTotalGamesPlayed(TotalGameObject);
+                  });
+              });
+          }
+        });
+    }
+  }, [userEmail]);
   
   
 
@@ -130,24 +126,6 @@ function GameLayout() {
     }
   }, [userId]);
   
-  //get all group id
-  useEffect(() => {
-  const fetchUserGroups = async () => {
-      try {
-      const response = await Axios.get(`${baseURL}/groups/get-user-groups-data.php`, {
-          params: { user_id: userId },
-      });
-      console.log(response);
-      setAllGroup(response.data);
-      
-      } catch (error) {
-      console.error("Error fetching user joined groups:", error);
-      }
-  };
-
-  if (userId) fetchUserGroups();
-  }, [userId]);
-  
   const onSubmit = async (event) => {
     event.preventDefault();
     setShowForm(false);
@@ -169,7 +147,7 @@ function GameLayout() {
     // Get the adjusted time in 24-hour format, e.g., "2024-12-02T15:10:29.476"
     const adjustedCreatedAt = adjustedDate.toISOString().slice(0, -1);  // "2024-12-02T15:10:29.476" (24-hour format)
 
-    const period = adjustedDate.getHours() < 12 ? "AM" : "PM";
+    
 
 
 
@@ -187,14 +165,8 @@ function GameLayout() {
             updatedGuessDistribution[guessesUsed - 1] += 1;
         }
         setGuessDistribution(updatedGuessDistribution);
-        const groupGameMap = allGroup.map(group => ({
-          groupId: group.id,
-          selectedGame: group.selected_games,
-          groupName: group.group_name
-        }));
 
         const wordleObject = {
-            baseURL,
             username: loginUsername,
             useremail: loginUserEmail,
             wordlescore: score,
@@ -203,12 +175,7 @@ function GameLayout() {
             gamleScore: guessesUsed,
             createdAt: adjustedCreatedAt,
             currentUserTime: adjustedCreatedAt,
-            currentPeriod: period,
-            timeZone,
-            // groupId:lastGroup?.group_id,
-            groups: groupGameMap,
-            gameName:"wordle",
-            userId
+            timeZone
         };
        
         try {
@@ -233,20 +200,19 @@ function GameLayout() {
                 
                 await updateTotalGamesPlayed(TotalGameObject);
                 setScore('');
+                const latest_group_id = lastGroup?.group_id;
+                if(latest_group_id){
+                navigate(`/group/${latest_group_id}/stats/wordle`);
+                }
+                else{
                 navigate("/wordlestats");
-                // const latest_group_id = lastGroup?.group_id;
-                // if(latest_group_id){
-                // navigate(`/group/${latest_group_id}/stats/wordle`);
-                // }
-                // else{
-                // navigate("/wordlestats");
-                // }
+                }
             }
             else{
-                toast.error(res.data.message,{ autoClose: 3000 });
+                toast.error(res.data.message );
             }
         } catch (err) {
-            toast.error(err.res?.data?.message || 'An unexpected error occurred.',{ autoClose: 3000 });
+            toast.error(err.res?.data?.message || 'An unexpected error occurred.');
         }
     }
 };
@@ -255,7 +221,7 @@ const updateTotalGamesPlayed = async (TotalGameObject) => {
     try {
         await Axios.post(`${baseURL}/games/wordle/update-statistics.php`, TotalGameObject);
     } catch (err) {
-        toast.error('Failed to update total games played',{ autoClose: 3000 });
+        toast.error('Failed to update total games played');
     }
 };
 
@@ -313,4 +279,4 @@ const updateTotalGamesPlayed = async (TotalGameObject) => {
   );
 }
 
-export default GameLayout;
+export default GamesLayout;
