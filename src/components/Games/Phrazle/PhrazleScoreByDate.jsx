@@ -227,7 +227,7 @@ function PhrazleScoreByDate() {
                     })
                 ) : (
                     <div>
-                        <h6 className='text-center'>Gamle Score: 7</h6>
+                        <h6 className='text-center'>Gamle Score: 8</h6>
                         <p className='text-muted text-center'>No Play</p>
                     </div>
                 )}
