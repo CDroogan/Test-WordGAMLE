@@ -11,12 +11,10 @@ import Resetpwd from './auth/Resetpwd';
 import Resetpwdform from './auth/Resetpwdform';
 import UserProfile from './components/Games/Wordle/UserProfile';
 import Home from './pages/Home';
-import Wordlegame from './components/Games/Wordle/GameLayout.jsx';
-
 import Connectionsgame from './components/Games/Connections/GameLayout';
 import Phrazlegame from './components/Games/Phrazle/GameLayout';
 import Quordlegame from './components/Games/Quordle/GameLayout';
-import Wordlestats from './components/Games/Wordle/Wordlestats';
+import Wordlestats from './components/Games/Wordle/Gamelayout';
 import ConnectionStat from './components/Games/Connections/ConnectionStat';
 import PhrazleStat from './components/Games/Phrazle/PhrazleStat';
 import QuordleStat from './components/Games/Quordle/QuordleStat';
