@@ -213,7 +213,7 @@ span.notification-count.badge.bg-danger {
   background-color: transparent;
   border-radius: 0px;
 }
-.wordle-progress-bar, .connections-progress-bar, .phrazle-progress-bar{
+.wordle-progress-bar, .connections-progress-bar, .phrazle-progress-bar, .quordle-progress-bar{
   height: 20px !important;
   border-radius: 0px;
   position: relative;
