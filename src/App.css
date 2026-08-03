@@ -219,6 +219,9 @@ span.notification-count.badge.bg-danger {
   position: relative;
   background-color: #787c7e!important;
 }
+.gamler-average-bar {
+  background-color: #dcdcdc;
+}
 .progress-label {
   position: absolute;
   top: 0;

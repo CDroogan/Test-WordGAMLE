@@ -106,7 +106,6 @@ function Wordlestatechart() {
 
                                             return (
                                                 <div key={index}>
-                                                  <h5 className='text-center'>Gamle Score: {gamleScore}</h5>
                                                   <div className={`wordle-score-board-text my-3 fs-5 text-center`}>{cleanedScore}</div>
                                                     <div className='today text-center fs-6 my-2 fw-bold'>{todayDate}</div>
                                                     <pre className='text-center'>
@@ -114,8 +113,9 @@ function Wordlestatechart() {
                                                         <div key={rowIndex}>{row}</div>
                                                     ))}
                                                     </pre>
+                                                    <h5 className='text-center'>Gamle Score: {gamleScore}</h5>
                                                     {gamlerAverage !== null && gamlerAverage !== undefined && (
-                                                        <div className='bg-light text-center fw-bold py-2 my-3 rounded text-uppercase'>
+                                                        <div className='gamler-average-bar text-center fw-bold py-2 my-3 rounded text-uppercase'>
                                                             Gamler Average: {gamlerAverage}
                                                         </div>
                                                     )}
