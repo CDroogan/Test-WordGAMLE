@@ -39,57 +39,57 @@ function GamesLayout() {
     }
   }, [userEmail]);
 
-  useEffect(() => {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    // Check if time is between 11:59:00 PM and 11:59:59 PM
-    if (hours === 23  && minutes > 50) {
-      const today = now.toISOString().split('T')[0];
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      
-      Axios.get(`${baseURL}/games/wordle/get-score.php?useremail=${loginUserEmail}&today=${today}`)
-        .then(res => {
-         
-          const hasPlayedToday = res.data.wordlescore;
-          
-          if (!hasPlayedToday) {
-            
-            const missedGameObj = {
-              baseURL,
-              username: loginUsername,
-              useremail: loginUserEmail,
-              wordlescore: 'X/6',
-              guessDistribution: guessDistribution,
-              isWin: false,
-              gamleScore: 7,
-              createdAt: now.toISOString(),
-              currentUserTime: now.toISOString(),
-              timeZone
-              
-            };
-  
-            Axios.post(`${baseURL}/games/wordle/create-score.php`, missedGameObj)
-              .then(() => {
-                Axios.get(`${baseURL}/games/wordle/create-statistics.php/${loginUserEmail}`)
-                  .then(statsRes => {
-                    const TotalGameObject = {
-                      username: loginUsername,
-                      useremail: loginUserEmail,
-                      totalWinGames: statsRes.data.totalWinGames || 0,
-                      lastgameisWin: false,
-                      currentStreak: 0,
-                      guessDistribution: guessDistribution,
-                      updatedDate: now.toISOString()
-                    };
-  
-                    updateTotalGamesPlayed(TotalGameObject);
-                  });
-              });
-          }
-        });
-    }
-  }, [userEmail]);
+  // useEffect(() => {
+  //   const now = new Date();
+  //   const hours = now.getHours();
+  //   const minutes = now.getMinutes();
+  //   // Check if time is between 11:59:00 PM and 11:59:59 PM
+  //   if (hours === 23  && minutes > 50) {
+  //     const today = now.toISOString().split('T')[0];
+  //     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  //     Axios.get(`${baseURL}/games/wordle/get-score.php?useremail=${loginUserEmail}&today=${today}`)
+  //       .then(res => {
+
+  //         const hasPlayedToday = res.data.wordlescore;
+
+  //         if (!hasPlayedToday) {
+
+  //           const missedGameObj = {
+  //             baseURL,
+  //             username: loginUsername,
+  //             useremail: loginUserEmail,
+  //             wordlescore: 'X/6',
+  //             guessDistribution: guessDistribution,
+  //             isWin: false,
+  //             gamleScore: 7,
+  //             createdAt: now.toISOString(),
+  //             currentUserTime: now.toISOString(),
+  //             timeZone
+
+  //           };
+
+  //           Axios.post(`${baseURL}/games/wordle/create-score.php`, missedGameObj)
+  //             .then(() => {
+  //               Axios.get(`${baseURL}/games/wordle/create-statistics.php/${loginUserEmail}`)
+  //                 .then(statsRes => {
+  //                   const TotalGameObject = {
+  //                     username: loginUsername,
+  //                     useremail: loginUserEmail,
+  //                     totalWinGames: statsRes.data.totalWinGames || 0,
+  //                     lastgameisWin: false,
+  //                     currentStreak: 0,
+  //                     guessDistribution: guessDistribution,
+  //                     updatedDate: now.toISOString()
+  //                   };
+
+  //                   updateTotalGamesPlayed(TotalGameObject);
+  //                 });
+  //             });
+  //         }
+  //       });
+  //   }
+  // }, [userEmail]);
   
   
 
