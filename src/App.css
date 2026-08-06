@@ -265,6 +265,20 @@ span.notification-count.badge.bg-danger {
   font-size: 15px;
   padding: 5px;
 }
+/* Desktop nav: equalize the gaps between Games/Groups/Gamle Intro/
+   Invite Friends/Feedback/FAQ/bell/profile. The buttons' own m-2 margin
+   stacked with the row's flex gap, making some gaps wider than others. */
+@media (min-width: 992px) {
+  .header-section .navbar-nav.ms-auto {
+    gap: 0.5rem;
+  }
+  .header-section .navbar-nav.ms-auto .m-2 {
+    margin: 0 !important;
+  }
+  .header-section .navbar.navbar-expand-lg {
+    padding: 0;
+  }
+}
 .missed-user-section{
   background-color: #f8f8f8;
 }

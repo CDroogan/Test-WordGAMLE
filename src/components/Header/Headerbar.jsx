@@ -227,7 +227,9 @@ const handleInviteFriends = async () => {
           {/* {userEmail && settings && (
             <GroupInvites enable_invitation={settings?.group_invitation ?? 0} />
           )} */}
-          {userEmail &&  (
+          {/* On desktop the bell moves to just left of the profile picture
+              (rendered in the Nav.ms-auto below); mobile keeps it here. */}
+          {userEmail && !isDesktop && (
             <GroupInvites/>
           )}
           {userEmail === "cassandradroogan@gmail.com" && (
@@ -265,6 +267,7 @@ const handleInviteFriends = async () => {
                   <Button className="custom-btn m-2" onClick={() => { setExpanded(false); navigate('/faq'); }}>
                     FAQ
                   </Button>
+                  {isDesktop && userEmail && <GroupInvites/>}
                   {isDesktop && profileButton}
                 </Nav>
               </Navbar.Collapse>
