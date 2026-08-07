@@ -93,7 +93,6 @@ function PhrazleStat() {
                     <Row>
                         <Col md={6} className="m-auto p-3">
                             <div>
-                                <h4 className="my-2 font-weight-bold fs-4 text-center">Today's Result</h4>
                                 {loading ? (
                                     <div className='text-center my-4'><p>Loading...</p></div>
                                 ) : (
@@ -123,7 +122,7 @@ function PhrazleStat() {
 
                                                             return (
                                                                 <div className="text-center pb-2" key={index}>
-                                                                    <h4 className="text-center my-3">{label} Data</h4>
+                                                                    <h4 className="my-2 font-weight-bold fs-4 text-center">Today's Result - {label}</h4>
 
                                                                     <div className="phrazle-score-board-text my-3 fs-5 text-center">{phrazle_score_text}</div>
                                                                     <div className='today text-center fs-6 my-2 fw-bold'>{todayDate}</div>
@@ -155,6 +154,7 @@ function PhrazleStat() {
                                                         <div className='text-center'>
                                                                  {label === "AM" && currentHour < 12 && (
                                                                     <>
+                                                                         <h4 className="my-2 font-weight-bold fs-4 text-center">Today's Result - AM</h4>
                                                                          <p>You have not played today.</p>
                                                                          <PhrazlePlayService updateStatsChart={getStatChart}/>
                                                                     </>
@@ -162,6 +162,7 @@ function PhrazleStat() {
 
                                                                 {label === "PM" && currentHour >= 12 && (
                                                                     <>
+                                                                        <h4 className="my-2 font-weight-bold fs-4 text-center">Today's Result - PM</h4>
                                                                         <p>You have not played Phrazle PM game today.</p>
                                                                         <PhrazlePlayService updateStatsChart={getStatChart}/>
                                                                     </>
@@ -180,6 +181,7 @@ function PhrazleStat() {
                                         })()
                                     ) : (
                                         <div className='text-center my-4'>
+                                            <h4 className="my-2 font-weight-bold fs-4 text-center">Today's Result - {period}</h4>
                                             <p>You have not played today.</p>
                                             <PhrazlePlayService updateStatsChart={getStatChart}/>
                                         </div>
