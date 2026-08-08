@@ -6,6 +6,7 @@ import WordleScoreByDate from './WordleScoreByDate';
 import Wordlestatistics from './Wordlestatistics';
 import WordlePlayService from './WordlePlayService';
 import WordleGuessDistribution from './WordleGuessDistribution';
+import GroupButtonsRow from '../GroupButtonsRow';
 
 function Wordlestatechart() {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -134,6 +135,11 @@ function Wordlestatechart() {
                                     )
                                 )}
                             </div>
+                        </Col>
+                    </Row>
+                    <Row className='align-items-center justify-content-center'>
+                        <Col md={4}>
+                            <GroupButtonsRow />
                         </Col>
                     </Row>
                     <Row className='align-items-center justify-content-center'>

@@ -6,6 +6,7 @@ import Connectionsstatistics from './ConnectionsStatistics';
 import ConnectionPlayService from './ConnectionPlayService';
 import ConnectionsScoreByDate from './ConnectionsScoreByDate';
 import ConnectionsGuessDistribution from './ConnectionsGuessDistribution';
+import GroupButtonsRow from '../GroupButtonsRow';
 
 function ConnectionStat() {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -121,6 +122,11 @@ function ConnectionStat() {
                                     )
                                 )}
                             </div>
+                        </Col>
+                    </Row>
+                    <Row className='align-items-center justify-content-center'>
+                        <Col md={4}>
+                            <GroupButtonsRow />
                         </Col>
                     </Row>
                     <Row className='align-items-center justify-content-center'>

@@ -6,6 +6,7 @@ import Quordlestatistics from './QuordleStatistics';
 import QuordlePlayService from './QuordlePlayService';
 import QuordleScoreByDate from './QuordleScoreByDate';
 import QuordleGuessDistribution from './QuordleGuessDistribution';
+import GroupButtonsRow from '../GroupButtonsRow';
 
 function Quordletat() {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -129,6 +130,11 @@ function Quordletat() {
                                     )
                                 )}
                             </div>
+                        </Col>
+                    </Row>
+                    <Row className='align-items-center justify-content-center'>
+                        <Col md={4}>
+                            <GroupButtonsRow />
                         </Col>
                     </Row>
                     <Row className='align-items-center justify-content-center'>

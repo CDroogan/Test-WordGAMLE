@@ -65,6 +65,39 @@ body{
     justify-content: center;
   }
 }
+/* Group buttons on each game's "Today's Result" stat page: same horizontal-
+   scroll behavior as .game-select-row above, but width follows each group's
+   name instead of a fixed column, and height matches the Gamler Average bar
+   directly above it (same py-2/fw-bold/rounded/text-uppercase utilities, no
+   Bootstrap .btn base styles to interfere). */
+.group-select-row {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.group-select-row::-webkit-scrollbar {
+  display: none;
+}
+.group-select-row .group-select-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  appearance: none;
+  border: 0;
+  box-shadow: inset 0 0 0 1px #00BF63;
+  background-color: #ffffff;
+  color: #00BF63;
+  font: inherit;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.group-select-row .group-select-btn:hover {
+  background-color: #f0fdf6;
+}
+
 /* Dedicated "Games" page: vertical, centered list, no scrolling needed. */
 .games-page-list {
   display: flex;
