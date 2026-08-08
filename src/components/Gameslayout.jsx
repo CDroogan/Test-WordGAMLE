@@ -271,7 +271,7 @@ const updateTotalGamesPlayed = async (TotalGameObject) => {
         <Wordlegamesection />
       </Row>
       <Row className="justify-content-center align-items-center">
-        <Col md={6} className="py-5">
+        <Col md={6} className="py-4">
           <div>
             <p>Click the “Play” button to go to the Wordle website and play. Then:</p>
             <ol>

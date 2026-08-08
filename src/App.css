@@ -75,6 +75,11 @@ body{
   flex-wrap: nowrap;
   overflow-x: auto;
   gap: 8px;
+  /* The Today's Result column above (p-3) adds its own 1rem of bottom
+     padding on top of the Gamler Average bar's mb-3, doubling the gap
+     above this row compared to the gap below it. Pull the row up by that
+     same 1rem so both gaps match. */
+  margin-top: -1rem;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
