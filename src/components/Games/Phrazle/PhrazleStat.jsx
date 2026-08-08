@@ -6,6 +6,7 @@ import Phrazlestatistics from './PhrazleStatistics';
 import PhrazlePlayService from './PhrazlePlayService';
 import PhrazleScoreByDate from './PhrazleScoreByDate';
 import PhrazleGuessDistribution from './PhrazleGuessDistribution';
+import GroupButtonsRow from '../GroupButtonsRow';
 
 function PhrazleStat() {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -189,6 +190,9 @@ function PhrazleStat() {
                                 )}
                             </div>
                         </Col>
+                    </Row>
+                    <Row className='align-items-center justify-content-center'>
+                        <Col md={4}><GroupButtonsRow /></Col>
                     </Row>
                     <Row className='align-items-center justify-content-center'>
                         <Col md={4}><Phrazlestatistics statschart={statschart}/></Col>
