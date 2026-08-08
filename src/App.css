@@ -356,7 +356,7 @@ cursor: pointer;
 .cwd-swiper-animation .swiper-wrapper{
   justify-content: center !important;
 }
-.white-btn{
+.btn.white-btn{
   background-color: #ffffff !important;
   border: none;
   color:#000000;
