@@ -224,10 +224,10 @@ function GamesLayout() {
                 <li><strong>PASTE:</strong> Navigate back to WordGAMLE.com to paste your Phrazle result</li>
               </ol>
               <Row className="d-flex justify-content-between align-items-center">
-                <Col md={8} xs={8}>
+                <Col md={7} xs={7}>
                   <p className="bottom-message">*For anyone who has already played and has the result copied, click the “Enter Result” button to enter today’s game result.</p>
                 </Col>
-                <Col md={4} xs={4}>
+                <Col md={5} xs={5}>
                   <Button className="phrazle-btn bottom-btn" onClick={handleShow}>
                     Enter Result
                   </Button>

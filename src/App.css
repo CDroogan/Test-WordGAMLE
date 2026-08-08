@@ -194,6 +194,20 @@ body{
 .bottom-message, .bottom-btn{
   font-size: 12px;
 }
+/* Nudge "Enter Result" left so its right edge lines up with the Stats
+   button's right edge above it. transform is used instead of margin so
+   the shift is an exact pixel offset, not dependent on how the button's
+   shrink-to-fit width interacts with its column. The shift differs by
+   breakpoint because Play/Stats stack differently below/above
+   Bootstrap's sm (576px) cutoff, changing where Stats' right edge falls. */
+/* Nudge "Enter Result" left on desktop so its right edge lines up with
+   the Stats button's right edge above it (mobile already lines up
+   naturally with the 7/5 column split below). */
+@media (min-width: 576px) {
+  .bottom-btn {
+    transform: translateX(-52px);
+  }
+}
 .guess-item{
   gap: 5px;
 }

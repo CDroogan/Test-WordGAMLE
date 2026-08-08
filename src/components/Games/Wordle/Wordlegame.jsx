@@ -15,10 +15,10 @@ const Wordlegame = () => {
     return (
         <>
             <Row>
-                <Col className="text-start">
+                <Col>
                     <WordlePlayService/>
                 </Col>
-                <Col className="text-end">
+                <Col>
                     <div className="my-3">
                         <Button className="wordle-btn px-5" onClick={handleWordlestate}>
                             Stats
