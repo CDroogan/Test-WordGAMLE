@@ -14,10 +14,10 @@ const Connectiongame = () => {
     return (
         <>
             <Row>
-                <Col>
+                <Col className="text-start">
                     <ConnectionPlayService/>
                 </Col>
-                <Col>
+                <Col className="text-end">
                     <div className="my-3">
                         <Button className="connections-btn px-5" onClick={handleWordlestate}>
                             Stats

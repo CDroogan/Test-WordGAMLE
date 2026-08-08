@@ -19,7 +19,7 @@ function GroupButtonsRow() {
     if (groups.length === 0) return null;
 
     return (
-        <div className="group-select-row my-3">
+        <div className="group-select-row mb-3">
             {groups.map((group) => (
                 <button
                     key={group.id}
