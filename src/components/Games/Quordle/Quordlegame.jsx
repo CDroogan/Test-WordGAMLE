@@ -14,10 +14,10 @@ const Quordlegame = () => {
     return (
         <>
             <Row>
-                <Col>
+                <Col className="text-sm-end">
                     <QuordlePlayService/>
                 </Col>
-                <Col>
+                <Col className="text-sm-end">
                     <div className="my-3">
                         <Button className="Quordle-btn px-5" onClick={handleWordlestate}>
                             Stats
