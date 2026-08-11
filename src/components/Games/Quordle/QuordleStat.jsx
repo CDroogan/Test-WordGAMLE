@@ -72,15 +72,15 @@ function Quordletat() {
                     <Row>
                         <Col md={4} className="m-auto p-3">
                             <div>
-                                <h4 className="my-2 font-weight-bold fs-4 text-center pb-3">Today's Result</h4>
                                 {loading ? (
                                     <div className='text-center my-4'>
+                                        <h4 className="my-2 font-weight-bold fs-4 text-center pb-3">Today's Result</h4>
                                         <p>Loading...</p>
                                     </div>
                                 ) : (
                                     statschart && Array.isArray(statschart) && statschart.length > 0 ? (
                                         statschart.map((char, index) => {
-                                            
+
                                             const cleanedScore = char.quordlescore
                                                 .replace(/[🟥🟨🟩⬛⬜🙂]/gu, "") // remove emojis
                                                 .replace(/m-w\.com\/games\/quordle\//g, "") // remove link
@@ -106,24 +106,26 @@ function Quordletat() {
                                             return (
 
                                                 <div key={index}>
-                                                    <>
-                                                    <div className={`wordle-score-board-text my-3 fs-5 text-center`}>{cleanedScore}</div>
-                                                    <div className='today text-center fs-6 my-2 fw-bold'>{todayDate}</div>
-                                                    <pre className='text-center'>
-                                                       {quordleScore}
-                                                    </pre>
+                                                    <div className="todays-result-box todays-result-box-quordle">
+                                                        <h4 className="my-2 font-weight-bold fs-4 text-center pb-3">Today's Result</h4>
+                                                        <div className={`wordle-score-board-text my-3 fs-5 text-center`}>{cleanedScore}</div>
+                                                        <div className='today text-center fs-6 my-2 fw-bold'>{todayDate}</div>
+                                                        <pre className='text-center'>
+                                                           {quordleScore}
+                                                        </pre>
+                                                    </div>
                                                     <h5 className='text-center'>Gamle Score: {gamleScore}</h5>
                                                     {gamlerAverage !== null && gamlerAverage !== undefined && (
                                                         <div className='gamler-average-bar text-center fw-bold py-2 my-3 rounded text-uppercase'>
                                                             Gamler Average: {gamlerAverage}
                                                         </div>
                                                     )}
-                                                    </>
                                                 </div>
                                             );
                                         })
                                     ) : (
                                         <div className='text-center my-4'>
+                                            <h4 className="my-2 font-weight-bold fs-4 text-center pb-3">Today's Result</h4>
                                             <p>You have not played today.</p>
                                             <QuordlePlayService updateStatsChart={getStatChart}/>
                                         </div>

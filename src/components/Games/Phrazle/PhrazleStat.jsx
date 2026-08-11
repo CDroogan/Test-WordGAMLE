@@ -123,24 +123,26 @@ function PhrazleStat() {
 
                                                             return (
                                                                 <div className="text-center pb-2" key={index}>
-                                                                    <h4 className="my-2 font-weight-bold fs-4 text-center">Today's Result - {label}</h4>
+                                                                    <div className="todays-result-box todays-result-box-phrazle">
+                                                                        <h4 className="my-2 font-weight-bold fs-4 text-center">Today's Result - {label}</h4>
 
-                                                                    <div className="phrazle-score-board-text my-3 fs-5 text-center">{phrazle_score_text}</div>
-                                                                    <div className='today text-center fs-6 my-2 fw-bold'>{todayDate}</div>
-                                                                    <div className="phrazle-score m-auto text-center">
-                                                                        {phrazleScore.map((row, rowIndex) => (
-                                                                            row.trim() && (
-                                                                                <div className="phrasle-row-score" key={rowIndex}>
-                                                                                    {row.split(' ').map((part, partIndex) => (
-                                                                                        <div className="row" key={partIndex}>
-                                                                                            {part.split(' ').map((symbol, symbolIndex) => (
-                                                                                                <div className="items" key={symbolIndex}>{symbol}</div>
-                                                                                            ))}
-                                                                                        </div>
-                                                                                    ))}
-                                                                                </div>
-                                                                            )
-                                                                        ))}
+                                                                        <div className="phrazle-score-board-text my-3 fs-5 text-center">{phrazle_score_text}</div>
+                                                                        <div className='today text-center fs-6 my-2 fw-bold'>{todayDate}</div>
+                                                                        <div className="phrazle-score m-auto text-center">
+                                                                            {phrazleScore.map((row, rowIndex) => (
+                                                                                row.trim() && (
+                                                                                    <div className="phrasle-row-score" key={rowIndex}>
+                                                                                        {row.split(' ').map((part, partIndex) => (
+                                                                                            <div className="row" key={partIndex}>
+                                                                                                {part.split(' ').map((symbol, symbolIndex) => (
+                                                                                                    <div className="items" key={symbolIndex}>{symbol}</div>
+                                                                                                ))}
+                                                                                            </div>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                )
+                                                                            ))}
+                                                                        </div>
                                                                     </div>
                                                                     <h5 className='text-center'>Gamle Score: {gamleScore}</h5>
                                                                     {gamlerAverage !== null && gamlerAverage !== undefined && (
