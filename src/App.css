@@ -260,6 +260,28 @@ span.notification-count.badge.bg-danger {
 .gamler-average-bar {
   background-color: #dcdcdc;
 }
+/* Today's Result box: outlines the heading through the pasted game
+   result grid on each game's stat page. No horizontal margin/padding
+   of its own, so it spans the same width as the Gamler Average bar
+   below it (both are plain full-width blocks in the same column). */
+.todays-result-box {
+  border: 2px solid;
+  border-radius: 16px;
+  padding: 8px 8px 14px;
+  margin-bottom: 0.5rem;
+}
+.todays-result-box-wordle {
+  border-color: #a0c35a;
+}
+.todays-result-box-connections {
+  border-color: #B3A7FF;
+}
+.todays-result-box-phrazle {
+  border-color: #218838;
+}
+.todays-result-box-quordle {
+  border-color: #00BF63;
+}
 .progress-label {
   position: absolute;
   top: 0;
