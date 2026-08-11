@@ -215,7 +215,7 @@ function GamesLayout() {
           <Phrazlesgamesection />
         </Row>
         <Row className="justify-content-center align-items-center">
-          <Col md={6} className="py-3">
+          <Col sm={6} className="py-3 px-3">
             <div>
               <p>Click the “Play” button to go to the Phrazle website and play. Then:</p>
               <ol>
@@ -224,10 +224,10 @@ function GamesLayout() {
                 <li><strong>PASTE:</strong> Navigate back to WordGAMLE.com to paste your Phrazle result</li>
               </ol>
               <Row className="d-flex justify-content-between align-items-center">
-                <Col md={7} xs={7}>
+                <Col sm={7} xs={6}>
                   <p className="bottom-message">*For anyone who has already played and has the result copied, click the “Enter Result” button to enter today’s game result.</p>
                 </Col>
-                <Col md={5} xs={5}>
+                <Col sm={5} xs={6} className="text-center text-sm-end">
                   <Button className="phrazle-btn bottom-btn" onClick={handleShow}>
                     Enter Result
                   </Button>

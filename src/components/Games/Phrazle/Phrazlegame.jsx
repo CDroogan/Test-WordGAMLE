@@ -14,11 +14,11 @@ const Phrazlegame = ({ groupId, gameName, userId }) => {
     return (
         <>
             <Row>
-                <Col>
+                <Col className="text-sm-end">
 
                     <PhrazlePlayService groupId={groupId} gameName={gameName} userId={userId} />
                 </Col>
-                <Col>
+                <Col className="text-sm-end">
                     <div className="my-3">
                         <Button className="phrazle-btn px-5" onClick={handleConnectionstate}>
                             Stats
