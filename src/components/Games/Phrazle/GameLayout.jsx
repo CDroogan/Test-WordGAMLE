@@ -23,7 +23,7 @@ function GamesLayout() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
   const [lastGroup, setLastGroup] = useState(null);
-  const [allGroup, setAllGroup] = useState(null);
+  const [allGroup, setAllGroup] = useState([]);
   const navigate = useNavigate();
 
   const handleFormClose = () => {
@@ -110,53 +110,50 @@ function GamesLayout() {
 
     const period = adjustedDate.getHours() < 12 ? "AM" : "PM";
 
-    const groupGameMap = allGroup.map(group => ({
-          groupId: group.id,
-          selectedGame: group.selected_games,
-          groupName: group.group_name
-        }));
-  
     // Process the Wordle score and match it against a valid format
     const phrazleScore = score.replace(/[🟩🟨⬜🟪]/g, "");
     const lettersAndNumbersRemoved = phrazleScore.replace(/[a-zA-Z0-9,#.:/\\]/g, "");
     const match = phrazleScore.match(/(\d+|X)\/(\d+)/);
-    
-  
+
+
     if (match) {
-      let guessesUsed = match[1] === "X" ? 7 : parseInt(match[1], 10); // Assign 7 for failed attempts ("X")
-      const totalGuesses = parseInt(match[2], 10);
-      const isWin = match[1] !== "X" && guessesUsed <= totalGuesses;
-
-      console.group(guessesUsed);
-      setGameIsWin(isWin);
-  
-      const updatedGuessDistribution = [...guessDistribution];
-      if (isWin && guessesUsed <= 6) {
-        updatedGuessDistribution[guessesUsed - 1] += 1;
-      }
-      setGuessDistribution(updatedGuessDistribution);
-      
-      const userGroupIds = allGroup.map(group => group.id); 
-
-      const phrazleObject = {
-        baseURL,
-        username: loginUsername,
-        useremail: loginUserEmail,
-        phrazlescore: score,
-        isWin,
-        gamleScore:guessesUsed,
-        createdAt:adjustedCreatedAt,
-        currentUserTime: adjustedCreatedAt,
-        currentPeriod: period,
-        timeZone,
-        // groupId:lastGroup?.group_id,
-        groups: groupGameMap,
-        gameName:"phrazle",
-        userId
-      };
       try {
+        const groupGameMap = (allGroup || []).map(group => ({
+              groupId: group.id,
+              selectedGame: group.selected_games,
+              groupName: group.group_name
+            }));
+
+        let guessesUsed = match[1] === "X" ? 7 : parseInt(match[1], 10); // Assign 7 for failed attempts ("X")
+        const totalGuesses = parseInt(match[2], 10);
+        const isWin = match[1] !== "X" && guessesUsed <= totalGuesses;
+
+        setGameIsWin(isWin);
+
+        const updatedGuessDistribution = [...guessDistribution];
+        if (isWin && guessesUsed <= 6) {
+          updatedGuessDistribution[guessesUsed - 1] += 1;
+        }
+        setGuessDistribution(updatedGuessDistribution);
+
+        const phrazleObject = {
+          baseURL,
+          username: loginUsername,
+          useremail: loginUserEmail,
+          phrazlescore: score,
+          isWin,
+          gamleScore:guessesUsed,
+          createdAt:adjustedCreatedAt,
+          currentUserTime: adjustedCreatedAt,
+          currentPeriod: period,
+          timeZone,
+          // groupId:lastGroup?.group_id,
+          groups: groupGameMap,
+          gameName:"phrazle",
+          userId
+        };
         const res = await Axios.post(`${baseURL}/games/phrazle/create-score.php`, phrazleObject);
-        
+
         if (res.data.status === 'success') {
           if (typeof updateStatsChart === 'function') {
             updateStatsChart();
@@ -174,8 +171,8 @@ function GamesLayout() {
             guessDistribution: updatedGuessDistribution,
             updatedDate: adjustedCreatedAt
           };
-          
-          
+
+
           await updateTotalGamesPlayed(TotalGameObject);
           setScore('');
           navigate("/phrazlestats");
@@ -186,13 +183,15 @@ function GamesLayout() {
           // else{
           //   navigate("/phrazlestats");
           // }
-         
+
         } else {
           toast.error(res.data.message,{ autoClose: 3000 });
         }
       } catch (err) {
-        toast.error(err.res?.data?.message || 'An unexpected error occurred.',{ autoClose: 3000 });
+        toast.error(err.response?.data?.message || 'An unexpected error occurred. Please try submitting again.',{ autoClose: 5000 });
       }
+    } else {
+      toast.error('Could not read that result. Please make sure you copied the full Phrazle share text, then try again.', { autoClose: 5000 });
     }
   };
   const updateTotalGamesPlayed = async (TotalGameObject) => {

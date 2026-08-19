@@ -23,7 +23,7 @@ function ConnectionPlayService({ updateStatsChart, groupId, gameName }) {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
   const [lastGroup, setLastGroup] = useState(null);
-  const [allGroup, setAllGroup] = useState(null);
+  const [allGroup, setAllGroup] = useState([]);
   const navigate = useNavigate();
 
   const handleFormClose = () => {
@@ -120,60 +120,60 @@ if (userId) fetchUserGroups();
 
 const onSubmit = async (event) => {
     event.preventDefault();
-    
+
     if (typeof updateStatsChart === "function") {
       updateStatsChart();
     }
     setShowForm(false);
-  
-    const { isWin, mistakeCount } = determineAttempts(score);
-  
-    let updatedDistribution = [...guessDistribution];
-    if (isWin) {
-      if (mistakeCount >= 0 && mistakeCount < updatedDistribution.length) {
-        updatedDistribution[mistakeCount] += 1; // Update distribution for wins
-      }
-      setGuessDistribution(updatedDistribution);
-    }
-  
-    // Get time zone offset in minutes
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const localDate = new Date();
-    const offsetMinutes = localDate.getTimezoneOffset();  // Offset in minutes (positive for behind UTC, negative for ahead)
-  
-    // Now adjust the time by adding the time zone offset (this does not affect UTC, it gives the correct local time)
-    const adjustedDate = new Date(localDate.getTime() - offsetMinutes * 60 * 1000); // Adjust time by the offset in milliseconds
-  
-    // Get the adjusted time in 24-hour format, e.g., "2024-12-02T15:10:29.476"
-    const adjustedCreatedAt = adjustedDate.toISOString().slice(0, -1);  // "2024-12-02T15:10:29.476" (24-hour format)
-  
-    const period = adjustedDate.getHours() < 12 ? "AM" : "PM";
 
-    const groupGameMap = allGroup.map(group => ({
-          groupId: group.id,
-          selectedGame: group.selected_games,
-          groupName: group.group_name
-        }));
-
-    const scoreObject = {
-      baseURL,
-      username: loginUsername,
-      useremail: loginUserEmail,
-      connectionsscore: score,
-      gamleScore: mistakeCount,
-      createdAt: adjustedCreatedAt,
-      currentUserTime: adjustedCreatedAt,
-      urrentPeriod: period,
-      lastgameisWin: isWin,
-      guessDistribution: updatedDistribution,
-      handleHighlight: mistakeCount,
-      timeZone,
-      // groupId:lastGroup?.group_id,
-      groups: groupGameMap,
-      gameName:"connections",
-      userId
-    };
     try {
+      const { isWin, mistakeCount } = determineAttempts(score);
+
+      let updatedDistribution = [...guessDistribution];
+      if (isWin) {
+        if (mistakeCount >= 0 && mistakeCount < updatedDistribution.length) {
+          updatedDistribution[mistakeCount] += 1; // Update distribution for wins
+        }
+        setGuessDistribution(updatedDistribution);
+      }
+
+      // Get time zone offset in minutes
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const localDate = new Date();
+      const offsetMinutes = localDate.getTimezoneOffset();  // Offset in minutes (positive for behind UTC, negative for ahead)
+
+      // Now adjust the time by adding the time zone offset (this does not affect UTC, it gives the correct local time)
+      const adjustedDate = new Date(localDate.getTime() - offsetMinutes * 60 * 1000); // Adjust time by the offset in milliseconds
+
+      // Get the adjusted time in 24-hour format, e.g., "2024-12-02T15:10:29.476"
+      const adjustedCreatedAt = adjustedDate.toISOString().slice(0, -1);  // "2024-12-02T15:10:29.476" (24-hour format)
+
+      const period = adjustedDate.getHours() < 12 ? "AM" : "PM";
+
+      const groupGameMap = (allGroup || []).map(group => ({
+            groupId: group.id,
+            selectedGame: group.selected_games,
+            groupName: group.group_name
+          }));
+
+      const scoreObject = {
+        baseURL,
+        username: loginUsername,
+        useremail: loginUserEmail,
+        connectionsscore: score,
+        gamleScore: mistakeCount,
+        createdAt: adjustedCreatedAt,
+        currentUserTime: adjustedCreatedAt,
+        urrentPeriod: period,
+        lastgameisWin: isWin,
+        guessDistribution: updatedDistribution,
+        handleHighlight: mistakeCount,
+        timeZone,
+        // groupId:lastGroup?.group_id,
+        groups: groupGameMap,
+        gameName:"connections",
+        userId
+      };
       const res = await Axios.post(
         `${baseURL}/games/connections/create-score.php`,
         scoreObject

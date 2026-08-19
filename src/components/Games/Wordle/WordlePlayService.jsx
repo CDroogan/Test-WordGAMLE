@@ -16,7 +16,7 @@ function WordlePlayService({ updateStatsChart, groupId, gameName  }) {
     const [score, setScore] = useState('');
     const [guessDistribution, setGuessDistribution] = useState([0, 0, 0, 0, 0, 0]);
     const [gameIsWin, setGameIsWin] = useState(false);
-    const [allGroup, setAllGroup] = useState(null);
+    const [allGroup, setAllGroup] = useState([]);
     const [lastGroup, setLastGroup] = useState(null);
     const navigate = useNavigate();
 
@@ -103,43 +103,43 @@ function WordlePlayService({ updateStatsChart, groupId, gameName  }) {
         const match = wordleScore.match(/(\d+|X)\/(\d+)/);
         
         if (match) {
-            let guessesUsed = match[1] === "X" ? 7 : parseInt(match[1], 10); // Assign 7 for failed attempts ("X")
-            const totalGuesses = parseInt(match[2], 10);
-            const isWin = match[1] !== "X" && guessesUsed <= totalGuesses;
-    
-            setGameIsWin(isWin);
-            const updatedGuessDistribution = [...guessDistribution];
-            if (isWin && guessesUsed <= 6) {
-                updatedGuessDistribution[guessesUsed - 1] += 1;
-            }
-            setGuessDistribution(updatedGuessDistribution);
-            const groupGameMap = allGroup.map(group => ({
-              groupId: group.id,
-              selectedGame: group.selected_games,
-              groupName: group.group_name
-            }));
-    
-            const wordleObject = {
-                baseURL,
-                username: loginUsername,
-                useremail: loginUserEmail,
-                wordlescore: score,
-                guessDistribution: updatedGuessDistribution,
-                isWin,
-                gamleScore: guessesUsed,
-                createdAt: adjustedCreatedAt,
-                currentUserTime: adjustedCreatedAt,
-                currentPeriod: period,
-                timeZone,
-                // groupId:lastGroup?.group_id,
-                groups: groupGameMap,
-                gameName:"wordle",
-                userId
-            };
-           
             try {
+                let guessesUsed = match[1] === "X" ? 7 : parseInt(match[1], 10); // Assign 7 for failed attempts ("X")
+                const totalGuesses = parseInt(match[2], 10);
+                const isWin = match[1] !== "X" && guessesUsed <= totalGuesses;
+
+                setGameIsWin(isWin);
+                const updatedGuessDistribution = [...guessDistribution];
+                if (isWin && guessesUsed <= 6) {
+                    updatedGuessDistribution[guessesUsed - 1] += 1;
+                }
+                setGuessDistribution(updatedGuessDistribution);
+                const groupGameMap = (allGroup || []).map(group => ({
+                  groupId: group.id,
+                  selectedGame: group.selected_games,
+                  groupName: group.group_name
+                }));
+
+                const wordleObject = {
+                    baseURL,
+                    username: loginUsername,
+                    useremail: loginUserEmail,
+                    wordlescore: score,
+                    guessDistribution: updatedGuessDistribution,
+                    isWin,
+                    gamleScore: guessesUsed,
+                    createdAt: adjustedCreatedAt,
+                    currentUserTime: adjustedCreatedAt,
+                    currentPeriod: period,
+                    timeZone,
+                    // groupId:lastGroup?.group_id,
+                    groups: groupGameMap,
+                    gameName:"wordle",
+                    userId
+                };
+
                 const res = await Axios.post(`${baseURL}/games/wordle/create-score.php`, wordleObject);
-               
+
                 if (res.data.status === 'success') {
                     if (typeof updateStatsChart === 'function') {
                         updateStatsChart();
@@ -156,7 +156,7 @@ function WordlePlayService({ updateStatsChart, groupId, gameName  }) {
                         guessDistribution: updatedGuessDistribution,
                         updatedDate: adjustedCreatedAt
                     };
-                    
+
                     await updateTotalGamesPlayed(TotalGameObject);
                     setScore('');
                     navigate("/wordlestats");
@@ -172,8 +172,10 @@ function WordlePlayService({ updateStatsChart, groupId, gameName  }) {
                     toast.error(res.data.message,{ autoClose: 3000 });
                 }
             } catch (err) {
-                toast.error(err.res?.data?.message || 'An unexpected error occurred.',{ autoClose: 3000 });
+                toast.error(err.response?.data?.message || 'An unexpected error occurred. Please try submitting again.',{ autoClose: 5000 });
             }
+        } else {
+            toast.error('Could not read that result. Please make sure you copied the full Wordle share text, then try again.', { autoClose: 5000 });
         }
     };
     
