@@ -8,8 +8,8 @@ const OctordleScoreModal = ({ showForm, handleFormClose, onSubmit, score, setSco
   const [gameNumber, setGameNumber] = useState(null);
 
   const calculateGameNumber = () => {
-  // Start Date: January 25, 2022 (Local Midnight) — Octordle Day 1
-  const firstGameDate = new Date(2022, 0, 25); // Ensures local midnight
+  // Start Date: January 24, 2022 (Local Midnight) — Octordle Day 1
+  const firstGameDate = new Date(2022, 0, 24); // Ensures local midnight
 
   // Get current local time
   const now = new Date();
