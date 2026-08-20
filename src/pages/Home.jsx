@@ -269,6 +269,7 @@ function Home() {
                                         <Button className="connections-btn game-select-btn" onClick={() => handleNavigation('connections')}>Connections</Button>
                                         <Button className="phrazle-btn game-select-btn" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>
                                         <Button className="quordle-btn game-select-btn" onClick={() => handleNavigation('quordle')}>Quordle</Button>
+                                        <Button className="octordle-btn game-select-btn" onClick={() => handleNavigation('octordle')}>Octordle</Button>
                                     </div>
                                     <Row>
                                         <Col className="py-3">
@@ -286,6 +287,7 @@ function Home() {
                                         <Button className="connections-btn game-select-btn" onClick={() => handleNavigation('connections')}>Connections</Button>
                                         <Button className="phrazle-btn game-select-btn" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>
                                         <Button className="quordle-btn game-select-btn" onClick={() => handleNavigation('quordle')}>Quordle</Button>
+                                        <Button className="octordle-btn game-select-btn" onClick={() => handleNavigation('octordle')}>Octordle</Button>
                                     </div>
                                     <Row className='mt-3'>
                                         <Col className="">

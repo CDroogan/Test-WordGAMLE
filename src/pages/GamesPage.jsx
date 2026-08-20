@@ -19,6 +19,7 @@ const GamesPage = () => {
         <Button className="connections-btn games-page-btn" onClick={() => handleNavigation('connections')}>Connections</Button>
         <Button className="phrazle-btn games-page-btn" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>
         <Button className="quordle-btn games-page-btn" onClick={() => handleNavigation('quordle')}>Quordle</Button>
+        <Button className="octordle-btn games-page-btn" onClick={() => handleNavigation('octordle')}>Octordle</Button>
       </div>
     </Container>
   );

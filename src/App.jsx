@@ -14,10 +14,12 @@ import Home from './pages/Home';
 import Connectionsgame from './components/Games/Connections/GameLayout';
 import Phrazlegame from './components/Games/Phrazle/GameLayout';
 import Quordlegame from './components/Games/Quordle/GameLayout';
+import Octordlegame from './components/Games/Octordle/GameLayout';
 import Wordlestats from './components/Games/Wordle/Wordlestats';
 import ConnectionStat from './components/Games/Connections/ConnectionStat';
 import PhrazleStat from './components/Games/Phrazle/PhrazleStat';
 import QuordleStat from './components/Games/Quordle/QuordleStat';
+import OctordleStat from './components/Games/Octordle/OctordleStat';
 import GamesStat from './components/Games/GamesStat';
 import Groups from './pages/Groups';
 import Grouppage from './pages/Grouppage';
@@ -55,6 +57,7 @@ function App() {
         <Route exact path= '/connections' element={<Connectionsgame/>}/>
         <Route exact path= '/phrazle' element={<Phrazlegame/>}/>
         <Route exact path='/quordle' element={<Quordlegame/>}/>
+        <Route exact path='/octordle' element={<Octordlegame/>}/>
         <Route exact path="/reset-password" element={<Resetpwd />} />
         <Route exact path="/reset-password/:id/:token" element={<Resetpwdform />} />
         <Route  path='/' element={<ProtectedRouter/>}>
@@ -73,6 +76,7 @@ function App() {
           <Route exact path= '/connectionstats' element={<ConnectionStat/>}/>
           <Route exact path= '/phrazlestats' element={<PhrazleStat/>}/>
           <Route exact path= '/quordlestats' element={<QuordleStat/>}/>
+          <Route exact path= '/octordlestats' element={<OctordleStat/>}/>
           <Route exact path= '/edit-profile' element={<UserProfile/>}/>
         </Route>
       </Routes>

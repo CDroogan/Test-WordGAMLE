@@ -240,6 +240,18 @@ function Registerform() {
                     guessDistribution: [0, 0, 0, 0, 0, 0],
                     handleHighlight: [0]
                 });
+
+                await Axios.post(`${baseURL}/games/quordle/create-statistics.php`, {
+                    ...statsPayload,
+                    guessDistribution: [],
+                    handleHighlight: null
+                });
+
+                await Axios.post(`${baseURL}/games/octordle/create-statistics.php`, {
+                    ...statsPayload,
+                    guessDistribution: [],
+                    handleHighlight: null
+                });
                 // ✅ Auto-login after registration
                 try {
                     const loginRes = await Axios.post(`${baseURL}/auth/login.php`, {

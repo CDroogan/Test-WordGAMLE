@@ -109,6 +109,9 @@ function MessageLeaderboard({ latestJoinDate, setSelectedMember, setShowProfile,
                 else if (gameName === "quordle") {
                     scoreData = response.data?.quordlescore || [];
                 }
+                else if (gameName === "octordle") {
+                    scoreData = response.data?.octordlescore || [];
+                }
 
                 setDayResults(scoreData);
                 setShowModal(true);
@@ -229,7 +232,8 @@ function MessageLeaderboard({ latestJoinDate, setSelectedMember, setShowProfile,
         return cleanedName === "wordle" ? 7 :
             cleanedName === "connections" ? 4 :
             cleanedName === "phrazle" ? 7 :
-            cleanedName === "quordle" ? 31 :
+            cleanedName === "quordle" ? 35 :
+            cleanedName === "octordle" ? 113 :
             1; // Default to 1 if unknown
     };
 
@@ -265,7 +269,8 @@ function MessageLeaderboard({ latestJoinDate, setSelectedMember, setShowProfile,
     wordle: "Gamle Score 7",
     connections: "Gamle Score 4",
     phrazle: "Gamle Score 7",
-    quordle: "Gamle Score 31"
+    quordle: "Gamle Score 35",
+    octordle: "Gamle Score 113"
     }[gameName] || "No data available.";
 
     
@@ -579,22 +584,27 @@ function MessageLeaderboard({ latestJoinDate, setSelectedMember, setShowProfile,
                                    
                                     const isQuordleValidScore =
                                         data.gamename === "quordle" ? data.gamlescore >= 10 && data.gamlescore <= 30 : true;
-                                    
+                                    const isOctordleValidScore =
+                                        data.gamename === "octordle" ? data.gamlescore >= 36 && data.gamlescore <= 76 : true;
+
                                     const isSingleWinner =
                                         isQuordleValidScore &&
+                                        isOctordleValidScore &&
                                         topScorers.length === 1 &&
                                         topScorers[0].username === data.username;
-                                  
+
                                     const isSharedWinner =
                                         isQuordleValidScore &&
+                                        isOctordleValidScore &&
                                         topScorers.length > 1 &&
                                         topScorers.some(w => w.username === data.username);
 
-                                    // 🔹 Support Wordle (7), Quordle (9), Connections (4)
+                                    // 🔹 Support Wordle (7), Quordle (35), Connections (4), Octordle (113)
                                     const allLost =
                                     (data.gamename === "connections" && minScore === 4) ||
                                     (data.gamename === "wordle" && minScore === 7) ||
-                                    (data.gamename === "quordle" && (minScore === 9 || data.gamlescore < 10 || data.gamlescore > 30));
+                                    (data.gamename === "quordle" && (minScore === 35 || data.gamlescore < 10 || data.gamlescore > 30)) ||
+                                    (data.gamename === "octordle" && (minScore === 113 || data.gamlescore < 36 || data.gamlescore > 76));
 
                                     const worldCupScore = allLost ? 0 : (isSingleWinner ? 3 : isSharedWinner ? 1 : 0);
                                     // const pesceScore = allLost ? 0 : (isSingleWinner || isSharedWinner ? 1 : 0);
@@ -680,7 +690,16 @@ function MessageLeaderboard({ latestJoinDate, setSelectedMember, setShowProfile,
                                                     isSheriff(data.username) &&
                                                     data.gamlescore !== null &&
                                                     data.gamlescore !== '' &&
-                                                    Number(data.gamlescore) !== 9 && // max attempts per word
+                                                    Number(data.gamlescore) !== 35 &&
+                                                    " 🤠"}
+
+                                                    {/* Sheriff emoji for Octordle */}
+                                                    {data.gamename === 'octordle' &&
+                                                    scoringMethod === "Pesce" &&
+                                                    isSheriff(data.username) &&
+                                                    data.gamlescore !== null &&
+                                                    data.gamlescore !== '' &&
+                                                    Number(data.gamlescore) !== 113 &&
                                                     " 🤠"}
 
                                                     {/* Trophy for top scorer */}
@@ -831,9 +850,33 @@ function MessageLeaderboard({ latestJoinDate, setSelectedMember, setShowProfile,
                                     <pre className='text-center'>
                                         {quordleScore}
                                     </pre>
-                                    </>                 
+                                    </>
                                 </div>
                             );
+                        }
+                        else if (gameName === 'octordle') {
+                        const rawScore = item.octordlescore || "";
+                        const cleanedScore = rawScore
+                            .split("\n")
+                            .map(l => l.trim())
+                            .find(l => l.startsWith("Daily Octordle")) || "";
+
+                        const octordleScore = rawScore
+                            .split("\n")
+                            .map(l => l.trim())
+                            .filter(l => l && !l.startsWith("Daily Octordle") && !l.startsWith("Score:") && !/[a-zA-Z]/.test(l))
+                            .join("\n");
+                        const gamleScore = item.gamlescore;
+                        return (
+                            <div key={index}>
+                                <h5 className='text-center'>Gamle Score: {gamleScore}</h5>
+                                <div className={`wordle-score-board-text my-3 fs-5 text-center`}>{cleanedScore}</div>
+                                <div className='today text-center fs-6 my-2 fw-bold'>{todayDate}</div>
+                                <pre className='text-center'>
+                                    {octordleScore}
+                                </pre>
+                            </div>
+                        );
                         }
                         else {
                         return (

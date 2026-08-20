@@ -8,6 +8,8 @@ import WordlePlayService from '../../components/Games/Wordle/WordlePlayService';
 import ConnectionPlayService from '../../components/Games/Connections/ConnectionPlayService';
 import PhrazlePlayService from '../../components/Games/Phrazle/PhrazlePlayService';
 import Phrazlegame from '../../components/Games/Phrazle/Phrazlegame';
+import QuordlePlayService from '../../components/Games/Quordle/QuordlePlayService';
+import OctordlePlayService from '../../components/Games/Octordle/OctordlePlayService';
 
 function GroupLeaderboardScores({ setLatestJoinDate, setSelectedMember, setShowProfile }) {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -197,7 +199,8 @@ function GroupLeaderboardScores({ setLatestJoinDate, setSelectedMember, setShowP
         return cleanedName === "wordle" ? 7 :
                cleanedName === "connections" ? 4 :
                cleanedName === "phrazle" ? 7 :
-               cleanedName === "quordle" ? 9 :
+               cleanedName === "quordle" ? 35 :
+               cleanedName === "octordle" ? 113 :
                1; // Default to 1 if unknown
     };
 
@@ -227,6 +230,9 @@ function GroupLeaderboardScores({ setLatestJoinDate, setSelectedMember, setShowP
                 }
                 else if (game === "quordle") {
                     scoreData = response.data?.quordlescore || [];
+                }
+                else if (game === "octordle") {
+                    scoreData = response.data?.octordlescore || [];
                 }
 
                 setDayResults(scoreData);
@@ -259,7 +265,8 @@ const noDataMessage = {
   wordle: "Gamle Score 7",
   connections: "Gamle Score 4",
   phrazle: "Gamle Score 7",
-  quordle: "Gamle Score 9"
+  quordle: "Gamle Score 35",
+  octordle: "Gamle Score 113"
 }[game] || "No data available.";
    
 const today = new Date();
@@ -597,6 +604,8 @@ const getPeriod = (createdat) => {
                                                 <WordlePlayService groupId={id} gameName={game} userId={userId}/>
                                             ) : game === 'quordle' ? (
                                                 <QuordlePlayService groupId={id} gameName={game} userId={userId}/>
+                                            ) : game === 'octordle' ? (
+                                                <OctordlePlayService groupId={id} gameName={game} userId={userId}/>
                                             ) : null
                                             )}
                                         </div>
@@ -673,7 +682,9 @@ const getPeriod = (createdat) => {
                                                     // 🔹 pick the right max attempts for the game
                                                     const maxAttempts =
                                                     game === "quordle"
-                                                        ? 9
+                                                        ? 35
+                                                        : game === "octordle"
+                                                        ? 113
                                                         : game === "wordle"
                                                         ? 7
                                                         : game === "connections"
@@ -772,7 +783,15 @@ const getPeriod = (createdat) => {
                                                                         isSheriff(data.username) &&
                                                                         data.gamlescore !== null &&
                                                                         data.gamlescore !== '' &&
-                                                                        Number(data.gamlescore) !== 9 &&
+                                                                        Number(data.gamlescore) !== 35 &&
+                                                                        " 🤠"}
+
+                                                                        {game === 'octordle' &&
+                                                                        scoringMethod === "Pesce" &&
+                                                                        isSheriff(data.username) &&
+                                                                        data.gamlescore !== null &&
+                                                                        data.gamlescore !== '' &&
+                                                                        Number(data.gamlescore) !== 113 &&
                                                                         " 🤠"}
 
                                                                         {scoringMethod !== "Pesce" && isSheriff(data.username) && " 🏆"}
@@ -985,26 +1004,26 @@ const getPeriod = (createdat) => {
                     }
                     else if (game === 'quordle') {
                     // Example Connection game display
-                    const cleanedScore = char.quordlescore
+                    const cleanedScore = item.quordlescore
                         .replace(/[🟨🟩⬛⬜🙂]/g, "") // remove tiles/emojis
                         .replace("m-w.com/games/quordle/", ""); // remove link
 
-                    const quordleScore = char.quordlescore
+                    const quordleScore = item.quordlescore
                     .split("\n")                        // split into lines
                     .map(l => l.trim())                 // trim spaces
                     .filter(l => /^[⬛⬜🟨🟩 ]+$/.test(l)) // allow tiles + space
                     .join("\n");
                     //const quordleScore = splitIntoRows(lettersAndNumbersRemoved);
-                    const createDate = char.createdat; // Ensure this matches your database field name
+                    const createDate = item.createdat; // Ensure this matches your database field name
                     const date = new Date(createDate);
                     const todayDate = date.toLocaleDateString('en-US', {
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric',
                                     });
-                    const gamleScore = char.gamlescore;
+                    const gamleScore = item.gamlescore;
                     return (
-                        
+
                         <div key={index}>
                             <h5 className='text-center'>Gamle Score: {gamleScore}</h5>
                             <>
@@ -1013,7 +1032,40 @@ const getPeriod = (createdat) => {
                             <pre className='text-center'>
                                 {quordleScore}
                             </pre>
-                            </>                 
+                            </>
+                        </div>
+                    );
+                    }
+                    else if (game === 'octordle') {
+                    const cleanedScore = item.octordlescore
+                        .split("\n")
+                        .map(l => l.trim())
+                        .find(l => l.startsWith("Daily Octordle")) || "";
+
+                    const octordleScore = item.octordlescore
+                        .split("\n")
+                        .map(l => l.trim())
+                        .filter(l => l && !l.startsWith("Daily Octordle") && !l.startsWith("Score:") && !/[a-zA-Z]/.test(l))
+                        .join("\n");
+                    const createDate = item.createdat;
+                    const date = new Date(createDate);
+                    const todayDate = date.toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    });
+                    const gamleScore = item.gamlescore;
+                    return (
+
+                        <div key={index}>
+                            <h5 className='text-center'>Gamle Score: {gamleScore}</h5>
+                            <>
+                            <div className={`wordle-score-board-text my-3 fs-5 text-center`}>{cleanedScore}</div>
+                            <div className='today text-center fs-6 my-2 fw-bold'>{todayDate}</div>
+                            <pre className='text-center'>
+                                {octordleScore}
+                            </pre>
+                            </>
                         </div>
                     );
                     }

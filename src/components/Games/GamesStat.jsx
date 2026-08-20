@@ -36,6 +36,20 @@ function GamesStat() {
                                 </Button>
                             </div>
                         </Col>
+                        <Col className="text-center py-3">
+                            <div className="my-3">
+                                <Button className="btn btn-primary btn-lg" onClick={() => handleNavigation('quordlestats')}>
+                                    Quordle
+                                </Button>
+                            </div>
+                        </Col>
+                        <Col className="text-center py-3">
+                            <div className="my-3">
+                                <Button className="btn btn-primary btn-lg" onClick={() => handleNavigation('octordlestats')}>
+                                    Octordle
+                                </Button>
+                            </div>
+                        </Col>
                     </Row>
                 </Col>
             </Row>
