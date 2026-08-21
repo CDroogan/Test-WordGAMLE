@@ -9,7 +9,7 @@ function OctordleGuessDistribution({ guessDistribution }) {
 
     return (
         <>
-            <h2 className="text-uppercase">Score Distribution</h2>
+            <h2 className="text-uppercase">Guess Distribution</h2>
 
             {Object.entries(guessDistribution).map(([guess, data]) => (
                 <div key={guess} className="mb-2">
