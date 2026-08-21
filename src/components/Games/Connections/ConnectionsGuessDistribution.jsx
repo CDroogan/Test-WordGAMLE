@@ -51,7 +51,7 @@ function ConnectionsGuessDistribution() {
         const totalSum = data.guessDistribution.reduce((sum, guess) => sum + parseFloat(guess), 0);
         return (
           <div key={index} className='guess-distribution my-4'>
-            <h2 className='text-uppercase'>Mistake Distribution</h2>
+            <h2 className='text-uppercase'>Distribution</h2>
             {data.guessDistribution.map((guess, i) => {
               const guessValue = parseFloat(guess);
               const percentage = totalSum > 0 ? Math.round((guessValue / totalSum) * 100) : 0;

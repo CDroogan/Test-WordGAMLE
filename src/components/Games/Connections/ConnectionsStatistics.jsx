@@ -82,7 +82,7 @@ function ConnectionsStatistics({ statschart }) {
                         </ul>
         
                         <div className="guess-distribution my-4">
-                            <h2 className="text-uppercase">Guess Distribution</h2>
+                            <h2 className="text-uppercase">Distribution</h2>
                             {Object.entries(guessDistribution).map(([guess, count]) => {
                                 const total = Object.values(guessDistribution).reduce((a, b) => a + b, 0);
                                 const percent = total > 0 ? (count / total) * 100 : 0;
