@@ -62,11 +62,22 @@ body{
 }
 /* Above the site's existing mobile breakpoint (matches the max-width: 600px
    cutoff used elsewhere in this file), center the row under the title/text
-   since it comfortably fits without needing to scroll there. Mobile keeps
-   its left-aligned, scrollable layout untouched. */
+   when it's narrower than its column (no scrolling needed). Mobile keeps
+   its left-aligned, scrollable layout untouched.
+
+   This centers the row's own box via margin, not via justify-content on
+   its flex children: centering the children directly broke scrolling once
+   a 5th button (Octordle) made the row wider than its column - centered
+   overflowing flex content clips evenly on both sides, and scrolling can
+   never reach the true first or last button on either end. Sizing the box
+   itself to fit-content (capped at 100% of the column) keeps flex-start
+   alignment inside, so when it fits it's still centered, and when it
+   overflows, scrolling reaches the real start and end. */
 @media (min-width: 601px) {
   .game-select-row {
-    justify-content: center;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
   }
 }
 /* Group buttons on each game's "Today's Result" stat page: same horizontal-
