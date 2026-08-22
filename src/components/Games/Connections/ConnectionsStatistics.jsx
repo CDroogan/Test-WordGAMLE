@@ -14,6 +14,7 @@ function ConnectionsStatistics({ statschart }) {
     const [guessDistribution, setguessDistribution] = useState();
     const [perfectPuzzles, setperfectPuzzles] = useState();
     const [purpleFirst, setpurpleFirst] = useState();
+    const [pro, setPro] = useState();
 
     useEffect(() => {
         if (loginuserEmail) {
@@ -36,7 +37,8 @@ function ConnectionsStatistics({ statschart }) {
                 setmaxStreak(statistics.maxStreak);
                 setguessDistribution(statistics.guessDistribution);    
                 setperfectPuzzles(statistics.perfectPuzzles);
-                setpurpleFirst(statistics.purpleFirst);   
+                setpurpleFirst(statistics.purpleFirst);
+                setPro(statistics.pro);
             })
             .catch((error) => {
                 console.error("Error fetching data: ", error);
@@ -78,6 +80,10 @@ function ConnectionsStatistics({ statschart }) {
                             <li>
                                 <div className='value'>{purpleFirst}</div>
                                 <div className='bottom-text'>Purple First</div>
+                            </li>
+                            <li>
+                                <div className='value'>{pro}</div>
+                                <div className='bottom-text'>PRO</div>
                             </li>
                         </ul>
         
