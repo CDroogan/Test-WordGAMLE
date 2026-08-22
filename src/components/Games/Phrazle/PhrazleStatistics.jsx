@@ -12,6 +12,10 @@ function phrazleStatistics({statschart}) {
     const [currentStreak, setcurrentStreak] = useState();
     const [maxStreak, setmaxStreak] = useState();
      const [guessDistribution, setguessDistribution] = useState();
+    const [last7Streak, setLast7Streak] = useState();
+    const [last7Average, setLast7Average] = useState();
+    const [cumulativeAvgEntered, setCumulativeAvgEntered] = useState();
+    const [cumulativeAvgInclNoPlay, setCumulativeAvgInclNoPlay] = useState();
 
     useEffect(() => {
         getStatsValue();
@@ -31,7 +35,11 @@ function phrazleStatistics({statschart}) {
                 setTotalWin(statistics.winPercentage);
                 setcurrentStreak(statistics.currentStreak);
                 setmaxStreak(statistics.maxStreak);
-                setguessDistribution(statistics.guessDistribution);   
+                setguessDistribution(statistics.guessDistribution);
+                setLast7Streak(statistics.last7Streak);
+                setLast7Average(statistics.last7Average);
+                setCumulativeAvgEntered(statistics.cumulativeAvgEntered);
+                setCumulativeAvgInclNoPlay(statistics.cumulativeAvgInclNoPlay);
             })
             .catch((error) => {
                 console.error("Error fetching data: ", error);
@@ -65,7 +73,26 @@ function phrazleStatistics({statschart}) {
                             <div className='bottom-text'>Max Streak</div>
                         </li>
                     </ul>
-    
+
+                    <ul>
+                        <li>
+                            <div className='value'>{last7Streak}</div>
+                            <div className='bottom-text'>Last 7 Streak</div>
+                        </li>
+                        <li>
+                            <div className='value'>{last7Average}</div>
+                            <div className='bottom-text'>Last 7 Average</div>
+                        </li>
+                        <li>
+                            <div className='value'>{cumulativeAvgEntered}</div>
+                            <div className='bottom-text'>Cumulative Avg. Entered</div>
+                        </li>
+                        <li>
+                            <div className='value'>{cumulativeAvgInclNoPlay}</div>
+                            <div className='bottom-text'>Cumulative Avg. (incl. No Play)</div>
+                        </li>
+                    </ul>
+
                     <div className="guess-distribution my-4">
                         <h2 className="text-uppercase">Distribution</h2>
                         {Object.entries(guessDistribution).map(([guess, count]) => {
