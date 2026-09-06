@@ -102,8 +102,12 @@ body{
 .group-select-row::-webkit-scrollbar {
   display: none;
 }
-.group-select-row .group-select-btn {
+.group-select-row .group-select-btn-wrapper {
+  position: relative;
+  display: inline-block;
   flex: 0 0 auto;
+}
+.group-select-row .group-select-btn {
   white-space: nowrap;
   appearance: none;
   border: 0;
