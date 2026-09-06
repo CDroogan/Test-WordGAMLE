@@ -93,8 +93,18 @@ body{
   /* The Today's Result column above (p-3) adds its own 1rem of bottom
      padding on top of the Gamler Average bar's mb-3, doubling the gap
      above this row compared to the gap below it. Pull the row up by that
-     same 1rem so both gaps match. */
-  margin-top: -1rem;
+     same 1rem so both gaps match.
+
+     Setting overflow-x: auto forces overflow-y to clip too (a browser
+     can't leave one axis visible and the other not) - which was cutting
+     off the top of each button's notification badge, since it pokes a
+     few pixels above the button itself. padding-top gives the row's own
+     box enough room to contain that overhang without clipping it, and
+     margin-top is pulled up by that same amount so the buttons still land
+     in exactly the same place - the badge borrows from the gap that was
+     already there instead of the row (or the page) growing any taller. */
+  padding-top: 8px;
+  margin-top: calc(-1rem - 8px);
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;

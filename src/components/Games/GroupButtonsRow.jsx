@@ -4,12 +4,27 @@ import { useNavigate } from 'react-router-dom';
 import { Badge } from 'react-bootstrap';
 import moment from 'moment-timezone';
 
+// Mirrors GroupInvites.jsx's own filter exactly, so a group muted (or set to
+// "game complete only") there is muted here too - the homepage bell's raw
+// per-group unread counts don't know about these preferences on their own,
+// so skipping this step would show a badge here for something the bell
+// itself is deliberately hiding.
+const applyMessageFilters = (messages, notificationModes) => {
+    return messages.filter(msg => {
+        const mode = notificationModes[String(msg.group_id)] || "";
+        if (mode === "MUTE_ALL") return false;
+        if (mode === "EXCEPT_GAME_COMPLETE") return msg.msg_from === 'game_winner';
+        return true;
+    });
+};
+
 function GroupButtonsRow() {
     const baseURL = import.meta.env.VITE_BASE_URL;
     const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth'));
     const userId = USER_AUTH_DATA?.id;
     const navigate = useNavigate();
     const [groups, setGroups] = useState([]);
+    const [notificationModes, setNotificationModes] = useState({});
     const [groupUnread, setGroupUnread] = useState({});
 
     useEffect(() => {
@@ -19,9 +34,24 @@ function GroupButtonsRow() {
             .catch((error) => console.error("Error fetching user groups:", error));
     }, [userId]);
 
-    // Same per-group unread counts the homepage notification bell uses
-    // (groups/get-group-messages.php already returns them broken out by
-    // group id), so a badge here always matches what the bell would show.
+    // Same per-group notification mute/preference settings the homepage
+    // bell uses, fetched once the group list is in.
+    useEffect(() => {
+        if (!Array.isArray(groups) || !groups.length || !userId) return;
+        const groupIds = groups.map(g => g.id);
+        Axios.get(`${baseURL}/groups/get-notification-preference-message.php`, {
+            params: { user_id: userId, group_ids: groupIds }
+        })
+            .then((res) => setNotificationModes(res.data?.modes || {}))
+            .catch((error) => console.error("Error fetching notification preferences:", error));
+    }, [groups, userId]);
+
+    // The homepage bell's per-group unread counts (group_unread) don't
+    // account for the mute preferences above - it fetches the raw message
+    // list and applies that filtering itself. Doing the same here, then
+    // counting unread messages per group, so a muted or "game complete
+    // only" group's badge here always matches what the bell would show for
+    // that group after its own filtering.
     useEffect(() => {
         if (!userId) return;
         const timeZone = moment.tz.guess();
@@ -31,9 +61,20 @@ function GroupButtonsRow() {
         Axios.get(`${baseURL}/groups/get-group-messages.php`, {
             params: { user_id: userId, today, current_period }
         })
-            .then((res) => setGroupUnread(res.data?.group_unread || {}))
+            .then((res) => {
+                const messages = Array.isArray(res.data?.messages) ? res.data.messages : [];
+                const filtered = applyMessageFilters(messages, notificationModes);
+                const counts = {};
+                filtered.forEach((msg) => {
+                    const isUnread = !msg.seen_ids || !msg.seen_ids.split(',').includes(String(userId));
+                    if (isUnread) {
+                        counts[msg.group_id] = (counts[msg.group_id] || 0) + 1;
+                    }
+                });
+                setGroupUnread(counts);
+            })
             .catch((error) => console.error("Error fetching group unread counts:", error));
-    }, [userId]);
+    }, [userId, notificationModes]);
 
     // Clicking a group button here has no per-message list to click through
     // (unlike the homepage bell's dropdown), so the click itself stands in
