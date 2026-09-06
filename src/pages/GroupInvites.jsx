@@ -303,6 +303,29 @@ const handleDeclineInvite = async (inviteId) => {
     }
   };
 
+  // "Group deleted" and "you were removed from the group" both mean the
+  // group's own page is no longer somewhere this user can (or should) land -
+  // for a deleted group it's gone entirely, and for a removed member they're
+  // no longer part of it. Send them home instead.
+  const handleClickHome = async (e, groupId, game, userId) => {
+    e.preventDefault();
+    setShowDropdown(false);
+
+    try {
+      await axios.post(`${baseURL}/groups/update-seen-ids.php`, {
+        group_id: groupId,
+        msg_from: 'group',
+        game_name: game,
+        user_id: userId,
+      });
+
+      await fetchGroupMessages();
+      navigate('/');
+    } catch (error) {
+      console.error("Axios error:", error);
+    }
+  };
+
 //   const handleClick = async (
 //   e,
 //   groupId,
@@ -634,8 +657,10 @@ const handleClick = async (
               //         : `/group/${msg.group_id}/stats/${msg.game_name}`)
               // }
               onClick={(e) =>
-                msg.msg_from === "group"
-                  ? handleClickGroup(e, msg.group_id, msg.game_name, userId, msg.msg_id, msg.msg_from, msg.report_date, msg.period ) 
+                (msg.msg_from === "group_deleted" || msg.msg_from === "member_removed")
+                  ? handleClickHome(e, msg.group_id, msg.game_name, userId)
+                  : msg.msg_from === "group"
+                  ? handleClickGroup(e, msg.group_id, msg.game_name, userId, msg.msg_id, msg.msg_from, msg.report_date, msg.period )
                   : handleClick(e, msg.group_id, msg.game_name, userId, msg.msg_id, msg.msg_from, msg.report_date, msg.period )
               }
               style={{ textDecoration: "none", color: "inherit" }}
@@ -648,7 +673,7 @@ const handleClick = async (
 
                   {/* LEFT SIDE */}
                   <div className="msg-left">
-                    {msg.msg_from === "group" ? (
+                    {["group", "group_deleted", "member_removed"].includes(msg.msg_from) ? (
                       <p>{processedMessage}</p>
                     ) : (
                       <>

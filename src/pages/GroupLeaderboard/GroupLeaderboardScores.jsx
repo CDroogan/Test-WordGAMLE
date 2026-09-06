@@ -487,7 +487,7 @@ const getPeriod = (createdat) => {
                                                     : ((totalScore - data.gamlescore) / (totalScore - 1)) * 100
                                                 : 0;
 
-                                            // const isSingleWinner = topScorers.length === 1 && topScorers[0].username === data.username;
+                                            const isSingleWinner = topScorers.length === 1 && topScorers[0].username === data.username;
                                             // const isSharedWinner = topScorers.length > 1 && topScorers.some(w => w.username === data.username);
                                             // const isTopScorer = isSingleWinner || isSharedWinner;
                                             // const isSheriffToday = isSheriff(data.username);
@@ -546,7 +546,7 @@ const getPeriod = (createdat) => {
                                                         : scoringMethod === "World Cup"
                                                         ? worldCupScore
                                                         : pesceScore}
-                                                        {scoringMethod !== "Pesce" && isSheriff(data.username) && " 🏆"}
+                                                        {scoringMethod !== "Pesce" && isSingleWinner && " 🏆"}
                                                         {scoringMethod == "Pesce" && isSheriff(data.username) && "🤠"}
                                                     </span>
                                                     </Col>
@@ -794,7 +794,7 @@ const getPeriod = (createdat) => {
                                                                         Number(data.gamlescore) !== 113 &&
                                                                         " 🤠"}
 
-                                                                        {scoringMethod !== "Pesce" && isSheriff(data.username) && " 🏆"}
+                                                                        {scoringMethod !== "Pesce" && isSingleWinner && " 🏆"}
                                                                     </span>
                                                                     </Col>
 

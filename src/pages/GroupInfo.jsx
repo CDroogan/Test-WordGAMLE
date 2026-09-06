@@ -92,9 +92,9 @@ function GroupInfo() {
         const created_at = adjustedDate.toISOString().slice(0, 19); // Correct format for MySQL DATETIME
     
         try {
-            const res = await Axios.post(`${baseURL}/groups/update-group.php`, { 
+            const res = await Axios.post(`${baseURL}/groups/update-group.php`, {
                 group_id: id,
-                captainid,
+                captainid: userId,
                 groupname,
                 created_at // Ensure the key matches the backend field
             });

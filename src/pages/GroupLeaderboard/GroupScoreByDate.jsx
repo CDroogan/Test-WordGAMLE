@@ -793,7 +793,7 @@ useEffect(() => {
                                                             scoringMethod === "Pesce" &&
                                                             isSheriff(data.username) &&
                                                             " 🤠"}
-                                                            {scoringMethod !== "Pesce" && isSheriff(data.username) && " 🏆"}
+                                                            {scoringMethod !== "Pesce" && isSingleWinner && " 🏆"}
                                                         </span>
                                                     </Col>
                                                 </Row>
@@ -997,7 +997,7 @@ useEffect(() => {
                                                     " 🤠"}
 
                                                     {/* Trophy for top scorer */}
-                                                    {scoringMethod !== "Pesce" && isSheriff(data.username) && " 🏆"}
+                                                    {scoringMethod !== "Pesce" && isSingleWinner && " 🏆"}
                                                 </span>
                                                 </Col>
 
