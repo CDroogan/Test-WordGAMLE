@@ -16,6 +16,7 @@ import { Navigation, FreeMode } from "swiper/modules";
 import { FaRunning, FaDumbbell, FaTree } from "react-icons/fa"; // Example icons
 import GroupScoreByDate from "../pages/GroupLeaderboard/GroupScoreByDate";
 import dayjs from "dayjs";
+import useDragScroll from "../hooks/useDragScroll";
 
 function Home() {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -114,6 +115,7 @@ function Home() {
         navigate('/gamleintro');
     };
     const isEmptyObject = userAuthData && Object.keys(userAuthData).length === 0;
+    const { dragScrollRef, dragScrollHandlers } = useDragScroll();
 
     const [homepageText, setHomepageText] = useState({ heading: '', text1: '', text2: '', text3: '' });
     useEffect(() => {
@@ -264,7 +266,7 @@ function Home() {
                                             </p>
                                         </Col>
                                     </Row>
-                                    <div className="game-select-row">
+                                    <div className="game-select-row" ref={dragScrollRef} {...dragScrollHandlers}>
                                         <Button className="wordle-btn game-select-btn" onClick={() => handleNavigation('wordle')}>Wordle</Button>
                                         <Button className="connections-btn game-select-btn" onClick={() => handleNavigation('connections')}>Connections</Button>
                                         <Button className="phrazle-btn game-select-btn" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>
@@ -282,7 +284,7 @@ function Home() {
                                     {/* Content for users who HAVE created an account */}
                                     <p className='fs-4 text-center' dangerouslySetInnerHTML={{ __html: homepageText.heading_post }}></p>
                                     <div dangerouslySetInnerHTML={{ __html: homepageText.text1_post }} />
-                                    <div className="game-select-row">
+                                    <div className="game-select-row" ref={dragScrollRef} {...dragScrollHandlers}>
                                         <Button className="wordle-btn game-select-btn" onClick={() => handleNavigation('wordle')}>Wordle</Button>
                                         <Button className="connections-btn game-select-btn" onClick={() => handleNavigation('connections')}>Connections</Button>
                                         <Button className="phrazle-btn game-select-btn" onClick={() => handleNavigation('phrazle')}>Phrazle</Button>

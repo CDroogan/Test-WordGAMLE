@@ -3,6 +3,7 @@ import Axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from 'react-bootstrap';
 import moment from 'moment-timezone';
+import useDragScroll from '../../hooks/useDragScroll';
 
 // Mirrors GroupInvites.jsx's own filter exactly, so a group muted (or set to
 // "game complete only") there is muted here too - the homepage bell's raw
@@ -26,6 +27,7 @@ function GroupButtonsRow() {
     const [groups, setGroups] = useState([]);
     const [notificationModes, setNotificationModes] = useState({});
     const [groupUnread, setGroupUnread] = useState({});
+    const { dragScrollRef, dragScrollHandlers } = useDragScroll();
 
     useEffect(() => {
         if (!userId) return;
@@ -95,7 +97,7 @@ function GroupButtonsRow() {
     if (groups.length === 0) return null;
 
     return (
-        <div className="group-select-row mb-3">
+        <div className="group-select-row mb-3" ref={dragScrollRef} {...dragScrollHandlers}>
             {groups.map((group) => {
                 const unreadCount = groupUnread[group.id] || 0;
                 return (
