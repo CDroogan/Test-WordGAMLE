@@ -515,7 +515,7 @@ cursor: pointer;
 
 .custom-button-row{
   display: block !important;
-  margin: auto;
+  margin: 0 auto !important;
   width: 70%;
 }
 
