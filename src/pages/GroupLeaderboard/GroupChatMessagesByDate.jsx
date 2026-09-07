@@ -135,8 +135,8 @@ function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highligh
             const isMe = msg.user_id === userId;
             const formattedTime = msg.created_at
               ? (generalChat
-                  ? dayjs.utc(msg.created_at).tz(userTimezone).format("hh:mm A")
-                  : dayjs(msg.created_at).format("hh:mm A"))
+                  ? dayjs.utc(msg.created_at).tz(userTimezone).format("h:mm A")
+                  : dayjs(msg.created_at).format("h:mm A"))
               : "";
             return (
               <div
