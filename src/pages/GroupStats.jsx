@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -11,6 +11,8 @@ function GroupStats() {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
   const { id, groupName } = useParams();
+  const location = useLocation();
+  const msgId = new URLSearchParams(location.search).get("msg_id");
   const [selectedGames, setSelectedGames] = useState([]);
   const [group, setGroup] = useState(null);
   // Get user ID from localStorage
@@ -93,7 +95,7 @@ function GroupStats() {
                 userTimezone = {usertimezone}
                 generalChat = "true"
                 userId={userId}
-                // highlightMsgId={msgId}
+                highlightMsgId={msgId}
               />
             </Col>
           </Row>

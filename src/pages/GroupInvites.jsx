@@ -303,6 +303,27 @@ const handleDeclineInvite = async (inviteId) => {
     }
   };
 
+  // A message posted to the group's general/leaderboard chat (as opposed
+  // to a specific game's chat) - lands on the group's stats/leaderboard
+  // page, where that chat lives, rather than a specific game's page.
+  const handleClickGeneralChat = async (e, groupId, userId, msgId) => {
+    e.preventDefault();
+    setShowDropdown(false);
+
+    try {
+      await axios.post(`${baseURL}/groups/update-seen-ids.php`, {
+        group_id: groupId,
+        game_name: 'general_chat',
+        user_id: userId,
+      });
+
+      await fetchGroupMessages();
+      navigate(`/group/${groupId}/stats?msg_id=${msgId}`);
+    } catch (error) {
+      console.error("Axios error:", error);
+    }
+  };
+
   // "Group deleted" and "you were removed from the group" both mean the
   // group's own page is no longer somewhere this user can (or should) land -
   // for a deleted group it's gone entirely, and for a removed member they're
@@ -476,8 +497,11 @@ const handleClick = async (
   //   return "Just now";
   // }
 
-  function timeAgo(dateString) {
-    const date = new Date(dateString);
+  function timeAgo(dateString, isUtc = false) {
+    // General chat notifications carry a true UTC instant with no "Z"
+    // suffix, which the Date constructor would otherwise read as local
+    // time - flagging it lets it parse correctly.
+    const date = isUtc ? new Date(dateString.replace(" ", "T") + "Z") : new Date(dateString);
     const now = new Date();
     const seconds = Math.floor((now - date) / 1000);
 
@@ -661,6 +685,8 @@ const handleClick = async (
                   ? handleClickHome(e, msg.group_id, msg.game_name, userId)
                   : msg.msg_from === "group"
                   ? handleClickGroup(e, msg.group_id, msg.game_name, userId, msg.msg_id, msg.msg_from, msg.report_date, msg.period )
+                  : msg.game_name === "general_chat"
+                  ? handleClickGeneralChat(e, msg.group_id, userId, msg.msg_id)
                   : handleClick(e, msg.group_id, msg.game_name, userId, msg.msg_id, msg.msg_from, msg.report_date, msg.period )
               }
               style={{ textDecoration: "none", color: "inherit" }}
@@ -684,7 +710,7 @@ const handleClick = async (
                       </>
                     )}
                       <div className=" d-flex gap-2 time-ago">
-                        {timeAgo(msg.created_at)}
+                        {timeAgo(msg.created_at, msg.game_name === "general_chat")}
                         <span
                             className="delete-icon"
                             onClick={(e) => {

@@ -59,15 +59,13 @@ function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highl
 
   // Send message
   const handleSend = async (messageText) => {
-    // Decide timestamp
-    const created_at = generalChat
-      ? dayjs().format("YYYY-MM-DD HH:mm:ss")   // system local timestamp
-      : createdAt;                              // fallback
-
+    // For general chat the backend always stamps its own true UTC time,
+    // ignoring this value - only per-game chat's day-bucket matching
+    // still relies on it.
     await axios.post(`${baseURL}/groups/send-user-message.php`, {
       group_id: groupId,
       game_name: gameName,
-      created_at: created_at,
+      created_at: createdAt,
       user_id: userId,
       message: messageText,
       general_chat: generalChat
@@ -92,7 +90,7 @@ function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highl
             userId={userId}
             baseURL={baseURL}
             highlightMsgId={highlightMsgId}
-            generalChat
+            generalChat={generalChat}
           />
         </div>
 

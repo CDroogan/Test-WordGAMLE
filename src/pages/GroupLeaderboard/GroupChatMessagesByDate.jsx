@@ -48,10 +48,13 @@ function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highligh
   // }, {});
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const groupedMessages = messages.reduce((acc, msg) => {
-    const dateKey = dayjs
-      .tz(msg.created_at, "Asia/Kolkata")
-      .tz(userTimezone)
-      .format("YYYY-MM-DD");
+    // General chat timestamps are true UTC instants, so they convert
+    // correctly to the viewer's own timezone. Per-game chat still stores
+    // the sender's raw local clock time with no timezone attached, so
+    // there's no zone to convert from - it's shown as recorded.
+    const dateKey = generalChat
+      ? dayjs.utc(msg.created_at).tz(userTimezone).format("YYYY-MM-DD")
+      : dayjs(msg.created_at).format("YYYY-MM-DD");
 
     if (!acc[dateKey]) {
       acc[dateKey] = [];
@@ -130,48 +133,41 @@ function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highligh
           {/* Messages for this date */}
           {groupedMessages[dateKey].map((msg) => {
             const isMe = msg.user_id === userId;
-            const time = msg.created_at
-              ? gameName
-                ? dayjs(msg.created_at).format("HH:mm A") // 24hr
-                : dayjs(msg.created_at).format("hh:mm A") // 12hr
-              : "";
-            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             const formattedTime = msg.created_at
-              ? dayjs
-                  .tz(msg.created_at, "Asia/Kolkata") // source timezone
-                  .tz(userTimezone)                   // user's timezone
-                  .format(gameName ? "hh:mm A" : "hh:mm A")
+              ? (generalChat
+                  ? dayjs.utc(msg.created_at).tz(userTimezone).format("hh:mm A")
+                  : dayjs(msg.created_at).format("hh:mm A"))
               : "";
             return (
               <div
                 key={msg.id}
                 id={`msg-${msg.id}`} // for highlight
-                className={`d-flex flex-column mb-3 ${isMe ? "align-items-end" : "align-items-start"}`}
+                className="d-flex flex-column mb-3 align-items-start"
               >
                 {/* Username */}
-                <div className={`small fw-bold mb-1 ${isMe ? "text-start me-1" : "ms-1"}`}>
+                <div className="small fw-bold mb-1 ms-1">
                   {msg.username || `User ${msg.user_id}`}
                 </div>
 
                 {/* Message row */}
-                
+
                 <div className={`d-flex align-items-end`} style={{ position: "relative" }}>
                   {/* Avatar + Reactions */}
-                  <div style={{ position: "relative" }}>  
+                  <div style={{ position: "relative" }}>
                     <img
                       src={msg.avatar ? `${baseURL}/user/uploads/${msg.avatar}` : "https://via.placeholder.com/30"}
                       alt="avatar"
-                      className={`rounded-circle ${isMe ? "ms-2" : "me-2"}`}
+                      className="rounded-circle me-2"
                       width="30"
                       height="30"
                       onError={(e) => (e.target.style.display = "none")}
                     />
-                    
+
                   </div>
 
                   {/* Message bubble */}
                   <div
-                    className={`p-2 rounded-3 ${isMe ? "bg-primary text-white" : "bg-white border text-dark"}`}
+                    className="p-2 rounded-3 bg-white border text-dark"
                     style={{
                       wordWrap: "break-word",
                       overflowWrap: "break-word",
@@ -187,7 +183,7 @@ function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highligh
                         bottom: "3px",
                         right: "5px",
                         fontSize: "0.6rem",
-                        color: isMe ? "rgba(255,255,255,0.7)" : "#6c757d",
+                        color: "#6c757d",
                       }}
                     >
                       
@@ -201,8 +197,8 @@ function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highligh
                           position: "absolute",
                           bottom: "-12px",
                           left: "0px",
-                          background: isMe ? "#ffffff" : "#ffffff",
-                          border: isMe ? "1px solid rgba(255,255,255,0.3)" : "1px solid #ddd",
+                          background: "#ffffff",
+                          border: "1px solid #ddd",
                           borderRadius: "50%",
                           padding: "1px 5px",
                           fontSize: "0.8rem",
