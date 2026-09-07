@@ -19,6 +19,14 @@ function GameNotificationToggle() {
 
     const [loading, setLoading] = useState(false);
 
+    // A native radio's onChange never fires for re-clicking an already
+    // checked option, so there's no way to reach "no preference" through
+    // onChange alone. Handling the toggle in onClick instead (which always
+    // fires) lets clicking the selected option deselect it.
+    const toggleMode = (mode) => {
+        setSelectedMode((prev) => (prev === mode ? "" : mode));
+    };
+
     //1️⃣ Fetch notification preference
     useEffect(() => {
         const fetchNotificationMode = async () => {
@@ -97,7 +105,8 @@ function GameNotificationToggle() {
                                 id="mute-all"
                                 label="Mute all notifications"
                                 checked={selectedMode == "MUTE_ALL"}
-                                onChange={() => setSelectedMode("MUTE_ALL")}
+                                onChange={() => {}}
+                                onClick={() => toggleMode("MUTE_ALL")}
                                 disabled={loading}
                                 className="mb-2 d-flex justify-content-center gap-2"
                             />
@@ -109,7 +118,8 @@ function GameNotificationToggle() {
                                 id="mute-except-complete"
                                 label="Mute all except Game Complete"
                                 checked={selectedMode == "EXCEPT_GAME_COMPLETE"}
-                                onChange={() => setSelectedMode("EXCEPT_GAME_COMPLETE")}
+                                onChange={() => {}}
+                                onClick={() => toggleMode("EXCEPT_GAME_COMPLETE")}
                                 disabled={loading}
                                 className="d-flex justify-content-center gap-2"
                             />
