@@ -513,6 +513,12 @@ cursor: pointer;
   color: #b30f1d;
 }
 
+.custom-button-row{
+  display: block !important;
+  margin: auto;
+  width: 70%;
+}
+
 /* Hide on larger screens */
 @media only screen and (max-width: 600px)  {
   .navbar-collapse {
@@ -534,10 +540,5 @@ cursor: pointer;
 }
 .cwd-swiper-animation .swiper-wrapper{
   justify-content: start !important;
-}
-.custom-button-row{
-  display: block;
-  margin: auto;
-  width: 70%;
 }
 }
