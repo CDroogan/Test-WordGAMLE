@@ -79,7 +79,7 @@ function GroupStats() {
             {selectedGames.length > 0 && selectedGames.map((game, index) => (
               <Col key={index} className="text-center mt-4">
                 <Button
-                  className="btn-lg btn-block w-100"
+                  className={`btn-lg btn-block w-100 leaderboard-btn-${game.toLowerCase()}`}
                   onClick={() => navigate(`/group/${id}/stats/${game.toLowerCase()}`)}
                 >
                   {game}

@@ -35,6 +35,26 @@ body{
   background-color: #95A5C2!important;
   border-color: #95A5C2!important;
 }
+/* Group Leaderboard nav buttons keep the shared Gamle Green background,
+   just with each game's own color used for the label text instead of
+   white. Quordle's own color IS Gamle Green, so its button ends up a
+   solid block with no visible text - a known, accepted tradeoff since
+   Quordle has no distinct color of its own. */
+.leaderboard-btn-wordle{
+  color: #a0c35a!important;
+}
+.leaderboard-btn-connections{
+  color: #B3A7FF!important;
+}
+.leaderboard-btn-phrazle{
+  color: #218838!important;
+}
+.leaderboard-btn-quordle{
+  color: #00BF63!important;
+}
+.leaderboard-btn-octordle{
+  color: #95A5C2!important;
+}
 /* Game selector row (Wordle/Connections/Phrazle/Quordle): single row that never
    wraps. Buttons size to their own text (no fixed width), so height stays
    consistent while width follows word length. On mobile, if the buttons don't
