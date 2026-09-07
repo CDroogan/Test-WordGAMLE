@@ -37,9 +37,8 @@ body{
 }
 /* Group Leaderboard nav buttons keep the shared Gamle Green background,
    just with each game's own color used for the label text instead of
-   white. Quordle's own color IS Gamle Green, so its button ends up a
-   solid block with no visible text - a known, accepted tradeoff since
-   Quordle has no distinct color of its own. */
+   white. Quordle's own color IS Gamle Green, so its text stays white -
+   using its "own" color here would make the label unreadable. */
 .leaderboard-btn-wordle{
   color: #a0c35a!important;
 }
@@ -48,9 +47,6 @@ body{
 }
 .leaderboard-btn-phrazle{
   color: #218838!important;
-}
-.leaderboard-btn-quordle{
-  color: #00BF63!important;
 }
 .leaderboard-btn-octordle{
   color: #95A5C2!important;
