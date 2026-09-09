@@ -232,6 +232,7 @@ const handleInviteFriends = async () => {
           {userEmail && !isDesktop && (
             <GroupInvites/>
           )}
+          {!isDesktop && profileButton}
           {userEmail === "cassandradroogan@gmail.com" && (
             <>
             <Link to="/admin-text">
@@ -253,9 +254,6 @@ const handleInviteFriends = async () => {
           onClick={() => setExpanded((prev) => !prev)}
         />
           <Navbar.Collapse id="basic-navbar-nav" ref={collapseRef}>
-                <Nav className="align-items-center">
-                  {!isDesktop && profileButton}
-                </Nav>
                 <Nav className="ms-auto align-items-center">
                   <Button className="custom-btn m-2" onClick={() => { setExpanded(false); navigate('/gamleintro'); }}>
                     Gamle Intro
