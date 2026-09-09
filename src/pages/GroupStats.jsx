@@ -7,6 +7,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import GroupGameChat from './GroupLeaderboard/GroupGameChat';
 import dayjs from "dayjs";
 
+// Canonical display order for game leaderboard buttons, matching the
+// order game buttons themselves appear in everywhere else in the app -
+// otherwise buttons list in whatever order each member happened to check
+// the boxes in, which varies per group/member.
+const GAME_ORDER = ["wordle", "connections", "phrazle", "quordle", "octordle"];
+const sortByGameOrder = (games) =>
+  [...games].sort((a, b) => GAME_ORDER.indexOf(a.toLowerCase()) - GAME_ORDER.indexOf(b.toLowerCase()));
+
 function GroupStats() {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
@@ -52,7 +60,7 @@ function GroupStats() {
             }
 
             if (Array.isArray(userGames)) {
-                setSelectedGames(userGames);
+                setSelectedGames(sortByGameOrder(userGames));
             } else {
                 console.error("Invalid data format for selected games:", userGames);
                 setSelectedGames([]); // Ensure state remains an array
