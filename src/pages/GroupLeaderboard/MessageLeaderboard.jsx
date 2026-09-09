@@ -507,7 +507,7 @@ function MessageLeaderboard({ latestJoinDate, setSelectedMember, setShowProfile,
                                                     <Col md={5} xs={6} className="text-center d-flex fw-bold">
                                                         <span
                                                             onClick={() => showDayResult(data.createdat, data.useremail, data.gamename, period)}
-                                                            style={{ cursor: "pointer" }}
+                                                            style={{ cursor: "pointer", whiteSpace: "nowrap" }}
                                                         >
                                                             {scoringMethod === "Golf"
                                                                 ? (data.gamlescore ?? '') === '' ? totalScore : data.gamlescore
@@ -582,20 +582,11 @@ function MessageLeaderboard({ latestJoinDate, setSelectedMember, setShowProfile,
                                     
                                     const minScore = gameBestScores[data.gamename];
                                    
-                                    const isQuordleValidScore =
-                                        data.gamename === "quordle" ? data.gamlescore >= 10 && data.gamlescore <= 30 : true;
-                                    const isOctordleValidScore =
-                                        data.gamename === "octordle" ? data.gamlescore >= 36 && data.gamlescore <= 76 : true;
-
                                     const isSingleWinner =
-                                        isQuordleValidScore &&
-                                        isOctordleValidScore &&
                                         topScorers.length === 1 &&
                                         topScorers[0].username === data.username;
 
                                     const isSharedWinner =
-                                        isQuordleValidScore &&
-                                        isOctordleValidScore &&
                                         topScorers.length > 1 &&
                                         topScorers.some(w => w.username === data.username);
 
@@ -603,8 +594,8 @@ function MessageLeaderboard({ latestJoinDate, setSelectedMember, setShowProfile,
                                     const allLost =
                                     (data.gamename === "connections" && minScore === 4) ||
                                     (data.gamename === "wordle" && minScore === 7) ||
-                                    (data.gamename === "quordle" && (minScore === 35 || data.gamlescore < 10 || data.gamlescore > 30)) ||
-                                    (data.gamename === "octordle" && (minScore === 113 || data.gamlescore < 36 || data.gamlescore > 76));
+                                    (data.gamename === "quordle" && minScore === 35) ||
+                                    (data.gamename === "octordle" && minScore === 113);
 
                                     const worldCupScore = allLost ? 0 : (isSingleWinner ? 3 : isSharedWinner ? 1 : 0);
                                     // const pesceScore = allLost ? 0 : (isSingleWinner || isSharedWinner ? 1 : 0);
@@ -659,7 +650,7 @@ function MessageLeaderboard({ latestJoinDate, setSelectedMember, setShowProfile,
                                             <Col md={5} xs={6} className="text-center d-flex fw-bold">
                                                 <span
                                                     onClick={() => showDayResult(data.createdat, data.useremail, data.gamename)}
-                                                    style={{ cursor: "pointer" }}
+                                                    style={{ cursor: "pointer", whiteSpace: "nowrap" }}
                                                 >
                                                     {scoringMethod === "Golf"
                                                     ? (data.gamlescore ?? '') === '' ? totalScore : data.gamlescore

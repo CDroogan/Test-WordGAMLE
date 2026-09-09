@@ -539,7 +539,7 @@ const getPeriod = (createdat) => {
                                                     <Col md={5} xs={6} className="text-center d-flex fw-bold">
                                                     <span
                                                         onClick={() => showDayResult(data.createdat, data.useremail, data.gamename, period)}
-                                                        style={{ cursor: "pointer" }}
+                                                        style={{ cursor: "pointer", whiteSpace: "nowrap" }}
                                                     >
                                                         {scoringMethod === "Golf"
                                                         ? (data.gamlescore ?? '') === '' ? totalScore : data.gamlescore
@@ -754,7 +754,7 @@ const getPeriod = (createdat) => {
                                                                     <Col md={5} xs={6} className="text-center d-flex fw-bold">
                                                                     <span
                                                                         onClick={() => showDayResult(data.createdat, data.useremail, game)}
-                                                                        style={{ cursor: "pointer" }}
+                                                                        style={{ cursor: "pointer", whiteSpace: "nowrap" }}
                                                                     >
                                                                         {scoringMethod === "Golf"
                                                                         ? (data.gamlescore ?? '') === '' ? totalScore : data.gamlescore
