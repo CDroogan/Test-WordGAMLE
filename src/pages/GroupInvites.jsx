@@ -651,9 +651,15 @@ const handleClick = async (
 
           let processedMessage = msg.message || "";
 
-          // Replace current user name with "You" (inside <strong> if needed)
+          // Replace the viewer's own name with "You" - but only where the
+          // backend actually renders a username (always wrapped in
+          // <strong> tags), not any bare occurrence of the name anywhere
+          // in the message. Without that scoping, a username that happens
+          // to also appear inside a GROUP name (e.g. "Cassandra" inside
+          // "Two Cassandras") gets swapped too.
           if (currentUserName) {
-            const nameRegex = new RegExp(currentUserName, "g");
+            const escapedName = currentUserName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const nameRegex = new RegExp(`<strong>${escapedName}</strong>`, "g");
             processedMessage = processedMessage.replace(
               nameRegex,
               "<strong>You</strong>"
