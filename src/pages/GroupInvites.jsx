@@ -448,16 +448,15 @@ const handleClick = async (
 
     const timeZone = moment.tz.guess();
     const today = moment().tz(timeZone).format("YYYY-MM-DD");
-    const current_period = moment().tz(timeZone).format("A");
 
     let url = `/group/${groupId}/stats/${game}?msg_id=${msgId}&msg_from=${msgFrom}`;
 
     if (game === "phrazle") {
-      url += `&msgReportDate=${msgReportDate}`;
-
-      if (msgReportDate !== today || current_period !== msgPeriod) {
-        url += `&msgPeriod=${msgPeriod}`;
-      }
+      // Always pass msgPeriod explicitly - the destination page has no
+      // "use whatever the current period is" fallback, so omitting it
+      // (even when it happens to match the current period right now)
+      // makes it default to AM regardless of which period this actually is.
+      url += `&msgReportDate=${msgReportDate}&msgPeriod=${msgPeriod}`;
     } else {
       if (msgReportDate !== today) {
         url += `&msgReportDate=${msgReportDate}&msgPeriod=${msgPeriod}`;
