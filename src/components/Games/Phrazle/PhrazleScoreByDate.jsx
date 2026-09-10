@@ -262,7 +262,7 @@ function PhrazleScoreByDate() {
                 )}
 
                 {firstPlayedDate && (
-                    <p className="text-center">
+                    <p className="text-center mt-5">
                         Start Date: {moment(firstPlayedDate).format('MMMM D, YYYY')} - {firstPlayedPeriod}
                     </p>
                 )}
