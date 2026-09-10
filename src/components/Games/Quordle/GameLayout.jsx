@@ -11,7 +11,27 @@ function GamesLayout() {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth')) || {};
   const { username: loginUsername, email: loginUserEmail } = USER_AUTH_DATA;
-  
+  const userId = USER_AUTH_DATA?.id;
+  const [allGroup, setAllGroup] = useState([]);
+
+  // Groups this user belongs to, so a submitted score can notify group
+  // members ("X has played Quordle") and announce a winner once everyone
+  // in the group has played - same as Wordle/Connections/Phrazle.
+  useEffect(() => {
+    const fetchUserGroups = async () => {
+      try {
+        const response = await Axios.get(`${baseURL}/groups/get-user-groups-data.php`, {
+          params: { user_id: userId },
+        });
+        setAllGroup(response.data);
+      } catch (error) {
+        console.error("Error fetching user joined groups:", error);
+      }
+    };
+
+    if (userId) fetchUserGroups();
+  }, [userId]);
+
   const [showForm, setShowForm] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [score, setScore] = useState('');
@@ -142,7 +162,14 @@ const determineAttempts = (score) => {
     const adjustedCreatedAt = adjustedDate.toISOString().slice(0, -1);  // "2024-12-02T15:10:29.476" (24-hour format)
   
   
+    const groupGameMap = (allGroup || []).map(group => ({
+      groupId: group.id,
+      selectedGame: group.selected_games,
+      groupName: group.group_name
+    }));
+
     const scoreObject = {
+      baseURL,
       username: loginUsername,
       useremail: loginUserEmail,
       quordlescore: score,
@@ -154,6 +181,8 @@ const determineAttempts = (score) => {
       guessDistribution: updatedDistribution,
       handleHighlight: attempts,
       timeZone,
+      groups: groupGameMap,
+      userId,
     };
     
     try {
