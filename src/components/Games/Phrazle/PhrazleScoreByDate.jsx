@@ -16,9 +16,14 @@ function PhrazleScoreByDate() {
     const [statsChart, setStatsChart] = useState([]);
     const [dataFetched, setDataFetched] = useState(false);
     const [dataFetchedError, setFetchedError] = useState(false);
+    // The date/period of this user's first-ever Phrazle result - stays blank
+    // until they've played, and bounds how far back "Go To Date" can go so
+    // it never shows "No Play" for a period before they started.
+    const [firstPlayedDate, setFirstPlayedDate] = useState(null);
+    const [firstPlayedPeriod, setFirstPlayedPeriod] = useState(null);
 
     const formatDateForBackend = (date) => moment(date).format('YYYY-MM-DD hh:mm A');
-    
+
     useEffect(() => {
         const now = new Date();
         const currentHour = now.getHours();
@@ -37,6 +42,20 @@ function PhrazleScoreByDate() {
 
         const formattedDate = formatDateForBackend(defaultDate); // your helper function
         fetchDataByDate(formattedDate, priorPeriod);
+
+        axios.get(`${baseURL}/games/phrazle/get-statistics.php`, { params: { useremail: loginuserEmail } })
+            .then((response) => {
+                const stats = response.data?.statistics;
+                const firstDate = stats?.firstPlayedDate;
+                if (firstDate) {
+                    setFirstPlayedDate(moment(firstDate, 'YYYY-MM-DD').toDate());
+                    setFirstPlayedPeriod(stats?.firstPlayedPeriod || null);
+                }
+            })
+            .catch(() => {
+                // No stats yet (e.g. brand new account) - firstPlayedDate
+                // just stays null, matching "not played yet".
+            });
     }, []);
 
     const fetchDataByDate = (date, periodValue) => {
@@ -83,8 +102,17 @@ function PhrazleScoreByDate() {
         setPeriod(newPeriod);
     };
     
+    // True when the currently viewed date/period is the user's first-ever
+    // played period, so there's nothing earlier to navigate back to.
+    const isAtFirstPlayedPeriod = () => {
+        if (!firstPlayedDate) return false;
+        if (!dayjs(startDate).isSame(dayjs(firstPlayedDate), 'day')) return false;
+        return firstPlayedPeriod === 'AM' || period === 'PM';
+    };
+
     const goToPreviousPeriod = () => {
-        
+        if (isAtFirstPlayedPeriod()) return; // already at the first-played period
+
         if (period === 'PM') {
             const newPeriod = 'AM';
             const formattedDate = formatDateForBackend(startDate);
@@ -167,6 +195,7 @@ function PhrazleScoreByDate() {
                     timeFormat="hh:mm aa"
                     timeIntervals={720}
                     maxDate={maxSelectableDate}
+                    minDate={firstPlayedDate}
                     timeCaption="AM/PM"
                 />
             </div>
@@ -230,6 +259,12 @@ function PhrazleScoreByDate() {
                         <h6 className='text-center'>Gamle Score: 8</h6>
                         <p className='text-muted text-center'>No Play</p>
                     </div>
+                )}
+
+                {firstPlayedDate && (
+                    <p className="text-center">
+                        Start Date: {moment(firstPlayedDate).format('MMMM D, YYYY')} - {firstPlayedPeriod}
+                    </p>
                 )}
             </>
         )}

@@ -16,6 +16,10 @@ function ConnectionsScoreByDate() {
     const [dataFetched, setDataFetched] = useState(false);
     const [dataFetchedError, setFetchedError] = useState(false);
     const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 1)));
+    // The date of this user's first-ever Connections result - stays blank
+    // until they've played, and bounds how far back "Go To Date" can go so
+    // it never shows "No Play" for a date before they started.
+    const [firstPlayedDate, setFirstPlayedDate] = useState(null);
 
     // Function to format the selected date in YYYY-MM-DD format for backend
     const formatDateForBackend = (date) => moment(date).format('YYYY-MM-DD');
@@ -30,6 +34,18 @@ function ConnectionsScoreByDate() {
     useEffect(() => {
         const formattedDate = formatDateForBackend(startDate);
         fetchDataByDate(formattedDate);
+
+        axios.get(`${baseURL}/games/connections/get-statistics.php`, { params: { useremail: loginuserEmail } })
+            .then((response) => {
+                const firstDate = response.data?.statistics?.firstPlayedDate;
+                if (firstDate) {
+                    setFirstPlayedDate(moment(firstDate, 'YYYY-MM-DD').toDate());
+                }
+            })
+            .catch(() => {
+                // No stats yet (e.g. brand new account) - firstPlayedDate
+                // just stays null, matching "not played yet".
+            });
     }, []);
 
     const fetchDataByDate = (date) => {
@@ -81,6 +97,7 @@ function ConnectionsScoreByDate() {
     // ));
 
     const goToPreviousDay = () => {
+        if (firstPlayedDate && !dayjs(startDate).isAfter(dayjs(firstPlayedDate), 'day')) return; // already at the first-played date
         const prevDate = dayjs(startDate).subtract(1, 'day').toDate();
         handleDateChange(prevDate);
     };
@@ -120,6 +137,7 @@ function ConnectionsScoreByDate() {
                     onChange={handleDateChange}
                     customInput={<ExampleCustomInput />}
                     maxDate={new Date(new Date().setDate(new Date().getDate() - 1))}
+                    minDate={firstPlayedDate}
                 />
             </div>
             <ul className='score-by-date p-2'>
@@ -165,6 +183,12 @@ function ConnectionsScoreByDate() {
                             <h6 className='text-center'>Gamle Score: 5</h6>
                             <p className='text-muted text-center'>No Play</p>
                         </div>
+                    )}
+
+                    {firstPlayedDate && (
+                        <p className="text-center">
+                            Start Date: {moment(firstPlayedDate).format('MMMM D, YYYY')}
+                        </p>
                     )}
                 </>
             )}
