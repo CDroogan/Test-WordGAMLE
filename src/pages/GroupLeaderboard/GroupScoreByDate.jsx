@@ -11,23 +11,27 @@ import GetGroupMessagesModal from '../../constant/Models/GetGroupMessagesModal';
 
 function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile, msgReportDate, msgPeriod}) {
     const baseURL = import.meta.env.VITE_BASE_URL;
+    const { id, groupName, game } = useParams();
     // A notification for a past game period should land the user right on
     // that date's Daily Leaderboard below, not leave them looking at
     // Today's Leaderboard further up the page (which doesn't apply to a
-    // past date). Scrolls once, the first time this section's data for the
-    // requested date finishes loading - not on every later manual date
-    // change the user makes within this section themselves.
+    // past date). Scrolls once per distinct notification (identified by
+    // group/game/date/period) once this section's data for the requested
+    // date finishes loading - clicking a different notification afterward
+    // (without a full page reload, since React Router reuses this same
+    // mounted component across param changes) still triggers its own
+    // scroll, while manual date navigation within this section does not.
     const dailyLeaderboardRef = useRef(null);
-    const hasScrolledToReportDate = useRef(false);
+    const scrolledForKeyRef = useRef(null);
     const scrollToDailyLeaderboardIfNeeded = () => {
-        if (msgReportDate && !hasScrolledToReportDate.current) {
-            hasScrolledToReportDate.current = true;
+        const key = msgReportDate ? `${id}|${game}|${msgReportDate}|${msgPeriod ?? ""}` : null;
+        if (key && scrolledForKeyRef.current !== key) {
+            scrolledForKeyRef.current = key;
             setTimeout(() => {
                 dailyLeaderboardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
             }, 50);
         }
     };
-    const { id, groupName, game } = useParams();
     const [todayLeaderboard, setTodayLeaderboard] = useState([]);
     // const [latestJoinDate, setlatestJoinDate] = useState('');
     const [totalGames, settotalGames] = useState('');
