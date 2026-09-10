@@ -151,7 +151,7 @@ function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highligh
 
                 {/* Message row */}
 
-                <div className={`d-flex align-items-end`} style={{ position: "relative" }}>
+                <div className={`d-flex align-items-end`} style={{ position: "relative", width: "100%" }}>
                   {/* Avatar + Reactions */}
                   <div style={{ position: "relative" }}>
                     <img
@@ -173,7 +173,8 @@ function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highligh
                       overflowWrap: "break-word",
                       whiteSpace: "pre-wrap",
                       position: "relative",
-                      maxWidth: "75%",
+                      maxWidth: "90%",
+                      textAlign: "left",
                     }}
                   >
                     <div style={{ paddingRight: "40px", marginBottom: "5px"}}>{msg.message}</div>
