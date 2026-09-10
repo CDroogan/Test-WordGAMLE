@@ -1,4 +1,4 @@
-import React, { useEffect, useState, forwardRef } from 'react';
+import React, { useEffect, useRef, useState, forwardRef } from 'react';
 import { useParams, useSearchParams  } from "react-router-dom";
 import axios from 'axios';
 import { Button, Alert, Row, Col, ProgressBar, Modal  } from 'react-bootstrap';
@@ -11,6 +11,22 @@ import GetGroupMessagesModal from '../../constant/Models/GetGroupMessagesModal';
 
 function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile, msgReportDate, msgPeriod}) {
     const baseURL = import.meta.env.VITE_BASE_URL;
+    // A notification for a past game period should land the user right on
+    // that date's Daily Leaderboard below, not leave them looking at
+    // Today's Leaderboard further up the page (which doesn't apply to a
+    // past date). Scrolls once, the first time this section's data for the
+    // requested date finishes loading - not on every later manual date
+    // change the user makes within this section themselves.
+    const dailyLeaderboardRef = useRef(null);
+    const hasScrolledToReportDate = useRef(false);
+    const scrollToDailyLeaderboardIfNeeded = () => {
+        if (msgReportDate && !hasScrolledToReportDate.current) {
+            hasScrolledToReportDate.current = true;
+            setTimeout(() => {
+                dailyLeaderboardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 50);
+        }
+    };
     const { id, groupName, game } = useParams();
     const [todayLeaderboard, setTodayLeaderboard] = useState([]);
     // const [latestJoinDate, setlatestJoinDate] = useState('');
@@ -455,11 +471,13 @@ useEffect(() => {
         setcumulativeAverageScore(cumulativeAverageResponse.data.data || []);
         setcumulativeDailyScore(cumulativeDailyResponse.data.data || []);
         setDataFetched(true);
+        scrollToDailyLeaderboardIfNeeded();
     } catch (error) {
         console.error("API Error:", error);
         setTodayLeaderboard([]);
         setFetchedError(true);
         setDataFetched(true);
+        scrollToDailyLeaderboardIfNeeded();
     }
     };
 
@@ -679,7 +697,7 @@ useEffect(() => {
 
                             // const isMaxPhrazleDate = (period === 'AM' && dayjs(startDate).isSame(dayjs(), 'day'));
                             return (
-                                <>
+                                <div ref={dailyLeaderboardRef}>
                                 <div className="d-flex align-items-center justify-content-center gap-3 cursor-pointer text-lg font-medium">
                                     <button onClick={(e) => { e.stopPropagation(); goToPreviousDay(); }} disabled={isMinPhrazleDate} className="bg-dark text-white px-3 py-1 rounded">
                                         <FaArrowLeft />
@@ -801,7 +819,7 @@ useEffect(() => {
                                         </Row>
                                     );
                                 })}
-                                </>
+                                </div>
                             );
                         })()}
 
@@ -847,7 +865,7 @@ useEffect(() => {
 
                         
                             return (
-                                <>
+                                <div ref={dailyLeaderboardRef}>
                                 <div className="d-flex align-items-center justify-content-center gap-3 cursor-pointer text-lg font-medium">
                                     <button onClick={(e) => { e.stopPropagation(); goToPreviousDay(); }} className="bg-dark text-white px-3 py-1 rounded">
                                     <FaArrowLeft />
@@ -997,7 +1015,7 @@ useEffect(() => {
                                         </Row>
                                     );
                                     })}
-                                </>
+                                </div>
                             );
                             })()}
 
