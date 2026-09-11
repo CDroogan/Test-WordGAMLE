@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react';
 import Axios from 'axios';
 import { Container, Row, Col } from 'react-bootstrap';
 import { DEFAULT_RULES_HTML } from '../constants/defaultRulesText';
+// Formatting saved by the admin's rich-text editor (indent, alignment, etc.)
+// is encoded as ql-* CSS classes that only render correctly with Quill's own
+// stylesheet loaded and a .ql-editor ancestor - both required here to make
+// admin-edited formatting actually show up on this public page.
+import 'react-quill/dist/quill.snow.css';
 
 function RulesPage() {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -23,7 +28,7 @@ function RulesPage() {
     <Container>
       <Row className="justify-content-center">
         <Col md={6}>
-          <div dangerouslySetInnerHTML={{ __html: rulesText || DEFAULT_RULES_HTML }} />
+          <div className="ql-editor p-0" dangerouslySetInnerHTML={{ __html: rulesText || DEFAULT_RULES_HTML }} />
         </Col>
       </Row>
     </Container>
