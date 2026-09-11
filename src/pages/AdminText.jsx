@@ -32,6 +32,7 @@ function AdminText() {
     text4: '',
     text5: '',
     gameintro: '',
+    rules_text: '',
     firstname_label: '',
     firstname_desc: '',
     firstname_placeholder: '',
@@ -93,6 +94,7 @@ function AdminText() {
             text4: res.data.text4,
             text5: res.data.text5,
             gameintro: res.data.gameintro ?? '',
+            rules_text: res.data.rules_text ?? '',
             firstname_label: res.data.firstname_label || '',
             firstname_desc: res.data.firstname_desc || '',
             firstname_placeholder: res.data.firstname_placeholder || '',
@@ -280,6 +282,17 @@ return (
                   theme="snow"
                   value={formData.gameintro}
                   onChange={(content) => setFormData(prev => ({ ...prev, gameintro: content }))}
+                  modules={quillModules}
+                />
+              </Form.Group>
+            </Tab>
+            <Tab eventKey="rules" title="Rules of WordGAMLE">
+              <Form.Group className="mb-3" controlId="rules_text">
+                <Form.Label>Rules of WordGAMLE</Form.Label>
+                <ReactQuill
+                  theme="snow"
+                  value={formData.rules_text}
+                  onChange={(content) => setFormData(prev => ({ ...prev, rules_text: content }))}
                   modules={quillModules}
                 />
               </Form.Group>

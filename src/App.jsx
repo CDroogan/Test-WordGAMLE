@@ -34,6 +34,7 @@ import AdminRoute from './auth/AdminRoute';
 import UsersList from './pages/UsersList';
 import GamleIntro from './pages/GamleIntro';
 import FAQPage from './pages/FAQPage';
+import RulesPage from './pages/RulesPage';
 import GameTips from './pages/GameTips';
 import GamesPage from './pages/GamesPage';
 import { LeaderboardProvider } from "./context/LeaderboardContext";
@@ -48,6 +49,7 @@ function App() {
         <Route exact path="/gamleintro" element={<GamleIntro />} />
         <Route exact path="/gametips" element={<GameTips />} />
         <Route exact path="/faq" element={<FAQPage />} />
+        <Route exact path="/rules" element={<RulesPage />} />
         <Route exact path="/login" element={<Userlogin />} />
         <Route exact path="/register" element={<Registerform />} />
         <Route path="/register/:group_id" element={<Registerform />} />
