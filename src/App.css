@@ -1,3 +1,10 @@
+:root {
+  /* The site's one brand accent color - change this single value to
+     re-theme every shared button/icon at once. Quordle keeps its own
+     pinned green (see .Quordle-btn/.quordle-btn and
+     .todays-result-box-quordle) regardless of what this is set to. */
+  --wordgamle-accent: #330072;
+}
 body{
   display: block !important;
 }
@@ -8,8 +15,14 @@ body{
   padding: 0px 20px;
 }
 .btn-primary{
+  background-color: var(--wordgamle-accent) !important;
+  border-color: var(--wordgamle-accent) !important;
+}
+/* Both cases are used across the Quordle components - neither is a typo
+   of the other, so both need pinning. */
+.Quordle-btn, .quordle-btn{
   background-color: #00BF63 !important;
-  border-color: #00BF63!important;
+  border-color: #00BF63 !important;
 }
 .btn-warning{
   background-color: #ffc107 !important;
@@ -129,9 +142,9 @@ body{
   white-space: nowrap;
   appearance: none;
   border: 0;
-  box-shadow: inset 0 0 0 1px #00BF63;
+  box-shadow: inset 0 0 0 1px var(--wordgamle-accent);
   background-color: #ffffff;
-  color: #00BF63;
+  color: var(--wordgamle-accent);
   font: inherit;
   line-height: 1.5;
   cursor: pointer;
@@ -258,7 +271,7 @@ body{
   width: 350px;
 }
 #group-invites{
-  background-color:#00BF63;
+  background-color: var(--wordgamle-accent);
   font-size: 15px;
   padding: 5px;
   color: #ffffff;
@@ -418,7 +431,7 @@ span.notification-count.badge.bg-danger {
   right: 0;
   width: 25px;
   height: 25px;
-  background-color: #00BF63;
+  background-color: var(--wordgamle-accent);
   border-radius: 50%;
   padding: 6px;
   display: flex;
@@ -433,7 +446,7 @@ span.notification-count.badge.bg-danger {
   right: 0;
   width: 25px;
   height: 25px;
-  background-color: #00BF63;
+  background-color: var(--wordgamle-accent);
   border-radius: 50%;
   padding: 6px;
   display: flex;
@@ -539,9 +552,11 @@ cursor: pointer;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     width:200px;
   }
-  /* Target the hamburger icon bars */
+  /* Target the hamburger icon bars. Color is baked into this data-URI SVG
+     string, so it can't reference --wordgamle-accent - update the %23...
+     hex here too if the accent color ever changes. */
 .navbar-toggler-icon {
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%2300BF63' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23330072' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
 .cwd-game-btn{
   font-size: 14px !important;
