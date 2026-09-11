@@ -18,6 +18,24 @@ body{
   background-color: var(--wordgamle-accent) !important;
   border-color: var(--wordgamle-accent) !important;
 }
+/* Checkboxes/radios (leaderboard game selection, scoring method) - brand
+   accent instead of Bootstrap's default blue. Left as blue on purpose:
+   actual text links (Invite Friends, feedback, etc.), since blue is a
+   near-universal "this is clickable" cue worth keeping for new visitors,
+   and purple risks reading as a browser's "already visited" link color. */
+.form-check-input, .form-radio-input{
+  accent-color: var(--wordgamle-accent);
+}
+.form-check-input:checked{
+  background-color: var(--wordgamle-accent) !important;
+  border-color: var(--wordgamle-accent) !important;
+}
+.form-check-input:focus{
+  border-color: var(--wordgamle-accent) !important;
+  /* rgba can't reference --wordgamle-accent directly - update this alongside
+     the variable above if the accent color ever changes. */
+  box-shadow: 0 0 0 .25rem rgba(51, 0, 114, .25) !important;
+}
 /* Both cases are used across the Quordle components - neither is a typo
    of the other, so both need pinning. */
 .Quordle-btn, .quordle-btn{
