@@ -4,6 +4,7 @@ import { Form, Button, Container, Row, Col, Tabs, Tab } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { DEFAULT_RULES_HTML } from '../constants/defaultRulesText';
 
 
 const quillModules = {
@@ -94,7 +95,7 @@ function AdminText() {
             text4: res.data.text4,
             text5: res.data.text5,
             gameintro: res.data.gameintro ?? '',
-            rules_text: res.data.rules_text ?? '',
+            rules_text: res.data.rules_text || DEFAULT_RULES_HTML,
             firstname_label: res.data.firstname_label || '',
             firstname_desc: res.data.firstname_desc || '',
             firstname_placeholder: res.data.firstname_placeholder || '',

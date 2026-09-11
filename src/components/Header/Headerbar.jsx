@@ -258,15 +258,15 @@ const handleInviteFriends = async () => {
                   <Button className="custom-btn m-2" onClick={() => { setExpanded(false); navigate('/gamleintro'); }}>
                     Gamle Intro
                   </Button>
+                  <Button className="custom-btn m-2" onClick={() => { setExpanded(false); navigate('/rules'); }}>
+                    The Rules
+                  </Button>
                   <Button className="custom-btn m-2" onClick={handleInviteFriends}>
                     Invite Friends
                   </Button>
                   <FeedbackButton />
                   <Button className="custom-btn m-2" onClick={() => { setExpanded(false); navigate('/faq'); }}>
                     FAQ
-                  </Button>
-                  <Button className="custom-btn m-2" onClick={() => { setExpanded(false); navigate('/rules'); }}>
-                    Rules of WordGAMLE
                   </Button>
                   {isDesktop && userEmail && <GroupInvites/>}
                   {isDesktop && profileButton}
