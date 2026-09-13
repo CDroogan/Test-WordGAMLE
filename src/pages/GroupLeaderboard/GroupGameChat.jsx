@@ -7,7 +7,7 @@ import timezone from "dayjs/plugin/timezone";
 import GroupChatMessagesByDate from "./GroupChatMessagesByDate";
 import GroupChatInput from "./GroupChatInput";
 
-function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highlightMsgId, generalChat, userTimezone }) {
+function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highlightMsgId, generalChat, userTimezone, chatBoxHeight = "350px" }) {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const [messages, setMessages] = useState([]);
   // Fetch messages
@@ -86,7 +86,7 @@ function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highl
 
         <div
           className="chat-box border rounded p-3 mt-2"
-          style={{ height: "350px", overflowY: "auto", background: "#e8f3fb" }}
+          style={{ height: chatBoxHeight, overflowY: "auto", background: "#e8f3fb" }}
         >
           <GroupChatMessagesByDate
             gameName={gameName}

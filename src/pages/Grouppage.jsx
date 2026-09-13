@@ -7,7 +7,15 @@ import { toast } from 'react-toastify';
 import MemberGameSelections from './MemberGameSelections';
 import SelectScoringMethod from './SelectScoringMethod';
 import GameNotificationToggle from './GameNotificationToggle';
+import GroupGameChat from './GroupLeaderboard/GroupGameChat';
+import dayjs from 'dayjs';
 // import InviteGroupAndSite from './InviteGroupAndSite';
+
+// Canonical display order for game leaderboard buttons - matches
+// GroupStats.jsx's own ordering, so this page reads the same way.
+const GAME_ORDER = ["wordle", "connections", "phrazle", "quordle", "octordle"];
+const sortByGameOrder = (games) =>
+    [...games].sort((a, b) => GAME_ORDER.indexOf(a.toLowerCase()) - GAME_ORDER.indexOf(b.toLowerCase()));
 
 function GroupPage() {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -15,11 +23,13 @@ function GroupPage() {
     const navigate = useNavigate();
     const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth')) || {};
     const { id: userId } = USER_AUTH_DATA;
+    const usertimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     const [group, setGroup] = useState(null);
     const [showMemberForm, setShowMemberForm] = useState(false);
     const [isCaptain, setIsCaptain] = useState(false);
     const [existingMembers, setExistingMembers] = useState([]); // NEW
+    const [selectedGames, setSelectedGames] = useState([]);
 
     useEffect(() => {
         const fetchGroupDetails = async () => {
@@ -42,7 +52,7 @@ function GroupPage() {
         const fetchGroupMembers = async () => {
             try {
                 const res = await Axios.get(`${baseURL}/groups/get-group-members.php?group_id=${id}`);
-               
+
                 if (res.data.status === "success") {
                    const memberIds = res.data.members.map(m => String(m.member_id));
                     setExistingMembers(memberIds);
@@ -58,6 +68,38 @@ function GroupPage() {
         fetchGroupDetails();
         fetchGroupMembers();
     }, [id, userId]);
+
+    // The game buttons and general chat this page now leads with - the same
+    // data GroupStats.jsx (the standalone hub, still used elsewhere and left
+    // untouched) fetches for itself.
+    useEffect(() => {
+        const fetchSelectedGames = async () => {
+            try {
+                const res = await Axios.get(`${baseURL}/groups/get-selected-games.php`, {
+                    params: { user_id: userId, group_id: id }
+                });
+                let userGames = res.data.selected_games;
+
+                if (typeof userGames === "string") {
+                    userGames = userGames.split(",").map(game => game.trim());
+                }
+
+                if (Array.isArray(userGames)) {
+                    setSelectedGames(sortByGameOrder(userGames));
+                } else {
+                    console.error("Invalid data format for selected games:", userGames);
+                    setSelectedGames([]);
+                }
+            } catch (error) {
+                console.error("Error fetching selected games:", error);
+                setSelectedGames([]);
+            }
+        };
+
+        if (userId) {
+            fetchSelectedGames();
+        }
+    }, [userId, id]);
 
     const goToGroupInfo = () => {
         navigate(`/group-info/${id}`);
@@ -78,16 +120,50 @@ function GroupPage() {
                 console.error("Error fetching homepage text:", err);
             });
     }, [baseURL]);
-    
+
     if (!group) return null;
-    
+
     return (
         <Container className="text-center">
             <Row>
                 <Col>
-                    <h4>{group.name}</h4>
+                    <h4 className="text-capitalize pb-2">{group.name}</h4>
+                    <h5 className="pb-3">Group Leaderboards</h5>
                 </Col>
             </Row>
+
+            <Row>
+                {selectedGames.length > 0 && selectedGames.map((game, index) => (
+                    <Col key={index} className="text-center mb-2">
+                        <Button
+                            className="btn-lg btn-block w-100"
+                            onClick={() => navigate(`/group/${id}/stats/${game.toLowerCase()}`)}
+                        >
+                            {game}
+                        </Button>
+                    </Col>
+                ))}
+            </Row>
+
+            <Row>
+                <Col className="mt-2">
+                    <GroupGameChat
+                        groupId={id}
+                        createdAt={dayjs().format("YYYY-MM-DD HH:mm:ss")}
+                        userTimezone={usertimezone}
+                        generalChat="true"
+                        userId={userId}
+                        chatBoxHeight="180px"
+                    />
+                </Col>
+            </Row>
+
+            {/* Scroll cue - with the chat box shortened above, there's now
+                more below the fold on most screens than there used to be. */}
+            <div className="text-muted my-1" style={{ fontSize: "1.75rem", lineHeight: 1 }} aria-hidden="true">
+                &#8964;
+            </div>
+
             <Row>
                 <Col>
                     <Button className="px-5 mt-3" onClick={goToGroupInfo}>
@@ -111,17 +187,6 @@ function GroupPage() {
                 </Row> */}
                 </>
             )}
-            
-            <Button 
-            className="px-5 mt-3" 
-            onClick={() => 
-                navigate(
-                `/group/${group.id}/stats`
-                )
-            }
-            >
-            Group Leaderboards
-            </Button>
 
             <MemberGameSelections leaderboardText={leaderboardText} />
             <GameNotificationToggle/>
