@@ -80,8 +80,12 @@ function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highl
 
   return (
         <>
+        {/* Input box - kept above the scrollable message list so it's
+            always visible without scrolling down to find it. */}
+        <GroupChatInput onSend={handleSend} gameName={gameName} />
+
         <div
-          className="chat-box border rounded p-3 mb-3"
+          className="chat-box border rounded p-3 mt-2"
           style={{ height: "350px", overflowY: "auto", background: "#e8f3fb" }}
         >
           <GroupChatMessagesByDate
@@ -93,9 +97,6 @@ function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highl
             generalChat={generalChat}
           />
         </div>
-
-        {/* Input box */}
-        <GroupChatInput onSend={handleSend} gameName={gameName} />
         </>
   );
 }
