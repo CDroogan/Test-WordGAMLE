@@ -142,7 +142,7 @@ function Wordlestatechart() {
                     </Row>
                     <Row className='align-items-center justify-content-center'>
                         <Col md={4}>
-                            <GroupButtonsRow />
+                            <GroupButtonsRow game="wordle" />
                         </Col>
                     </Row>
                     <Row className='align-items-center justify-content-center'>

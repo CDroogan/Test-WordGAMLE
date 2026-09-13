@@ -136,7 +136,7 @@ function Quordletat() {
                     </Row>
                     <Row className='align-items-center justify-content-center'>
                         <Col md={4}>
-                            <GroupButtonsRow />
+                            <GroupButtonsRow game="quordle" />
                         </Col>
                     </Row>
                     <Row className='align-items-center justify-content-center'>

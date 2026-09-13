@@ -124,7 +124,7 @@ function Octordletat() {
                     </Row>
                     <Row className='align-items-center justify-content-center'>
                         <Col md={4}>
-                            <GroupButtonsRow />
+                            <GroupButtonsRow game="octordle" />
                         </Col>
                     </Row>
                     <Row className='align-items-center justify-content-center'>

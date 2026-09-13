@@ -19,7 +19,7 @@ const applyMessageFilters = (messages, notificationModes) => {
     });
 };
 
-function GroupButtonsRow() {
+function GroupButtonsRow({ game }) {
     const baseURL = import.meta.env.VITE_BASE_URL;
     const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth'));
     const userId = USER_AUTH_DATA?.id;
@@ -85,13 +85,37 @@ function GroupButtonsRow() {
     // lands in the same seen_ids column the bell reads, so the bell's badge
     // and dropdown drop this group's messages too, without anything special
     // needed to keep the two in sync.
-    const handleGroupClick = (groupId) => {
+    //
+    // Where the click lands depends on whether the general (hub-level)
+    // group chat has anything this Gamler hasn't seen yet: if so, land on
+    // the general Group Leaderboard page, same as always, so they don't
+    // miss it. If not, skip straight to the leaderboard for whichever game
+    // they clicked this button from - a per-game message would be seen
+    // there anyway, so only the general chat needs to gate this shortcut.
+    const handleGroupClick = async (groupId) => {
         setGroupUnread((prev) => ({ ...prev, [groupId]: 0 }));
         Axios.post(`${baseURL}/groups/mark-group-seen.php`, {
             group_id: groupId,
             user_id: userId,
         }).catch((error) => console.error("Error marking group notifications seen:", error));
-        navigate(`/group/${groupId}/stats`);
+
+        let hasUnseenGeneralChat = true; // default to the safe/current behavior if the check fails
+        try {
+            const res = await Axios.get(`${baseURL}/groups/get-general-chat-unseen.php`, {
+                params: { group_id: groupId, user_id: userId },
+            });
+            if (res.data?.success) {
+                hasUnseenGeneralChat = !!res.data.unseen;
+            }
+        } catch (error) {
+            console.error("Error checking general chat unseen status:", error);
+        }
+
+        if (hasUnseenGeneralChat || !game) {
+            navigate(`/group/${groupId}/stats`);
+        } else {
+            navigate(`/group/${groupId}/stats/${game}`);
+        }
     };
 
     if (groups.length === 0) return null;
