@@ -15,7 +15,25 @@ const quillModules = {
     [{ list: 'ordered' }, { list: 'bullet' }],
     ['link'],
     ['clean']
-  ]
+  ],
+  keyboard: {
+    bindings: {
+      // Quill's own default Tab behavior only indents inside a list/
+      // blockquote; on a plain paragraph it just inserts a literal tab
+      // character, which isn't a real paragraph format - it can't survive
+      // being loaded back into a Quill editor (Quill's HTML parser drops
+      // it), even though it looks fine on a plain HTML page. Overriding
+      // "tab" here makes it apply real indent formatting instead, which
+      // round-trips correctly and indents wrapped lines too.
+      tab: {
+        key: 'Tab',
+        handler(range) {
+          this.quill.format('indent', '+1', 'user');
+          return false;
+        }
+      }
+    }
+  }
 };
 
 function AdminText() {
