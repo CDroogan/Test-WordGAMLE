@@ -125,44 +125,41 @@ function GroupPage() {
 
     return (
         <Container className="text-center">
-            <Row>
-                <Col>
+            {/* Matches GroupStats.jsx's own width (Col md={6}) so the game
+                buttons and chat look the same size on desktop whichever
+                page led here. */}
+            <Row className="justify-content-center">
+                <Col md={6} className="text-center mt-4">
                     <h4 className="text-capitalize pb-2">{group.name}</h4>
                     <h5 className="pb-3">Group Leaderboards</h5>
+
+                    <Row>
+                        {selectedGames.length > 0 && selectedGames.map((game, index) => (
+                            <Col key={index} className="text-center mb-2">
+                                <Button
+                                    className="btn-lg btn-block w-100"
+                                    onClick={() => navigate(`/group/${id}/stats/${game.toLowerCase()}`)}
+                                >
+                                    {game}
+                                </Button>
+                            </Col>
+                        ))}
+                    </Row>
+
+                    <Row>
+                        <Col className="mt-2">
+                            <GroupGameChat
+                                groupId={id}
+                                createdAt={dayjs().format("YYYY-MM-DD HH:mm:ss")}
+                                userTimezone={usertimezone}
+                                generalChat="true"
+                                userId={userId}
+                                chatBoxHeight="180px"
+                            />
+                        </Col>
+                    </Row>
                 </Col>
             </Row>
-
-            <Row>
-                {selectedGames.length > 0 && selectedGames.map((game, index) => (
-                    <Col key={index} className="text-center mb-2">
-                        <Button
-                            className="btn-lg btn-block w-100"
-                            onClick={() => navigate(`/group/${id}/stats/${game.toLowerCase()}`)}
-                        >
-                            {game}
-                        </Button>
-                    </Col>
-                ))}
-            </Row>
-
-            <Row>
-                <Col className="mt-2">
-                    <GroupGameChat
-                        groupId={id}
-                        createdAt={dayjs().format("YYYY-MM-DD HH:mm:ss")}
-                        userTimezone={usertimezone}
-                        generalChat="true"
-                        userId={userId}
-                        chatBoxHeight="180px"
-                    />
-                </Col>
-            </Row>
-
-            {/* Scroll cue - with the chat box shortened above, there's now
-                more below the fold on most screens than there used to be. */}
-            <div className="text-muted my-1" style={{ fontSize: "1.75rem", lineHeight: 1 }} aria-hidden="true">
-                &#8964;
-            </div>
 
             <Row>
                 <Col>

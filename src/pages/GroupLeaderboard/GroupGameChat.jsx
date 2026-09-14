@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Row, Col } from "react-bootstrap";
 import dayjs from "dayjs";
@@ -10,6 +10,17 @@ import GroupChatInput from "./GroupChatInput";
 function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highlightMsgId, generalChat, userTimezone, chatBoxHeight = "350px" }) {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const [messages, setMessages] = useState([]);
+  const chatBoxRef = useRef(null);
+
+  // Keep the chat scrolled to its latest message - scrolling only within
+  // this box (not scrollIntoView, which would also drag the whole page
+  // down to bring the box into view on pages with content below it).
+  useEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   // Fetch messages
   const fetchMessages = async () => {
     
@@ -85,6 +96,7 @@ function GroupGameChat({ groupId, gameName, createdAt, periodType, userId, highl
         <GroupChatInput onSend={handleSend} gameName={gameName} />
 
         <div
+          ref={chatBoxRef}
           className="chat-box border rounded p-3 mt-2"
           style={{ height: chatBoxHeight, overflowY: "auto", background: "#e8f3fb" }}
         >

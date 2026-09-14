@@ -9,14 +9,8 @@ import EmojiPicker from "emoji-picker-react";
 import axios from "axios";
 
 function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highlightMsgId, generalChat }) {
-  const chatEndRef = useRef(null);
   const [showPickerFor, setShowPickerFor] = useState(null);
   const [msgReactions, setMsgReactions] = useState({});
-  
-  // Auto-scroll to bottom on new messages
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
 
   // Highlight specific message by ID
   useEffect(() => {
@@ -269,7 +263,6 @@ function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highligh
           })}
         </div>
       ))}
-      <div ref={chatEndRef} />
     </>
   );
 }
