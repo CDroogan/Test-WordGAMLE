@@ -38,12 +38,29 @@ useEffect(() => {
 
   updateGameNumber(); // initial run
 
-  // Optional: auto update every hour or minute
+  // Check every minute for the AM/PM reset. Mobile browsers routinely
+  // pause this interval while the tab is backgrounded (e.g. while the
+  // Gamler is off playing the actual game), so it can't be relied on
+  // alone - a Gamler returning after a reset could still see the old
+  // period's number and have their real, correct result rejected as
+  // "not today's game."
   const interval = setInterval(() => {
       updateGameNumber();
   }, 60 * 1000); // every minute
 
-  return () => clearInterval(interval);
+  // Recompute immediately whenever the tab regains focus, so a paused
+  // interval can't leave this stale.
+  const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+          updateGameNumber();
+      }
+  };
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+
+  return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+  };
 }, []);
     
     const handlePaste = (event) => {

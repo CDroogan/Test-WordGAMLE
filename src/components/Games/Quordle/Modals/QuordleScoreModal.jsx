@@ -33,7 +33,12 @@ const QuordleScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScor
 useEffect(() => {
     setGameNumber(calculateGameNumber());
 
-    // Check every minute and update exactly at 12:00 AM (Midnight)
+    // Check every minute and update exactly at 12:00 AM (Midnight). Mobile
+    // browsers routinely pause this interval while the tab is backgrounded
+    // (e.g. while the Gamler is off playing the actual game), so it can't
+    // be relied on alone - a Gamler returning after midnight could still
+    // see yesterday's game number and have their real, correct result
+    // rejected as "not today's game."
     const interval = setInterval(() => {
         const now = new Date();
         if (now.getHours() === 0 && now.getMinutes() === 0) {
@@ -41,7 +46,19 @@ useEffect(() => {
         }
     }, 60 * 1000); // Check every minute
 
-    return () => clearInterval(interval);
+    // Recompute immediately whenever the tab regains focus, so a paused
+    // interval can't leave this stale.
+    const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+            setGameNumber(calculateGameNumber());
+        }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+        clearInterval(interval);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
 }, []);
 
 
