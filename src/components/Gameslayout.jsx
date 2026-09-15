@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoginModal from './Games/Wordle/Modals/LoginModal';
 import WordleModal from './Games/Wordle/Modals/WordleScoreModal';
+import { isPastePending, markPastePending, clearPastePending } from '../utils/pendingPaste';
 
 function GamesLayout() {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -13,7 +14,7 @@ function GamesLayout() {
   const { username, email } = USER_AUTH_DATA;
   const loginUsername = username;
   const loginUserEmail = email;
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(() => isPastePending('wordle_enter_result'));
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [score, setScore] = useState('');
   const [guessDistribution, setGuessDistribution] = useState([0, 0, 0, 0, 0, 0]);
@@ -94,6 +95,7 @@ function GamesLayout() {
   
 
   const handleFormClose = () => {
+      clearPastePending('wordle_enter_result');
       setShowForm(false);
       setScore('');
   };
@@ -108,6 +110,7 @@ function GamesLayout() {
           setShowLoginPrompt(true);
           return;
       }
+      markPastePending('wordle_enter_result');
       setShowForm(true);
   };
 
@@ -232,6 +235,7 @@ function GamesLayout() {
                 };
 
                 await updateTotalGamesPlayed(TotalGameObject);
+                clearPastePending('wordle_enter_result');
                 setScore('');
                 navigate("/wordlestats");
                 // const latest_group_id = lastGroup?.group_id;

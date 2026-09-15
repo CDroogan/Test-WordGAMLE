@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import OctordleScoreModal from './Modals/OctordleScoreModal';
+import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
 
 function GamesLayout() {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -32,7 +33,7 @@ function GamesLayout() {
     if (userId) fetchUserGroups();
   }, [userId]);
 
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(() => isPastePending('octordle_enter_result'));
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [score, setScore] = useState('');
 
@@ -44,6 +45,7 @@ function GamesLayout() {
   const navigate = useNavigate();
 
   const handleFormClose = () => {
+    clearPastePending('octordle_enter_result');
     setShowForm(false);
     setScore('');
   };
@@ -58,6 +60,7 @@ function GamesLayout() {
       setShowLoginPrompt(true);
       return;
     }
+    markPastePending('octordle_enter_result');
     setShowForm(true);
   };
 
@@ -163,6 +166,7 @@ function GamesLayout() {
         };
 
         await updateTotalGamesPlayed(TotalGameObject);
+        clearPastePending('octordle_enter_result');
         setScore("");
         navigate("/octordlestats");
       } else {

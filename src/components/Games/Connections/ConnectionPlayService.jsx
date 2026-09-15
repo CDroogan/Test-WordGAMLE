@@ -5,14 +5,15 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import ConnectionsModal from './Modals/ConnectionsScoreModal';
+import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
 
 function ConnectionPlayService({ updateStatsChart, groupId, gameName }) {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth')) || {};
   const userId = USER_AUTH_DATA?.id;
   const { username: loginUsername, email: loginUserEmail } = USER_AUTH_DATA;
-  
-  const [showForm, setShowForm] = useState(false);
+
+  const [showForm, setShowForm] = useState(() => isPastePending('connections'));
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [score, setScore] = useState('');
   const [guessDistribution, setGuessDistribution] = useState([0, 0, 0, 0, 0]);
@@ -27,6 +28,7 @@ function ConnectionPlayService({ updateStatsChart, groupId, gameName }) {
   const navigate = useNavigate();
 
   const handleFormClose = () => {
+    clearPastePending('connections');
     setShowForm(false);
     setScore('');
   };
@@ -41,6 +43,7 @@ function ConnectionPlayService({ updateStatsChart, groupId, gameName }) {
         return;
     }
     window.open(url, '_blank');
+    markPastePending('connections');
     setShowForm(true);
 };
 
@@ -212,6 +215,7 @@ const onSubmit = async (event) => {
         };
   
         await updateTotalGamesPlayed(TotalGameObject);
+        clearPastePending('connections');
         setScore("");
         navigate("/connectionstats");
         // const latest_group_id = lastGroup?.group_id;

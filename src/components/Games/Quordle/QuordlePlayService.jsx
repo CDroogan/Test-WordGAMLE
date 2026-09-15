@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import QuordleModal from './Modals/QuordleScoreModal';
+import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
 
 function QuordlePlayService({ updateStatsChart }) {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -12,7 +13,7 @@ function QuordlePlayService({ updateStatsChart }) {
   const { username: loginUsername, email: loginUserEmail } = USER_AUTH_DATA;
   const userId = USER_AUTH_DATA?.id;
 
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(() => isPastePending('quordle'));
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [score, setScore] = useState('');
   const [guessDistribution, setGuessDistribution] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0]);
@@ -45,6 +46,7 @@ function QuordlePlayService({ updateStatsChart }) {
   }, [userId]);
 
   const handleFormClose = () => {
+    clearPastePending('quordle');
     setShowForm(false);
     setScore('');
   };
@@ -59,6 +61,7 @@ function QuordlePlayService({ updateStatsChart }) {
         return;
     }
     window.open(url, '_blank');
+    markPastePending('quordle');
     setShowForm(true);
 };
 
@@ -224,6 +227,7 @@ const determineAttempts = (score) => {
         };
   
         await updateTotalGamesPlayed(TotalGameObject);
+        clearPastePending('quordle');
         setScore("");
         navigate("/quordlestats");
       } else {

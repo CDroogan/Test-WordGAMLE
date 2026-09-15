@@ -5,13 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import PhrazlesModal from './Modals/PhrazleScoreModal';
+import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
 
 function PhrazlePlayService({ updateStatsChart}) {
   const baseURL = import.meta.env.VITE_BASE_URL;
   const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth')) || {};
   const { username: loginUsername, email: loginUserEmail } = USER_AUTH_DATA;
   const userId = USER_AUTH_DATA?.id;
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(() => isPastePending('phrazle'));
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [score, setScore] = useState('');
   const [guessDistribution, setGuessDistribution] = useState([0, 0, 0, 0, 0, 0]);
@@ -27,6 +28,7 @@ function PhrazlePlayService({ updateStatsChart}) {
   const navigate = useNavigate();
 
   const handleFormClose = () => {
+    clearPastePending('phrazle');
     setShowForm(false);
     setScore('');
   };
@@ -41,6 +43,7 @@ function PhrazlePlayService({ updateStatsChart}) {
         return;
     }
     window.open(url, '_blank');
+    markPastePending('phrazle');
     setShowForm(true);
 };
 
@@ -175,6 +178,7 @@ const onSubmit = async (event) => {
 
 
         await updateTotalGamesPlayed(TotalGameObject);
+        clearPastePending('phrazle');
         setScore('');
         navigate("/phrazlestats");
         // const latest_group_id = lastGroup?.group_id;

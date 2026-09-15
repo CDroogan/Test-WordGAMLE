@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import OctordleModal from './Modals/OctordleScoreModal';
+import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
 
 function OctordlePlayService({ updateStatsChart }) {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -12,7 +13,7 @@ function OctordlePlayService({ updateStatsChart }) {
   const { username: loginUsername, email: loginUserEmail } = USER_AUTH_DATA;
   const userId = USER_AUTH_DATA?.id;
 
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(() => isPastePending('octordle'));
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [score, setScore] = useState('');
   const [allGroup, setAllGroup] = useState([]);
@@ -43,6 +44,7 @@ function OctordlePlayService({ updateStatsChart }) {
   }, [userId]);
 
   const handleFormClose = () => {
+    clearPastePending('octordle');
     setShowForm(false);
     setScore('');
   };
@@ -57,6 +59,7 @@ function OctordlePlayService({ updateStatsChart }) {
         return;
     }
     window.open(url, '_blank');
+    markPastePending('octordle');
     setShowForm(true);
 };
 
@@ -163,6 +166,7 @@ function OctordlePlayService({ updateStatsChart }) {
         };
 
         await updateTotalGamesPlayed(TotalGameObject);
+        clearPastePending('octordle');
         setScore("");
         navigate("/octordlestats");
       } else {

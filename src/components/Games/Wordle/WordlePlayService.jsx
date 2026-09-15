@@ -5,13 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import WordleModal from './Modals/WordleScoreModal';
+import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
 
 function WordlePlayService({ updateStatsChart, groupId, gameName  }) {
     const baseURL = import.meta.env.VITE_BASE_URL;
     const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth')) || {};
     const { username: loginUsername, email: loginUserEmail } = USER_AUTH_DATA;
     const userId = USER_AUTH_DATA?.id;
-    const [showForm, setShowForm] = useState(false);
+    const [showForm, setShowForm] = useState(() => isPastePending('wordle'));
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
     const [score, setScore] = useState('');
     const [guessDistribution, setGuessDistribution] = useState([0, 0, 0, 0, 0, 0]);
@@ -21,6 +22,7 @@ function WordlePlayService({ updateStatsChart, groupId, gameName  }) {
     const navigate = useNavigate();
 
     const handleFormClose = () => {
+        clearPastePending('wordle');
         setShowForm(false);
         setScore('');
     };
@@ -35,6 +37,7 @@ function WordlePlayService({ updateStatsChart, groupId, gameName  }) {
             return;
         }
         window.open(url, '_blank');
+        markPastePending('wordle');
         setShowForm(true);
     };
 
@@ -158,6 +161,7 @@ function WordlePlayService({ updateStatsChart, groupId, gameName  }) {
                     };
 
                     await updateTotalGamesPlayed(TotalGameObject);
+                    clearPastePending('wordle');
                     setScore('');
                     navigate("/wordlestats");
                     // const latest_group_id = lastGroup?.group_id;

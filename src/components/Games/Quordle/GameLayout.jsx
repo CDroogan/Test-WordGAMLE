@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import QuordleScoreModal from './Modals/QuordleScoreModal';
+import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
 
 function GamesLayout() {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -32,20 +33,21 @@ function GamesLayout() {
     if (userId) fetchUserGroups();
   }, [userId]);
 
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(() => isPastePending('quordle_enter_result'));
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [score, setScore] = useState('');
   const [guessDistribution, setGuessDistribution] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0]);
   const [gameIsWin, setGameIsWin] = useState(false);
-  
+
   const [totalGamesPlayed, setTotalGamesPlayed] = useState(0);
   const [totalWinGames, setTotalWinGames] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
-  
+
   const navigate = useNavigate();
-  
+
   const handleFormClose = () => {
+    clearPastePending('quordle_enter_result');
     setShowForm(false);
     setScore('');
   };
@@ -60,6 +62,7 @@ function GamesLayout() {
       setShowLoginPrompt(true);
       return;
     }
+    markPastePending('quordle_enter_result');
     setShowForm(true);
   };
 
@@ -224,6 +227,7 @@ const determineAttempts = (score) => {
         };
   
         await updateTotalGamesPlayed(TotalGameObject);
+        clearPastePending('quordle_enter_result');
         setScore("");
         navigate("/quordlestats");
       } else {
