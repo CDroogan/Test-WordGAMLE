@@ -193,12 +193,15 @@ function GroupLeaderboardScores({ setLatestJoinDate, setSelectedMember, setShowP
     }, [id, groupName, game]);
 
 
-    // Function to get the max possible score for a game
+    // Function to get the max possible score for a game - the No Play
+    // sentinel for wordle/connections/phrazle (see games/game_config.php
+    // on the backend), since that's now their true worst-case value, one
+    // worse than a real Loss.
     const getTotalScore = (gameName) => {
         const cleanedName = gameName ? gameName.trim().toLowerCase() : "";
-        return cleanedName === "wordle" ? 7 :
-               cleanedName === "connections" ? 4 :
-               cleanedName === "phrazle" ? 7 :
+        return cleanedName === "wordle" ? 8 :
+               cleanedName === "connections" ? 5 :
+               cleanedName === "phrazle" ? 8 :
                cleanedName === "quordle" ? 35 :
                cleanedName === "octordle" ? 113 :
                1; // Default to 1 if unknown
