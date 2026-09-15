@@ -1006,17 +1006,22 @@ const getPeriod = (createdat) => {
                     );
                     }
                     else if (game === 'quordle') {
-                    // Example Connection game display
+                    // Quordle's result is attempt-count badges (digits/keycap
+                    // emoji, plus a red square for a failed word), not a
+                    // color-tile grid like Wordle/Connections - matches the
+                    // extraction already used in QuordleStat.jsx/QuordleScoreByDate.jsx.
                     const cleanedScore = item.quordlescore
-                        .replace(/[🟨🟩⬛⬜🙂]/g, "") // remove tiles/emojis
-                        .replace("m-w.com/games/quordle/", ""); // remove link
+                        .replace(/[🟥🟨🟩⬛⬜🙂]/gu, "") // remove emojis
+                        .replace(/m-w\.com\/games\/quordle\//g, "") // remove link
+                        .split("\n")
+                        .map(line => line.trim())
+                        .find(line => line.startsWith("Daily Quordle")) || "";
 
                     const quordleScore = item.quordlescore
                     .split("\n")                        // split into lines
                     .map(l => l.trim())                 // trim spaces
-                    .filter(l => /^[⬛⬜🟨🟩 ]+$/.test(l)) // allow tiles + space
+                    .filter(l => /^[0-9️⃣🟥]+$/u.test(l)) // attempt-count badges (incl. red "failed" squares)
                     .join("\n");
-                    //const quordleScore = splitIntoRows(lettersAndNumbersRemoved);
                     const createDate = item.createdat; // Ensure this matches your database field name
                     const date = new Date(createDate);
                     const todayDate = date.toLocaleDateString('en-US', {
