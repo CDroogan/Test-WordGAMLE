@@ -118,8 +118,15 @@ function GamesLayout() {
     const lettersAndNumbersRemoved = phrazleScore.replace(/[a-zA-Z0-9,#.:/\\]/g, "");
     const match = phrazleScore.match(/(\d+|X)\/(\d+)/);
 
+    // A real Phrazle result is always out of 6, and a win is 1-6 guesses -
+    // reject anything else (an out-of-range or garbled number) rather than
+    // silently storing an impossible score.
+    const totalGuesses = match ? parseInt(match[2], 10) : null;
+    const guessesUsed = match ? (match[1] === "X" ? 7 : parseInt(match[1], 10)) : null;
+    const isValidResult = match && totalGuesses === 6 &&
+        (match[1] === "X" || (guessesUsed >= 1 && guessesUsed <= 6));
 
-    if (match) {
+    if (isValidResult) {
       try {
         const groupGameMap = (allGroup || []).map(group => ({
               groupId: group.id,
@@ -127,8 +134,6 @@ function GamesLayout() {
               groupName: group.group_name
             }));
 
-        let guessesUsed = match[1] === "X" ? 7 : parseInt(match[1], 10); // Assign 7 for failed attempts ("X")
-        const totalGuesses = parseInt(match[2], 10);
         const isWin = match[1] !== "X" && guessesUsed <= totalGuesses;
 
         setGameIsWin(isWin);

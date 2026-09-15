@@ -78,9 +78,17 @@ const determineAttempts = (score) => {
   // A win occurs if all 4 distinct groups are completed
   const isWin = successGroups.size === 4;
 
+  // A real Connections result is either a win (all 4 categories solved,
+  // with 0-3 mistakes along the way) or a loss (the game ends
+  // automatically at exactly 4 mistakes, however many categories were
+  // solved first) - anything else means this wasn't a real, complete
+  // result (e.g. an empty or unreadable paste).
+  const isValidResult = isWin ? mistakeCount <= 3 : mistakeCount === 4;
+
   return {
     isWin,
     mistakeCount,
+    isValidResult,
   };
 };
 
@@ -130,7 +138,12 @@ const onSubmit = async (event) => {
     setShowForm(false);
 
     try {
-      const { isWin, mistakeCount } = determineAttempts(score);
+      const { isWin, mistakeCount, isValidResult } = determineAttempts(score);
+
+      if (!isValidResult) {
+        toast.error('Could not read that result. Please make sure you copied the full Connections share text, then try again.', { autoClose: 5000 });
+        return;
+      }
 
       let updatedDistribution = [...guessDistribution];
       if (isWin) {

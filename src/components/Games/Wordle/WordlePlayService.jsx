@@ -104,11 +104,17 @@ function WordlePlayService({ updateStatsChart, groupId, gameName  }) {
     
         const wordleScore = score.replace(/[🟩🟨⬜⬛]/g, "");
         const match = wordleScore.match(/(\d+|X)\/(\d+)/);
-        
-        if (match) {
+
+        // A real Wordle result is always out of 6, and a win is 1-6 guesses
+        // - reject anything else (an out-of-range or garbled number) rather
+        // than silently storing an impossible score.
+        const totalGuesses = match ? parseInt(match[2], 10) : null;
+        const guessesUsed = match ? (match[1] === "X" ? 7 : parseInt(match[1], 10)) : null;
+        const isValidResult = match && totalGuesses === 6 &&
+            (match[1] === "X" || (guessesUsed >= 1 && guessesUsed <= 6));
+
+        if (isValidResult) {
             try {
-                let guessesUsed = match[1] === "X" ? 7 : parseInt(match[1], 10); // Assign 7 for failed attempts ("X")
-                const totalGuesses = parseInt(match[2], 10);
                 const isWin = match[1] !== "X" && guessesUsed <= totalGuesses;
 
                 setGameIsWin(isWin);

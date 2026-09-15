@@ -91,7 +91,8 @@ const determineAttempts = (score) => {
             sumSolvedAt: 0,
             gamleScore: 0,
             winAttempt: null,
-            attempts: null
+            attempts: null,
+            isValidResult: false,
         };
     }
 
@@ -129,7 +130,8 @@ const determineAttempts = (score) => {
         sumSolvedAt,
         gamleScore,
         winAttempt: attempts,
-        attempts
+        attempts,
+        isValidResult: true,
     };
 };
 
@@ -144,7 +146,12 @@ const determineAttempts = (score) => {
     }
     setShowForm(false);
     
-    const { isWin, attempts, gamleScore } = determineAttempts(score);
+    const { isWin, attempts, gamleScore, isValidResult } = determineAttempts(score);
+
+    if (!isValidResult) {
+      toast.error('Could not read that result. Please make sure you copied the full Quordle share text, then try again.', { position: 'top-center' });
+      return;
+    }
 
     let updatedDistribution = [...guessDistribution];
     if (isWin && attempts !== null && attempts <= updatedDistribution.length) {
