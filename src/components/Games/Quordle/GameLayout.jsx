@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import QuordleScoreModal from './Modals/QuordleScoreModal';
 import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
+import { getQuordleGameNumber, isDailyGraceActive, getPreviousDailyPeriodEnd, formatLocalDateTime } from '../../../utils/gracePeriod';
 
 function GamesLayout() {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -170,8 +171,19 @@ const determineAttempts = (score) => {
   
     // Get the adjusted time in 24-hour format, e.g., "2024-12-02T15:10:29.476"
     const adjustedCreatedAt = adjustedDate.toISOString().slice(0, -1);  // "2024-12-02T15:10:29.476" (24-hour format)
-  
-  
+
+    // If this paste is actually for the previous game (accepted by the
+    // modal because we're still within the 3-hour grace window), file it
+    // under that period's date instead of "now" - otherwise it would show
+    // up as today's result rather than the day it was actually for.
+    const todaysGameNumber = getQuordleGameNumber(localDate);
+    const isGracePeriodResult = isDailyGraceActive(localDate) &&
+        !score.includes(String(todaysGameNumber)) &&
+        score.includes(String(todaysGameNumber - 1));
+    const finalCreatedAt = isGracePeriodResult
+        ? formatLocalDateTime(getPreviousDailyPeriodEnd(localDate))
+        : adjustedCreatedAt;
+
     const groupGameMap = (allGroup || []).map(group => ({
       groupId: group.id,
       selectedGame: group.selected_games,
@@ -185,8 +197,8 @@ const determineAttempts = (score) => {
       quordlescore: score,
       isWin,
       gamleScore,
-      createdAt: adjustedCreatedAt,
-      currentUserTime: adjustedCreatedAt,
+      createdAt: finalCreatedAt,
+      currentUserTime: finalCreatedAt,
       lastgameisWin: isWin,
       guessDistribution: updatedDistribution,
       handleHighlight: attempts,

@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import LoginModal from './Games/Wordle/Modals/LoginModal';
 import WordleModal from './Games/Wordle/Modals/WordleScoreModal';
 import { isPastePending, markPastePending, clearPastePending } from '../utils/pendingPaste';
+import { getWordleGameNumber, isDailyGraceActive, getPreviousDailyPeriodEnd, formatLocalDateTime } from '../utils/gracePeriod';
 
 function GamesLayout() {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -179,6 +180,18 @@ function GamesLayout() {
     const wordleScore = score.replace(/[🟩🟨⬜⬛]/g, "");
     const match = wordleScore.match(/(\d+|X)\/(\d+)/);
 
+    // If this paste is actually for the previous game (accepted by the
+    // modal because we're still within the 3-hour grace window), file it
+    // under that period's date instead of "now" - otherwise it would show
+    // up as today's result rather than the day it was actually for.
+    const todaysGameNumber = getWordleGameNumber(localDate);
+    const isGracePeriodResult = isDailyGraceActive(localDate) &&
+        !score.includes(todaysGameNumber.toLocaleString()) &&
+        score.includes((todaysGameNumber - 1).toLocaleString());
+    const finalCreatedAt = isGracePeriodResult
+        ? formatLocalDateTime(getPreviousDailyPeriodEnd(localDate))
+        : adjustedCreatedAt;
+
     // A real Wordle result is always out of 6, and a win is 1-6 guesses -
     // reject anything else (an out-of-range or garbled number) rather than
     // silently storing an impossible score.
@@ -211,8 +224,8 @@ function GamesLayout() {
                 guessDistribution: updatedGuessDistribution,
                 isWin,
                 gamleScore: guessesUsed,
-                createdAt: adjustedCreatedAt,
-                currentUserTime: adjustedCreatedAt,
+                createdAt: finalCreatedAt,
+                currentUserTime: finalCreatedAt,
                 currentPeriod: period,
                 timeZone,
                 // groupId:lastGroup?.group_id,

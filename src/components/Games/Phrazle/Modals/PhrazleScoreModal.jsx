@@ -2,6 +2,7 @@ import React, { useState, useEffect,  useRef } from 'react';
 import { Modal, Button, Form, FloatingLabel } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { DateTime, Duration } from 'luxon';
+import { isPhrazleGraceActive } from '../../../../utils/gracePeriod';
 
 const PhrazleScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScore, loginUsername}) => {
   const [isPasted, setIsPasted] = useState(false);
@@ -66,11 +67,17 @@ useEffect(() => {
     const handlePaste = (event) => {
       const pastedData = event.clipboardData.getData('Text').trim();
       const phrazleTextExists = pastedData.includes('Phrazle');
-      const gamenumberExists = pastedData.includes(gameNumber.toString());
+      const todaysNumberExists = pastedData.includes(gameNumber.toString());
+      // For up to 3 hours after this period's reset, also accept the
+      // immediately preceding period's result - it still gets filed under
+      // that period's date correctly (see PhrazlePlayService.jsx's
+      // onSubmit), this just lets it in the door.
+      const previousNumberExists = isPhrazleGraceActive() &&
+          pastedData.includes((gameNumber - 1).toString());
 
       if (!phrazleTextExists) {
         toast.error('This is not a Phrazle game!', { position: 'top-center' });
-      } else if (!gamenumberExists) {
+      } else if (!todaysNumberExists && !previousNumberExists) {
         toast.error('This is not today\'s game result', { position: 'top-center' });
       } else {
         setIsPasted(true);

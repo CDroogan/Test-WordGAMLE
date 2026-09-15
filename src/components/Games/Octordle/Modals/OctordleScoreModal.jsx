@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, FloatingLabel } from 'react-bootstrap';
 import { toast } from 'react-toastify';
+import { isDailyGraceActive } from '../../../../utils/gracePeriod';
 
 const OctordleScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScore, loginUsername }) => {
 
@@ -61,11 +62,16 @@ useEffect(() => {
   const handlePaste = (event) => {
     const pastedData = event.clipboardData.getData('Text');
     const octordleTextExists = pastedData.includes('Daily Octordle');
-    const gamenumberExists = pastedData.includes(String(gameNumber));
+    const todaysNumberExists = pastedData.includes(String(gameNumber));
+    // For up to 3 hours after today's reset, also accept yesterday's
+    // result - it still gets filed under yesterday's date correctly (see
+    // OctordlePlayService.jsx's onSubmit), this just lets it in the door.
+    const previousNumberExists = isDailyGraceActive() &&
+        pastedData.includes(String(gameNumber - 1));
 
     if (!octordleTextExists) {
       toast.error('This is not an Octordle game score!', { position: 'top-center' });
-    } else if (!gamenumberExists) {
+    } else if (!todaysNumberExists && !previousNumberExists) {
       toast.error('This is not today\'s game result', { position: 'top-center' });
     } else {
       setIsPasted(true);

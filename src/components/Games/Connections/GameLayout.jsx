@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import ConnectionsModal from './Modals/ConnectionsScoreModal';
 import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
+import { getConnectionsGameNumber, isDailyGraceActive, getPreviousDailyPeriodEnd, formatLocalDateTime } from '../../../utils/gracePeriod';
 
 function GamesLayout() {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -168,6 +169,18 @@ function GamesLayout() {
 
       const period = adjustedDate.getHours() < 12 ? "AM" : "PM";
 
+      // If this paste is actually for the previous game (accepted by the
+      // modal because we're still within the 3-hour grace window), file it
+      // under that period's date instead of "now" - otherwise it would
+      // show up as today's result rather than the day it was actually for.
+      const todaysGameNumber = getConnectionsGameNumber(localDate);
+      const isGracePeriodResult = isDailyGraceActive(localDate) &&
+          !score.includes(`Puzzle #${todaysGameNumber}`) &&
+          score.includes(`Puzzle #${todaysGameNumber - 1}`);
+      const finalCreatedAt = isGracePeriodResult
+          ? formatLocalDateTime(getPreviousDailyPeriodEnd(localDate))
+          : adjustedCreatedAt;
+
       const groupGameMap = (allGroup || []).map(group => ({
             groupId: group.id,
             selectedGame: group.selected_games,
@@ -180,8 +193,8 @@ function GamesLayout() {
         useremail: loginUserEmail,
         connectionsscore: score,
         gamleScore: mistakeCount,
-        createdAt: adjustedCreatedAt,
-        currentUserTime: adjustedCreatedAt,
+        createdAt: finalCreatedAt,
+        currentUserTime: finalCreatedAt,
         urrentPeriod: period,
         lastgameisWin: isWin,
         guessDistribution: updatedDistribution,

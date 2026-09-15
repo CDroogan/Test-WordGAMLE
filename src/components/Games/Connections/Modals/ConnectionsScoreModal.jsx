@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, FloatingLabel } from 'react-bootstrap';
 import { toast } from 'react-toastify';
+import { isDailyGraceActive } from '../../../../utils/gracePeriod';
 
 const ConnectionsScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScore, loginUsername }) => {
   
@@ -62,11 +63,15 @@ const ConnectionsScoreModal = ({ showForm, handleFormClose, onSubmit, score, set
   const handlePaste = (event) => {
       const pastedData = event.clipboardData.getData('Text');
       const connectionsTextExists = pastedData.includes('Connections');
-      //const gamenumberExists = pastedData.includes(gameNumber.toLocaleString());
-      const gamenumberExists = pastedData.includes(`Puzzle #${gameNumber}`);
+      const todaysNumberExists = pastedData.includes(`Puzzle #${gameNumber}`);
+      // For up to 3 hours after today's reset, also accept yesterday's
+      // result - it still gets filed under yesterday's date correctly
+      // (see ConnectionPlayService.jsx's onSubmit), this just lets it in.
+      const previousNumberExists = isDailyGraceActive() &&
+          pastedData.includes(`Puzzle #${gameNumber - 1}`);
       if (!connectionsTextExists) {
         toast.error('This is not a Connections game!', { position: 'top-center' });
-      } else if (!gamenumberExists) {
+      } else if (!todaysNumberExists && !previousNumberExists) {
         toast.error('This is not today\'s game result', { position: 'top-center' });
       } else {
         setIsPasted(true); // Mark that the data has been pasted

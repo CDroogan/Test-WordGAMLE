@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import OctordleModal from './Modals/OctordleScoreModal';
 import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
+import { getOctordleGameNumber, isDailyGraceActive, getPreviousDailyPeriodEnd, formatLocalDateTime } from '../../../utils/gracePeriod';
 
 function OctordlePlayService({ updateStatsChart }) {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -104,6 +105,17 @@ function OctordlePlayService({ updateStatsChart }) {
     // Get the adjusted time in 24-hour format, e.g., "2024-12-02T15:10:29.476"
     const adjustedCreatedAt = adjustedDate.toISOString().slice(0, -1);  // "2024-12-02T15:10:29.476" (24-hour format)
 
+    // If this paste is actually for the previous game (accepted by the
+    // modal because we're still within the 3-hour grace window), file it
+    // under that period's date instead of "now" - otherwise it would show
+    // up as today's result rather than the day it was actually for.
+    const todaysGameNumber = getOctordleGameNumber(localDate);
+    const isGracePeriodResult = isDailyGraceActive(localDate) &&
+        !score.includes(String(todaysGameNumber)) &&
+        score.includes(String(todaysGameNumber - 1));
+    const finalCreatedAt = isGracePeriodResult
+        ? formatLocalDateTime(getPreviousDailyPeriodEnd(localDate))
+        : adjustedCreatedAt;
 
     const groupGameMap = (allGroup || []).map(group => ({
       groupId: group.id,
@@ -118,8 +130,8 @@ function OctordlePlayService({ updateStatsChart }) {
       octordlescore: score,
       isWin,
       gamleScore,
-      createdAt: adjustedCreatedAt,
-      currentUserTime: adjustedCreatedAt,
+      createdAt: finalCreatedAt,
+      currentUserTime: finalCreatedAt,
       lastgameisWin: isWin,
       timeZone,
       groups: groupGameMap,

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, FloatingLabel } from 'react-bootstrap';
 import { toast } from 'react-toastify';
+import { isDailyGraceActive } from '../../../../utils/gracePeriod';
 
 const WordleScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScore, loginUsername }) => {
   
@@ -72,13 +73,16 @@ useEffect(() => {
   const handlePaste = (event) => {
     const pastedData = event.clipboardData.getData('Text');
     const wordleTextExists = pastedData.includes('Wordle');
-    const gamenumberExists = pastedData.includes(gameNumber.toLocaleString());
-    
-    const todaysGameNumber = calculateGameNumber();
+    const todaysNumberExists = pastedData.includes(gameNumber.toLocaleString());
+    // For up to 3 hours after today's reset, also accept yesterday's
+    // result - it still gets filed under yesterday's date correctly (see
+    // WordlePlayService.jsx's onSubmit), this just lets it in the door.
+    const previousNumberExists = isDailyGraceActive() &&
+        pastedData.includes((gameNumber - 1).toLocaleString());
 
     if (!wordleTextExists) {
       toast.error('This is not a Wordle game!', { position: 'top-center' });
-    } else if (!gamenumberExists) {
+    } else if (!todaysNumberExists && !previousNumberExists) {
       toast.error('This is not today\'s game result', { position: 'top-center' });
     } else {
       setIsPasted(true); // Mark that the data has been pasted

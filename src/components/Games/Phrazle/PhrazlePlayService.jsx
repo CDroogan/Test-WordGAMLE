@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import PhrazlesModal from './Modals/PhrazleScoreModal';
 import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
+import { getPhrazlePeriod, isPhrazleGraceActive, getPreviousPhrazlePeriodEnd, formatLocalDateTime } from '../../../utils/gracePeriod';
 
 function PhrazlePlayService({ updateStatsChart}) {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -119,6 +120,18 @@ const onSubmit = async (event) => {
   const lettersAndNumbersRemoved = phrazleScore.replace(/[a-zA-Z0-9,#.:/\\]/g, "");
   const match = phrazleScore.match(/(\d+|X)\/(\d+)/);
 
+  // If this paste is actually for the previous period (accepted by the
+  // modal because we're still within the 3-hour grace window), file it
+  // under that period's date instead of "now" - otherwise it would show
+  // up as this period's result rather than the period it was actually for.
+  const todaysGameNumber = getPhrazlePeriod(localDate).number;
+  const isGracePeriodResult = isPhrazleGraceActive(localDate) &&
+      !score.includes(String(todaysGameNumber)) &&
+      score.includes(String(todaysGameNumber - 1));
+  const finalCreatedAt = isGracePeriodResult
+      ? formatLocalDateTime(getPreviousPhrazlePeriodEnd(localDate))
+      : adjustedCreatedAt;
+
   // A real Phrazle result is always out of 6, and a win is 1-6 guesses -
   // reject anything else (an out-of-range or garbled number) rather than
   // silently storing an impossible score.
@@ -152,8 +165,8 @@ const onSubmit = async (event) => {
         phrazlescore: score,
         isWin,
         gamleScore:guessesUsed,
-        createdAt:adjustedCreatedAt,
-        currentUserTime: adjustedCreatedAt,
+        createdAt:finalCreatedAt,
+        currentUserTime: finalCreatedAt,
         currentPeriod: period,
         timeZone,
         // groupId:lastGroup?.group_id,

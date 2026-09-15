@@ -1,0 +1,94 @@
+// Grace period support for "Paste Result": for up to 3 hours after a game
+// period resets, a Gamler can still paste the *previous* period's result
+// and have it correctly attributed to that period's date/leaderboard,
+// rather than being rejected as "not today's game."
+//
+// Each game-number function below mirrors that game's own Score Modal
+// calculation exactly (same epoch date, same day-count formula) - kept
+// here so the modal (which validates a paste) and the submit flow (which
+// decides how to file it) can never disagree about what "today's number"
+// or "the previous number" actually is.
+
+export const GRACE_PERIOD_MS = 3 * 60 * 60 * 1000; // 3 hours
+
+function daysSinceEpoch(epochYear, epochMonth, epochDay, now) {
+  const epoch = new Date(epochYear, epochMonth, epochDay);
+  const epochDateOnly = new Date(epoch.getFullYear(), epoch.getMonth(), epoch.getDate());
+  const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.floor((nowDateOnly - epochDateOnly) / (24 * 60 * 60 * 1000));
+}
+
+export function getWordleGameNumber(now = new Date()) {
+  return daysSinceEpoch(2021, 5, 19, now);
+}
+
+export function getConnectionsGameNumber(now = new Date()) {
+  return daysSinceEpoch(2023, 5, 11, now);
+}
+
+export function getQuordleGameNumber(now = new Date()) {
+  return daysSinceEpoch(2022, 0, 24, now);
+}
+
+export function getOctordleGameNumber(now = new Date()) {
+  return daysSinceEpoch(2022, 0, 24, now);
+}
+
+// Phrazle resets twice a day (AM/PM), so it has its own period shape -
+// mirrors PhrazleScoreModal's calculatePhrazleGameNumber exactly.
+export function getPhrazlePeriod(now = new Date()) {
+  const firstGameDate = new Date(2025, 10, 18);
+  firstGameDate.setHours(0, 0, 0, 0);
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  today.setHours(0, 0, 0, 0);
+
+  const offsetDiffInMs = 60 * (today.getTimezoneOffset() - firstGameDate.getTimezoneOffset()) * 1000;
+  const timeDiff = today.getTime() - firstGameDate.getTime() - offsetDiffInMs;
+  const daysPassed = Math.ceil(timeDiff / (24 * 60 * 60 * 1000));
+
+  const isAM = now.getHours() < 12;
+  const number = 2 * daysPassed + (isAM ? 1 : 2);
+  return { number, isAM };
+}
+
+// --- Grace period math: once-daily games (Wordle/Connections/Quordle/Octordle) ---
+
+function startOfToday(now) {
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+}
+
+export function isDailyGraceActive(now = new Date()) {
+  return (now.getTime() - startOfToday(now).getTime()) < GRACE_PERIOD_MS;
+}
+
+// The last instant of the period immediately before today's - i.e.
+// yesterday 23:59:59 - to file a grace-period submission under the
+// correct date.
+export function getPreviousDailyPeriodEnd(now = new Date()) {
+  return new Date(startOfToday(now).getTime() - 1000);
+}
+
+// --- Grace period math: Phrazle (twice-daily AM/PM) ---
+
+function startOfCurrentPhrazlePeriod(now) {
+  const isAM = now.getHours() < 12;
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), isAM ? 0 : 12, 0, 0, 0);
+}
+
+export function isPhrazleGraceActive(now = new Date()) {
+  return (now.getTime() - startOfCurrentPhrazlePeriod(now).getTime()) < GRACE_PERIOD_MS;
+}
+
+export function getPreviousPhrazlePeriodEnd(now = new Date()) {
+  return new Date(startOfCurrentPhrazlePeriod(now).getTime() - 1000);
+}
+
+// Format a Date using its own local wall-clock fields as "YYYY-MM-DD
+// HH:mm:ss" - matches what create-score.php expects for createdAt (a
+// naive local timestamp, paired with a separate timeZone field).
+export function formatLocalDateTime(date) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
+         `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
