@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import QuordleScoreModal from './Modals/QuordleScoreModal';
 import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
-import { getQuordleGameNumber, isDailyGraceActive, getPreviousDailyPeriodEnd, formatLocalDateTime } from '../../../utils/gracePeriod';
+import { getQuordleGameNumber, isDailyGraceActive, getPreviousDailyPeriodEnd, formatLocalDateTime, formatDateOnly, markGracePeriodJump } from '../../../utils/gracePeriod';
 
 function GamesLayout() {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -248,6 +248,9 @@ const determineAttempts = (score) => {
         await updateTotalGamesPlayed(TotalGameObject);
         clearPastePending('quordle_enter_result');
         setScore("");
+        if (isGracePeriodResult) {
+            markGracePeriodJump('quordle', formatDateOnly(getPreviousDailyPeriodEnd(localDate)));
+        }
         navigate("/quordlestats");
       } else {
         toast.error(res.data.message);

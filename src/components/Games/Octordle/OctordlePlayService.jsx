@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import OctordleModal from './Modals/OctordleScoreModal';
 import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
-import { getOctordleGameNumber, isDailyGraceActive, getPreviousDailyPeriodEnd, formatLocalDateTime } from '../../../utils/gracePeriod';
+import { getOctordleGameNumber, isDailyGraceActive, getPreviousDailyPeriodEnd, formatLocalDateTime, formatDateOnly, markGracePeriodJump } from '../../../utils/gracePeriod';
 
 function OctordlePlayService({ updateStatsChart }) {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -180,6 +180,9 @@ function OctordlePlayService({ updateStatsChart }) {
         await updateTotalGamesPlayed(TotalGameObject);
         clearPastePending('octordle');
         setScore("");
+        if (isGracePeriodResult) {
+            markGracePeriodJump('octordle', formatDateOnly(getPreviousDailyPeriodEnd(localDate)));
+        }
         navigate("/octordlestats");
       } else {
         toast.error(res.data.message);

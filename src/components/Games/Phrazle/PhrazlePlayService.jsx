@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import PhrazlesModal from './Modals/PhrazleScoreModal';
 import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
-import { getPhrazlePeriod, isPhrazleGraceActive, getPreviousPhrazlePeriodEnd, formatLocalDateTime } from '../../../utils/gracePeriod';
+import { getPhrazlePeriod, isPhrazleGraceActive, getPreviousPhrazlePeriodEnd, formatLocalDateTime, formatDateOnly, markGracePeriodJump } from '../../../utils/gracePeriod';
 
 function PhrazlePlayService({ updateStatsChart}) {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -198,6 +198,10 @@ const onSubmit = async (event) => {
         await updateTotalGamesPlayed(TotalGameObject);
         clearPastePending('phrazle');
         setScore('');
+        if (isGracePeriodResult) {
+            const prevPeriodEnd = getPreviousPhrazlePeriodEnd(localDate);
+            markGracePeriodJump('phrazle', `${formatDateOnly(prevPeriodEnd)}_${prevPeriodEnd.getHours() < 12 ? 'AM' : 'PM'}`);
+        }
         navigate("/phrazlestats");
         // const latest_group_id = lastGroup?.group_id;
         // if(latest_group_id){

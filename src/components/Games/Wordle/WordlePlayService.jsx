@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import WordleModal from './Modals/WordleScoreModal';
 import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
-import { getWordleGameNumber, isDailyGraceActive, getPreviousDailyPeriodEnd, formatLocalDateTime } from '../../../utils/gracePeriod';
+import { getWordleGameNumber, isDailyGraceActive, getPreviousDailyPeriodEnd, formatLocalDateTime, formatDateOnly, markGracePeriodJump } from '../../../utils/gracePeriod';
 
 function WordlePlayService({ updateStatsChart, groupId, gameName  }) {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -183,6 +183,9 @@ function WordlePlayService({ updateStatsChart, groupId, gameName  }) {
                     await updateTotalGamesPlayed(TotalGameObject);
                     clearPastePending('wordle');
                     setScore('');
+                    if (isGracePeriodResult) {
+                        markGracePeriodJump('wordle', formatDateOnly(getPreviousDailyPeriodEnd(localDate)));
+                    }
                     navigate("/wordlestats");
                     // const latest_group_id = lastGroup?.group_id;
                     // if(latest_group_id){

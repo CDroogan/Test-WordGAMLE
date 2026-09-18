@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment-timezone';
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import dayjs from "dayjs";
+import { consumeGracePeriodJump } from '../../../utils/gracePeriod';
 
 function PhrazleScoreByDate() {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -21,20 +22,32 @@ function PhrazleScoreByDate() {
     // it never shows "No Play" for a period before they started.
     const [firstPlayedDate, setFirstPlayedDate] = useState(null);
     const [firstPlayedPeriod, setFirstPlayedPeriod] = useState(null);
+    const containerRef = useRef(null);
 
     const formatDateForBackend = (date) => moment(date).format('YYYY-MM-DD hh:mm A');
 
     useEffect(() => {
-        const now = new Date();
-        const currentHour = now.getHours();
+        // A grace-period submission just made from the Paste Result modal
+        // gets filed under the *previous* period, so "Today's Result" has
+        // nothing new to show - jump straight to that date/period instead
+        // of the default and scroll down so the Gamler actually sees the
+        // result they just pasted. Stored as "YYYY-MM-DD_AM"/"..._PM".
+        const graceJump = consumeGracePeriodJump('phrazle');
 
         let priorPeriod = 'AM';
         let defaultDate = new Date(); // today's date
 
-        if (currentHour < 12) {
-            // If it's currently AM, go to yesterday PM
-            priorPeriod = 'PM';
-            defaultDate.setDate(defaultDate.getDate() - 1); // move to yesterday
+        if (graceJump) {
+            const [datePart, periodPart] = graceJump.split('_');
+            defaultDate = moment(datePart, 'YYYY-MM-DD').toDate();
+            priorPeriod = periodPart;
+        } else {
+            const currentHour = new Date().getHours();
+            if (currentHour < 12) {
+                // If it's currently AM, go to yesterday PM
+                priorPeriod = 'PM';
+                defaultDate.setDate(defaultDate.getDate() - 1); // move to yesterday
+            }
         }
 
         setPeriod(priorPeriod);
@@ -42,6 +55,12 @@ function PhrazleScoreByDate() {
 
         const formattedDate = formatDateForBackend(defaultDate); // your helper function
         fetchDataByDate(formattedDate, priorPeriod);
+
+        if (graceJump && containerRef.current) {
+            setTimeout(() => {
+                containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
 
         axios.get(`${baseURL}/games/phrazle/get-statistics.php`, { params: { useremail: loginuserEmail } })
             .then((response) => {
@@ -199,7 +218,7 @@ function PhrazleScoreByDate() {
                     timeCaption="AM/PM"
                 />
             </div>
-            <ul className='score-by-date p-2'>
+            <ul className='score-by-date p-2' ref={containerRef}>
                 
             {dataFetched && (
             <>

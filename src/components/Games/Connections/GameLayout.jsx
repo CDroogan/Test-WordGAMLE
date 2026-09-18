@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import LoginModal from './Modals/LoginModal';
 import ConnectionsModal from './Modals/ConnectionsScoreModal';
 import { isPastePending, markPastePending, clearPastePending } from '../../../utils/pendingPaste';
-import { getConnectionsGameNumber, isDailyGraceActive, getPreviousDailyPeriodEnd, formatLocalDateTime } from '../../../utils/gracePeriod';
+import { getConnectionsGameNumber, isDailyGraceActive, getPreviousDailyPeriodEnd, formatLocalDateTime, formatDateOnly, markGracePeriodJump } from '../../../utils/gracePeriod';
 
 function GamesLayout() {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -245,6 +245,9 @@ function GamesLayout() {
         await updateTotalGamesPlayed(TotalGameObject);
         clearPastePending('connections_enter_result');
         setScore("");
+        if (isGracePeriodResult) {
+            markGracePeriodJump('connections', formatDateOnly(getPreviousDailyPeriodEnd(localDate)));
+        }
         navigate("/connectionstats");
         // const latest_group_id = lastGroup?.group_id;
         // if(latest_group_id){

@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useEffect } from 'react';
+import React, { useState, forwardRef, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Button, Alert } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment-timezone';
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import dayjs from "dayjs";
+import { consumeGracePeriodJump } from '../../../utils/gracePeriod';
 
 function QuordleScoreByDate() {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -20,6 +21,7 @@ function QuordleScoreByDate() {
     // they've played, and bounds how far back "Go To Date" can go so it
     // never shows "No Play" for a date before they started.
     const [firstPlayedDate, setFirstPlayedDate] = useState(null);
+    const containerRef = useRef(null);
 
     // Function to format the selected date in YYYY-MM-DD format for backend
     const formatDateForBackend = (date) => moment(date).format('YYYY-MM-DD');
@@ -32,8 +34,24 @@ function QuordleScoreByDate() {
     };
 
     useEffect(() => {
-        const formattedDate = formatDateForBackend(startDate);
+        // A grace-period submission just made from the Paste Result modal
+        // gets filed under the *previous* day, so "Today's Result" has
+        // nothing new to show - jump straight to that date instead of the
+        // default (yesterday) and scroll down so the Gamler actually sees
+        // the result they just pasted.
+        const graceDate = consumeGracePeriodJump('quordle');
+        const initialDate = graceDate ? moment(graceDate, 'YYYY-MM-DD').toDate() : startDate;
+        if (graceDate) {
+            setStartDate(initialDate);
+        }
+        const formattedDate = formatDateForBackend(initialDate);
         fetchDataByDate(formattedDate);
+
+        if (graceDate && containerRef.current) {
+            setTimeout(() => {
+                containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
 
         axios.get(`${baseURL}/games/quordle/get-statistics.php`, { params: { useremail: loginuserEmail } })
             .then((response) => {
@@ -140,7 +158,7 @@ function QuordleScoreByDate() {
                     minDate={firstPlayedDate}
                 />
             </div>
-            <ul className='score-by-date p-2'>
+            <ul className='score-by-date p-2' ref={containerRef}>
                 {dataFetched && (
                 <>
                     <div className="d-flex align-items-center justify-content-center gap-3 cursor-pointer text-lg font-medium py-4">

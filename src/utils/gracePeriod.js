@@ -100,3 +100,41 @@ export function formatLocalDateTime(date) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
          `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
+
+export function formatDateOnly(date) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+// --- Grace period "jump to this date" signal ---
+//
+// A grace-period submission gets filed under the *previous* period's date,
+// so "Today's Result" has nothing new to show - the Gamler gets no visible
+// confirmation their paste worked. Both submit flows (the embedded "Play"
+// button and the "Enter Result" page, which navigates to the stats page on
+// success) land on the same Stats page either way, so a one-time signal
+// left here lets that page's "Go To Date" section pick up the correct date
+// and scroll itself into view, regardless of which flow was used.
+const GRACE_JUMP_KEY_PREFIX = 'wordgamle_grace_jump_';
+
+export function markGracePeriodJump(gameKey, dateStr) {
+  try {
+    sessionStorage.setItem(GRACE_JUMP_KEY_PREFIX + gameKey, dateStr);
+  } catch (e) {
+    // sessionStorage unavailable (private browsing, etc.) - the result is
+    // still saved correctly, the Gamler just won't get auto-scrolled to it.
+  }
+}
+
+export function consumeGracePeriodJump(gameKey) {
+  try {
+    const key = GRACE_JUMP_KEY_PREFIX + gameKey;
+    const value = sessionStorage.getItem(key);
+    if (value) {
+      sessionStorage.removeItem(key);
+    }
+    return value;
+  } catch (e) {
+    return null;
+  }
+}
