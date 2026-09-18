@@ -12,10 +12,18 @@
 export const GRACE_PERIOD_MS = 3 * 60 * 60 * 1000; // 3 hours
 
 function daysSinceEpoch(epochYear, epochMonth, epochDay, now) {
-  const epoch = new Date(epochYear, epochMonth, epochDay);
-  const epochDateOnly = new Date(epoch.getFullYear(), epoch.getMonth(), epoch.getDate());
+  const epochDateOnly = new Date(epochYear, epochMonth, epochDay);
   const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  return Math.floor((nowDateOnly - epochDateOnly) / (24 * 60 * 60 * 1000));
+  // A plain subtraction of two local-midnight Dates is off by one whenever
+  // the epoch and "now" fall on opposite sides of a DST transition (e.g.
+  // Quordle/Octordle's Jan 2022 epoch is standard time, but "now" is
+  // daylight time most of the year) - each local midnight is a different
+  // number of hours from UTC, so the raw difference isn't an exact 24h
+  // multiple. Correct for that offset before dividing, same technique
+  // already used in getPhrazlePeriod below.
+  const offsetDiffInMs = 60 * (nowDateOnly.getTimezoneOffset() - epochDateOnly.getTimezoneOffset()) * 1000;
+  const timeDiff = nowDateOnly.getTime() - epochDateOnly.getTime() - offsetDiffInMs;
+  return Math.floor(timeDiff / (24 * 60 * 60 * 1000));
 }
 
 export function getWordleGameNumber(now = new Date()) {

@@ -1,36 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, FloatingLabel } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { isDailyGraceActive } from '../../../../utils/gracePeriod';
+import { isDailyGraceActive, getConnectionsGameNumber } from '../../../../utils/gracePeriod';
 
 const ConnectionsScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScore, loginUsername }) => {
-  
+
   const [isPasted, setIsPasted] = useState(false);
   const [gameNumber, setGameNumber] = useState(null);
-  
-  const calculateGameNumber = () => {
-      // Start Date: June 19, 2021, 12:00 AM (Midnight Local Time)
-      const firstGameDate = new Date(2023, 5, 11); // Ensures local midnight
-  
-      // Get current local time
-      const now = new Date();
-  
-      // Convert both dates to local YYYY-MM-DD only (ignoring time)
-      const firstDateOnly = new Date(firstGameDate.getFullYear(), firstGameDate.getMonth(), firstGameDate.getDate());
-      const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  
-      // Calculate difference in full days
-      const diffInDays = Math.floor((nowDateOnly - firstDateOnly) / (24 * 60 * 60 * 1000));
-  
-      // Game number starts at 1
-      const currentGameNumber = diffInDays;
 
-  
-      return currentGameNumber;
-  };
-  
   useEffect(() => {
-      setGameNumber(calculateGameNumber());
+      setGameNumber(getConnectionsGameNumber());
 
       // Check every minute and update exactly at 12:00 AM (Midnight). Mobile
       // browsers routinely pause this interval while the tab is backgrounded
@@ -41,7 +20,7 @@ const ConnectionsScoreModal = ({ showForm, handleFormClose, onSubmit, score, set
       const interval = setInterval(() => {
           const now = new Date();
           if (now.getHours() === 0 && now.getMinutes() === 0) {
-              setGameNumber(calculateGameNumber());
+              setGameNumber(getConnectionsGameNumber());
           }
       }, 60 * 1000); // Check every minute
 
@@ -49,7 +28,7 @@ const ConnectionsScoreModal = ({ showForm, handleFormClose, onSubmit, score, set
       // interval can't leave this stale.
       const handleVisibilityChange = () => {
           if (document.visibilityState === 'visible') {
-              setGameNumber(calculateGameNumber());
+              setGameNumber(getConnectionsGameNumber());
           }
       };
       document.addEventListener('visibilitychange', handleVisibilityChange);

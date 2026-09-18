@@ -1,38 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, FloatingLabel } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { isDailyGraceActive } from '../../../../utils/gracePeriod';
+import { isDailyGraceActive, getQuordleGameNumber } from '../../../../utils/gracePeriod';
 
 const QuordleScoreModal = ({ showForm, handleFormClose, onSubmit, score, setScore, loginUsername }) => {
-  
+
   const [isPasted, setIsPasted] = useState(false);
   const [gameNumber, setGameNumber] = useState(null);
 
-  const calculateGameNumber = () => {
-  // Start Date: January 24, 2022 (Local Midnight) — Quordle Day 1
-  const firstGameDate = new Date(2022, 0, 24); // Ensures local midnight
-
-  // Get current local time
-  const now = new Date();
-
-  // Read each date's LOCAL calendar day (so "today" is the user's local
-  // today, resetting at local midnight), then diff those calendar days via
-  // Date.UTC so the subtraction is an exact 24h multiple regardless of DST.
-  // (A plain `new Date(y, m, d) - new Date(y, m, d)` subtraction is off by
-  // one whenever the two dates fall on opposite sides of a DST transition —
-  // which happens here since the Jan 2022 epoch is standard time and most
-  // "today"s are daylight time.)
-  const firstDateOnly = Date.UTC(firstGameDate.getFullYear(), firstGameDate.getMonth(), firstGameDate.getDate());
-  const nowDateOnly = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-
-  // Difference in days
-  const diffInDays = Math.floor((nowDateOnly - firstDateOnly) / (24 * 60 * 60 * 1000));
-
-  return diffInDays; // Game # starts at 1
-};
-
 useEffect(() => {
-    setGameNumber(calculateGameNumber());
+    setGameNumber(getQuordleGameNumber());
 
     // Check every minute and update exactly at 12:00 AM (Midnight). Mobile
     // browsers routinely pause this interval while the tab is backgrounded
@@ -43,7 +20,7 @@ useEffect(() => {
     const interval = setInterval(() => {
         const now = new Date();
         if (now.getHours() === 0 && now.getMinutes() === 0) {
-            setGameNumber(calculateGameNumber());
+            setGameNumber(getQuordleGameNumber());
         }
     }, 60 * 1000); // Check every minute
 
@@ -51,7 +28,7 @@ useEffect(() => {
     // interval can't leave this stale.
     const handleVisibilityChange = () => {
         if (document.visibilityState === 'visible') {
-            setGameNumber(calculateGameNumber());
+            setGameNumber(getQuordleGameNumber());
         }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
