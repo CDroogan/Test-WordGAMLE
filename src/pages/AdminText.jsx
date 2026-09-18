@@ -252,6 +252,7 @@ return (
                   theme="snow"
                   value={formData.text1_pre}
                   onChange={(content) => setFormData(prev => ({ ...prev, text1_pre: content }))}
+                  modules={quillModules}
                 />
               </Form.Group>
             </Tab>
@@ -275,6 +276,7 @@ return (
                   theme="snow"
                   value={formData.text1_post}
                   onChange={(content) => setFormData(prev => ({ ...prev, text1_post: content }))}
+                  modules={quillModules}
                 />
               </Form.Group>
             </Tab>
@@ -287,6 +289,7 @@ return (
                   theme="snow"
                   value={formData.text1}
                   onChange={(content) => setFormData(prev => ({ ...prev, text1: content }))}
+                  modules={quillModules}
                 />
               </Form.Group>
 
@@ -296,6 +299,7 @@ return (
                   theme="snow"
                   value={formData.text2}
                   onChange={(content) => setFormData(prev => ({ ...prev, text2: content }))}
+                  modules={quillModules}
                 />
               </Form.Group>
 
@@ -603,6 +607,7 @@ return (
                   theme="snow"
                   value={formData.text4}
                   onChange={(content) => setFormData(prev => ({ ...prev, text4: content }))}
+                  modules={quillModules}
                 />
 
               </Form.Group>
@@ -613,6 +618,7 @@ return (
                   theme="snow"
                   value={formData.text5}
                   onChange={(content) => setFormData(prev => ({ ...prev, text5: content }))}
+                  modules={quillModules}
                 />
               </Form.Group>
             </Tab>
@@ -634,6 +640,7 @@ return (
                   theme="snow"
                   value={formData.golf_modal_description}
                   onChange={(content) => setFormData(prev => ({ ...prev, golf_modal_description: content }))}
+                  modules={quillModules}
                 />
               </Form.Group>
               <h5 className='my-3'>World Cup Method</h5>
@@ -653,6 +660,7 @@ return (
                   theme="snow"
                   value={formData.world_cup_modal_description}
                   onChange={(content) => setFormData(prev => ({ ...prev, world_cup_modal_description: content }))}
+                  modules={quillModules}
                 />
               </Form.Group>
               <h5 className='my-3'>Pesce Method</h5>
@@ -672,6 +680,7 @@ return (
                   theme="snow"
                   value={formData.pesce_modal_description}
                   onChange={(content) => setFormData(prev => ({ ...prev, pesce_modal_description: content }))}
+                  modules={quillModules}
                 />
               </Form.Group>
             </Tab>
