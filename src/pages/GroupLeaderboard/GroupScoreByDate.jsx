@@ -62,8 +62,13 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile, m
         if (parts.length === 3) {
             const [year, month, day] = parts.map(Number);
             if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-                // Use UTC to avoid timezone shift issues
-                minDate = new Date(Date.UTC(year, month - 1, day));
+                // Build this as a LOCAL midnight, not UTC. A UTC-constructed
+                // date, once handed to the DatePicker (which compares against
+                // local calendar days), lands on the previous local day for
+                // any viewer west of UTC - letting the calendar go back one
+                // day further than the back-arrow button (which compares
+                // against latestJoinDate in local time) allows.
+                minDate = new Date(year, month - 1, day);
             } else {
                 console.error('Invalid date parts:', { year, month, day });
             }
@@ -72,10 +77,6 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile, m
         }
     }
 
-
-
-    const minDateStr = minDate.toISOString().split('T')[0];
-    
 
     useEffect(() => {
         const fetchscoringMethod = async () => {
@@ -598,7 +599,7 @@ useEffect(() => {
                    
                     onChange={handleDateChange}
                     customInput={<ExampleCustomInput />}
-                    minDate={minDateStr}
+                    minDate={minDate}
                     maxDate={game === 'phrazle' ? maxSelectableDate : dayjs().subtract(1, 'day').toDate()}
                     />
             </div>

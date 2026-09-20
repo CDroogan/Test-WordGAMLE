@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import Axios from "axios";
 import { useParams } from "react-router-dom";
 import { toast } from 'react-toastify';
+import dayjs from "dayjs";
 
 function MemberGameSelections({ leaderboardText }) {
     const baseURL = import.meta.env.VITE_BASE_URL;
@@ -63,7 +64,11 @@ function MemberGameSelections({ leaderboardText }) {
             const res = await Axios.post(`${baseURL}/groups/update-games.php`, {
                 userId,
                 groupId,
-                selectedGames
+                selectedGames,
+                // The Gamler's own local time - the server runs on UTC, which
+                // would otherwise record an evening opt-in as starting the
+                // next calendar day for anyone west of UTC.
+                createdAt: dayjs().format("YYYY-MM-DD HH:mm:ss")
             });
 
             if (res.data.status === "success") {
