@@ -519,12 +519,12 @@ const getPeriod = (createdat) => {
                                                         }
                                                         alt="Profile"
                                                         className="rounded-circle mb-1"
-                                                        style={{ width: '35px', height: '35px', objectFit: 'cover' }}
+                                                        style={{ width: '35px', height: '35px', objectFit: 'cover', border: '2px solid #0d6efd' }}
                                                     />
                                                     </div>
                                                 </Col>
 
-                                                <Col xs={4} className="text-start fw-semibold" onClick={() => handleShowProfile(data)} style={{ cursor: 'pointer' }}>
+                                                <Col xs={4} className="text-start fw-semibold text-primary" onClick={() => handleShowProfile(data)} style={{ cursor: 'pointer' }}>
                                                     {data.username}
                                                 </Col>
 
@@ -542,6 +542,7 @@ const getPeriod = (createdat) => {
                                                     <Col md={5} xs={6} className="text-center d-flex fw-bold">
                                                     <span
                                                         onClick={() => showDayResult(data.createdat, data.useremail, data.gamename, period)}
+                                                        className="text-primary"
                                                         style={{ cursor: "pointer", whiteSpace: "nowrap" }}
                                                     >
                                                         {scoringMethod === "Golf"
@@ -719,7 +720,7 @@ const getPeriod = (createdat) => {
                                                                         }
                                                                         alt="Profile"
                                                                         className="rounded-circle mb-1"
-                                                                        style={{ width: '35px', height: '35px', objectFit: 'cover' }}
+                                                                        style={{ width: '35px', height: '35px', objectFit: 'cover', border: '2px solid #0d6efd' }}
                                                                     />
                                                                 </div>
                                                             </Col>
@@ -727,7 +728,7 @@ const getPeriod = (createdat) => {
                                                             {/* Username */}
                                                             <Col
                                                                 xs={4}
-                                                                className="text-start fw-semibold"
+                                                                className="text-start fw-semibold text-primary"
                                                                 onClick={() => handleShowProfile(data)}
                                                                 style={{ cursor: 'pointer' }}
                                                             >
@@ -757,6 +758,7 @@ const getPeriod = (createdat) => {
                                                                     <Col md={5} xs={6} className="text-center d-flex fw-bold">
                                                                     <span
                                                                         onClick={() => showDayResult(data.createdat, data.useremail, game)}
+                                                                        className="text-primary"
                                                                         style={{ cursor: "pointer", whiteSpace: "nowrap" }}
                                                                     >
                                                                         {scoringMethod === "Golf"
