@@ -25,6 +25,10 @@ const GroupInvites = () => {
   const [allGroup, setAllGroup] = useState(null);
   const [notificationModes, setNotificationModes] = useState({});
   const [isUnreadCount, setisUnreadCount] = useState();
+  // "Mark All Read" previews the read/grey state locally (no server call)
+  // so a curious Gamler can see what it'll look like before committing -
+  // only confirming actually calls handleMarkAllRead().
+  const [previewAllRead, setPreviewAllRead] = useState(false);
 
     // Invite polling effect
   useEffect(() => {
@@ -564,6 +568,12 @@ const handleClick = async (
   return (
     <Dropdown show={showDropdown} onToggle={async (isOpen) => {
         setShowDropdown(isOpen);
+        if (!isOpen) {
+          // Closing without confirming shouldn't leave the preview active -
+          // otherwise reopening would still show everything as read even
+          // though nothing was actually saved.
+          setPreviewAllRead(false);
+        }
         // if (isOpen) {
         //   // setunReadCount(0);
         //   await axios.post(`${baseURL}/groups/mark-all-seen.php`, { user_id: userId });
@@ -573,7 +583,7 @@ const handleClick = async (
       <Dropdown.Toggle variant="light" id="group-invites">
 
         <i className="fas fa-bell"></i>
-        {unreadcount > 0 && (
+        {!previewAllRead && unreadcount > 0 && (
           <Badge bg="danger" className="notification-count">
             {unreadcount}
           </Badge>
@@ -585,22 +595,51 @@ const handleClick = async (
 
           <span>Group Messages</span>
 
-          <div className="form-check m-0">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="markAllRead"
-              onChange={async (e) => {
-                if (e.target.checked) {
+          {previewAllRead ? (
+            <div className="d-flex align-items-center gap-2">
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={async (e) => {
+                  e.preventDefault();
                   await handleMarkAllRead();
-                  e.target.checked = false; // reset after action
-                }
-              }}
-            />
-            <label className="form-check-label ms-1" htmlFor="markAllRead">
-              All Read
-            </label>
-          </div>
+                  setPreviewAllRead(false);
+                }}
+              >
+                Confirm
+              </Button>
+              <Button
+                size="sm"
+                variant="outline-secondary"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPreviewAllRead(false);
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <div className="form-check m-0">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="markAllRead"
+                checked={false}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    // Preview only - grey everything out / hide the unread
+                    // dots so the Gamler can see the effect first, without
+                    // actually marking anything as read yet.
+                    setPreviewAllRead(true);
+                  }
+                }}
+              />
+              <label className="form-check-label ms-1" htmlFor="markAllRead">
+                Mark All Read
+              </label>
+            </div>
+          )}
 
         </Dropdown.Header>
 
@@ -646,8 +685,9 @@ const handleClick = async (
       {Array.isArray(groupMessages) && groupMessages.length > 0 &&
         groupMessages.map((msg) => {
           const isUnread =
-            !msg.seen_ids ||
-            !msg.seen_ids.split(",").includes(String(userId));
+            !previewAllRead &&
+            (!msg.seen_ids ||
+            !msg.seen_ids.split(",").includes(String(userId)));
 
           let processedMessage = msg.message || "";
 
