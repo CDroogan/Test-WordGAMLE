@@ -604,6 +604,7 @@ const handleClick = async (
                   e.preventDefault();
                   await handleMarkAllRead();
                   setPreviewAllRead(false);
+                  setShowDropdown(false);
                 }}
               >
                 Confirm
