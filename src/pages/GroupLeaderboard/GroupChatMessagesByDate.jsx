@@ -7,10 +7,23 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 import EmojiPicker from "emoji-picker-react";
 import axios from "axios";
+import MemberProfile from "../../constant/Models/MemberProfile";
 
 function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highlightMsgId, generalChat }) {
   const [showPickerFor, setShowPickerFor] = useState(null);
   const [msgReactions, setMsgReactions] = useState({});
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [showProfile, setShowProfile] = useState(false);
+
+  const handleShowProfile = (msg) => {
+    setSelectedMember({
+      username: msg.username,
+      avatar: msg.avatar,
+      first_name: msg.first_name,
+      last_name: msg.last_name,
+    });
+    setShowProfile(true);
+  };
 
   // Highlight specific message by ID
   useEffect(() => {
@@ -139,7 +152,11 @@ function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highligh
                 className="d-flex flex-column mb-3 align-items-start"
               >
                 {/* Username */}
-                <div className="small fw-bold mb-1 ms-1">
+                <div
+                  className="small fw-bold mb-1 ms-1 text-primary"
+                  onClick={() => handleShowProfile(msg)}
+                  style={{ cursor: "pointer" }}
+                >
                   {msg.username || `User ${msg.user_id}`}
                 </div>
 
@@ -155,6 +172,8 @@ function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highligh
                       width="30"
                       height="30"
                       onError={(e) => (e.target.style.display = "none")}
+                      onClick={() => handleShowProfile(msg)}
+                      style={{ cursor: "pointer", border: "2px solid #0d6efd" }}
                     />
 
                   </div>
@@ -263,6 +282,13 @@ function GroupChatMessagesByDate({ gameName, messages, userId, baseURL, highligh
           })}
         </div>
       ))}
+
+      <MemberProfile
+        show={showProfile}
+        onHide={() => setShowProfile(false)}
+        selectedMember={selectedMember}
+        baseURL={baseURL}
+      />
     </>
   );
 }

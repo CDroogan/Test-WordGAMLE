@@ -3,6 +3,7 @@ import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import dayjs from "dayjs";
 import GroupChatInput from "../../pages/GroupLeaderboard/GroupChatInput"; // ✅ import input box
+import MemberProfile from "./MemberProfile";
 
 const GetGroupMessagesModal = ({ groupId, gameName, periodDate, periodType, userId, archive }) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -12,6 +13,18 @@ const GetGroupMessagesModal = ({ groupId, gameName, periodDate, periodType, user
   const messagesEndRef = useRef(null);
   const [latestCreatedAt,setLatestCreatedAt] = useState(null);
   const usertimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [showProfile, setShowProfile] = useState(false);
+
+  const handleShowProfile = (msg) => {
+    setSelectedMember({
+      username: msg.username,
+      avatar: msg.avatar,
+      first_name: msg.first_name,
+      last_name: msg.last_name,
+    });
+    setShowProfile(true);
+  };
   useEffect(() => {
     // don't run until these required props are available
     if (!groupId || !gameName || !userId || !periodDate) return;
@@ -150,8 +163,16 @@ const GetGroupMessagesModal = ({ groupId, gameName, periodDate, periodType, user
                         width={40}
                         height={40}
                         className="rounded-circle me-2"
+                        onClick={() => handleShowProfile(msg)}
+                        style={{ cursor: "pointer", border: "2px solid #0d6efd" }}
                       />
-                      <strong>{msg.username}</strong>
+                      <strong
+                        className="text-primary"
+                        onClick={() => handleShowProfile(msg)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        {msg.username}
+                      </strong>
                     </div>
                     <div className="ms-5">{msg.message}</div>
                     <small className="ms-5 text-muted">
@@ -175,6 +196,13 @@ const GetGroupMessagesModal = ({ groupId, gameName, periodDate, periodType, user
           )}
         </Modal.Footer>
       </Modal>
+
+      <MemberProfile
+        show={showProfile}
+        onHide={() => setShowProfile(false)}
+        selectedMember={selectedMember}
+        baseURL={baseURL}
+      />
     </>
   );
 };
