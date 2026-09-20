@@ -37,6 +37,33 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile, m
     const [totalGames, settotalGames] = useState('');
     const [cumulativeAverageScore, setcumulativeAverageScore] = useState([]);
     const [cumulativeDailyScore, setcumulativeDailyScore] = useState([]);
+    // Weekly Leaderboard - part of the Daily/Weekly/Monthly/Yearly revamp
+    // replacing the old "forever" Cumulative Leaderboard. weeklyData holds
+    // the full API response (data, weekOf, canGoBack/Forward, available).
+    const [weeklyData, setWeeklyData] = useState(null);
+    const fetchWeeklyData = async (weekOf) => {
+        if (!id || !game) return;
+        try {
+            const params = { groupId: id, game };
+            if (weekOf) params.weekOf = weekOf;
+            const res = await axios.get(`${baseURL}/groups/get-weekly-score.php`, { params });
+            setWeeklyData(res.data);
+        } catch (err) {
+            setWeeklyData(null);
+        }
+    };
+    useEffect(() => {
+        fetchWeeklyData(null);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, game]);
+    const goToPreviousWeek = () => {
+        if (!weeklyData?.canGoBack) return;
+        fetchWeeklyData(dayjs(weeklyData.weekOf).subtract(7, 'day').format('YYYY-MM-DD'));
+    };
+    const goToNextWeek = () => {
+        if (!weeklyData?.canGoForward) return;
+        fetchWeeklyData(dayjs(weeklyData.weekOf).add(7, 'day').format('YYYY-MM-DD'));
+    };
     const [missedScore, setMissedScore] = useState([]);
     const [dataFetched, setDataFetched] = useState(false);
     const [startDate, setStartDate] = useState(new Date());
@@ -1046,6 +1073,93 @@ useEffect(() => {
                 </Col>
             </Row>
             )}
+
+            {/* Weekly Leaderboard */}
+            <Row className="justify-content-center leaderboard">
+                <Col md={5}>
+                    <div className="d-flex align-items-center justify-content-center gap-3 text-lg font-medium">
+                        <button
+                            onClick={goToPreviousWeek}
+                            disabled={!weeklyData?.canGoBack}
+                            className="bg-dark text-white px-3 py-1 rounded"
+                        >
+                            <FaArrowLeft />
+                        </button>
+                        <div>
+                            {weeklyData?.weekOf ? `Week of ${dayjs(weeklyData.weekOf).format("MMM D, YYYY")}` : "Week of —"}
+                        </div>
+                        <button
+                            onClick={goToNextWeek}
+                            disabled={!weeklyData?.canGoForward}
+                            className="bg-dark text-white px-3 py-1 rounded"
+                        >
+                            <FaArrowRight />
+                        </button>
+                    </div>
+                    <h4 className="py-3 text-center">Weekly Leaderboard</h4>
+
+                    {!weeklyData ? null : !weeklyData.available ? (
+                        <p className="text-center text-muted">Not Yet Available</p>
+                    ) : (
+                        (() => {
+                            const rows = (weeklyData.data || []).filter(d => String(d?.is_paused) === "0");
+                            if (rows.length === 0) {
+                                return <p className="text-center text-muted">Not Yet Available</p>;
+                            }
+                            const sorted = rows.slice().sort((a, b) => {
+                                if (scoringMethod === "World Cup") {
+                                    return (b.total_worldcup_points ?? 0) - (a.total_worldcup_points ?? 0);
+                                } else if (scoringMethod === "Pesce") {
+                                    return (b.total_pesce_points ?? 0) - (a.total_pesce_points ?? 0);
+                                }
+                                return (a.gamlescore ?? 0) - (b.gamlescore ?? 0); // Golf: lower is better
+                            });
+                            const totalScore = getTotalScore(game);
+                            return sorted.map((data, index) => {
+                                let nowValue = data.gamlescore ?? 0;
+                                let maxValue = (data.totalGamesPlayed || 1) * totalScore;
+                                if (scoringMethod === "World Cup") {
+                                    nowValue = data.total_worldcup_points ?? 0;
+                                    maxValue = (data.totalGamesPlayed || 1) * 3;
+                                } else if (scoringMethod === "Pesce") {
+                                    nowValue = data.total_pesce_points ?? 0;
+                                    maxValue = data.totalGamesPlayed || 1;
+                                }
+                                return (
+                                    <Row key={index} className="justify-content-between align-items-center py-2 px-3 mb-2 rounded bg-light shadow-sm">
+                                        <Col xs={3} className="d-flex align-items-center gap-2">
+                                            <img
+                                                src={data.avatar ? `${baseURL}/user/uploads/${data.avatar}` : `${baseURL}/user/uploads/default_avatar.png`}
+                                                alt="Profile"
+                                                className="rounded-circle"
+                                                style={{ width: '35px', height: '35px', objectFit: 'cover', cursor: 'pointer', border: '2px solid #0d6efd' }}
+                                                onClick={() => handleShowProfile(data)}
+                                            />
+                                        </Col>
+                                        <Col xs={4} className="text-start fw-semibold text-primary" style={{ cursor: 'pointer' }} onClick={() => handleShowProfile(data)}>
+                                            {data.username}
+                                        </Col>
+                                        <Col xs={5}>
+                                            <Row className="align-items-center">
+                                                <Col md={7} xs={6}>
+                                                    <ProgressBar
+                                                        className={`${game}-progressbar`}
+                                                        variant="success"
+                                                        now={maxValue > 0 ? (nowValue / maxValue) * 100 : 0}
+                                                    />
+                                                </Col>
+                                                <Col md={5} xs={6} className="fw-bold">
+                                                    {nowValue}
+                                                </Col>
+                                            </Row>
+                                        </Col>
+                                    </Row>
+                                );
+                            });
+                        })()
+                    )}
+                </Col>
+            </Row>
 
                 {dataFetched && todayLeaderboard.length > 0 ? (
                     <>
