@@ -1110,11 +1110,30 @@ useEffect(() => {
                                 if (scoringMethod === "World Cup") {
                                     return (b.total_worldcup_points ?? 0) - (a.total_worldcup_points ?? 0);
                                 } else if (scoringMethod === "Pesce") {
-                                    return (b.total_pesce_points ?? 0) - (a.total_pesce_points ?? 0);
+                                    return (b.sheriffCount ?? 0) - (a.sheriffCount ?? 0);
                                 }
                                 return (a.gamlescore ?? 0) - (b.gamlescore ?? 0); // Golf: lower is better
                             });
                             const totalScore = getTotalScore(game);
+
+                            // Winner highlight (trophy for Golf/World Cup, sheriff
+                            // hat for Pesce) - only when there's a single winner,
+                            // same convention the Daily Leaderboard uses.
+                            let winnerEmails = [];
+                            if (scoringMethod === "World Cup") {
+                                const maxWc = Math.max(...rows.map(d => d.total_worldcup_points ?? 0));
+                                winnerEmails = rows.filter(d => (d.total_worldcup_points ?? 0) === maxWc).map(d => d.useremail);
+                            } else if (scoringMethod === "Pesce") {
+                                const maxSheriff = Math.max(...rows.map(d => d.sheriffCount ?? 0));
+                                if (maxSheriff > 0) {
+                                    winnerEmails = rows.filter(d => (d.sheriffCount ?? 0) === maxSheriff).map(d => d.useremail);
+                                }
+                            } else {
+                                const minScore = Math.min(...rows.map(d => d.gamlescore ?? 0));
+                                winnerEmails = rows.filter(d => (d.gamlescore ?? 0) === minScore).map(d => d.useremail);
+                            }
+                            const isSingleWinner = winnerEmails.length === 1;
+
                             return sorted.map((data, index) => {
                                 let nowValue = data.gamlescore ?? 0;
                                 let maxValue = (data.totalGamesPlayed || 1) * totalScore;
@@ -1122,9 +1141,10 @@ useEffect(() => {
                                     nowValue = data.total_worldcup_points ?? 0;
                                     maxValue = (data.totalGamesPlayed || 1) * 3;
                                 } else if (scoringMethod === "Pesce") {
-                                    nowValue = data.total_pesce_points ?? 0;
+                                    nowValue = data.sheriffCount ?? 0;
                                     maxValue = data.totalGamesPlayed || 1;
                                 }
+                                const isWinner = isSingleWinner && winnerEmails[0] === data.useremail;
                                 return (
                                     <Row key={index} className="justify-content-between align-items-center py-2 px-3 mb-2 rounded bg-light shadow-sm">
                                         <Col xs={3} className="d-flex align-items-center gap-2">
@@ -1150,6 +1170,7 @@ useEffect(() => {
                                                 </Col>
                                                 <Col md={5} xs={6} className="fw-bold">
                                                     {nowValue}
+                                                    {isWinner && (scoringMethod === "Pesce" ? " 🤠" : " 🏆")}
                                                 </Col>
                                             </Row>
                                         </Col>

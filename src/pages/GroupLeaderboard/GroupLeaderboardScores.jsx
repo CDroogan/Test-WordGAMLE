@@ -179,7 +179,13 @@ function GroupLeaderboardScores({ setLatestJoinDate, setSelectedMember, setShowP
                     params: { groupId: id, groupName, game, timeZone }
                 });
                
-                setLatestJoinDate(cumulativeResponse.data.latestJoinDate || []);
+                // The permanent Start Date (earliest any member ever opted
+                // in) feeds the Daily "Go To Date" calendar's earliest
+                // navigable date in GroupScoreByDate.jsx - distinct from
+                // localLatestJoinDate below, which stays the "most recent
+                // joiner" value this page's own (legacy) Today's
+                // Leaderboard gating already relies on and isn't changing.
+                setLatestJoinDate(cumulativeResponse.data.gameStartDate || cumulativeResponse.data.latestJoinDate || []);
                 setLocalLatestJoinDate(cumulativeResponse.data.latestJoinDate);
                 setCumulativeScore(cumulativeResponse.data.data || []);
             } catch (error) {
