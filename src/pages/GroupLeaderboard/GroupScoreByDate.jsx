@@ -60,6 +60,31 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile, m
         if (!weeklyData?.canGoForward) return;
         fetchWeeklyData(dayjs(weeklyData.weekOf).add(7, 'day').format('YYYY-MM-DD'));
     };
+    // Monthly Leaderboard - same pattern as Weekly above.
+    const [monthlyData, setMonthlyData] = useState(null);
+    const fetchMonthlyData = async (monthOf) => {
+        if (!id || !game) return;
+        try {
+            const params = { groupId: id, game };
+            if (monthOf) params.monthOf = monthOf;
+            const res = await axios.get(`${baseURL}/groups/get-monthly-score.php`, { params });
+            setMonthlyData(res.data);
+        } catch (err) {
+            setMonthlyData(null);
+        }
+    };
+    useEffect(() => {
+        fetchMonthlyData(null);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id, game]);
+    const goToPreviousMonth = () => {
+        if (!monthlyData?.canGoBack) return;
+        fetchMonthlyData(dayjs(monthlyData.monthOf).subtract(1, 'month').format('YYYY-MM-DD'));
+    };
+    const goToNextMonth = () => {
+        if (!monthlyData?.canGoForward) return;
+        fetchMonthlyData(dayjs(monthlyData.monthOf).add(1, 'month').format('YYYY-MM-DD'));
+    };
     const [missedScore, setMissedScore] = useState([]);
     const [dataFetched, setDataFetched] = useState(false);
     const [startDate, setStartDate] = useState(new Date());
@@ -1150,6 +1175,116 @@ useEffect(() => {
                 </Col>
             </Row>
 
+            {/* Monthly Leaderboard */}
+            <Row className="justify-content-center leaderboard">
+                <Col md={5}>
+                    <div className="d-flex align-items-center justify-content-center gap-3 text-lg font-medium">
+                        <button
+                            onClick={goToPreviousMonth}
+                            disabled={!monthlyData?.canGoBack}
+                            className="bg-dark text-white px-3 py-1 rounded"
+                        >
+                            <FaArrowLeft />
+                        </button>
+                        <div>
+                            {monthlyData?.monthOf ? `Month of ${dayjs(monthlyData.monthOf).format("MMMM YYYY")}` : "Month of —"}
+                        </div>
+                        <button
+                            onClick={goToNextMonth}
+                            disabled={!monthlyData?.canGoForward}
+                            className="bg-dark text-white px-3 py-1 rounded"
+                        >
+                            <FaArrowRight />
+                        </button>
+                    </div>
+                    <h4 className="py-3 text-center">Monthly Leaderboard</h4>
+
+                    {!monthlyData ? null : !monthlyData.available ? (
+                        <p className="text-center text-muted">Not Yet Available</p>
+                    ) : (
+                        (() => {
+                            const rows = (monthlyData.data || []).filter(d => String(d?.is_paused) === "0");
+                            if (rows.length === 0) {
+                                return <p className="text-center text-muted">Not Yet Available</p>;
+                            }
+                            const sorted = rows.slice().sort((a, b) => {
+                                if (scoringMethod === "World Cup") {
+                                    return (b.total_worldcup_points ?? 0) - (a.total_worldcup_points ?? 0);
+                                } else if (scoringMethod === "Pesce") {
+                                    return (b.sheriffCount ?? 0) - (a.sheriffCount ?? 0);
+                                }
+                                return (a.gamlescore ?? 0) - (b.gamlescore ?? 0); // Golf: lower is better
+                            });
+                            const totalScore = getTotalScore(game);
+
+                            let winnerEmails = [];
+                            if (scoringMethod === "World Cup") {
+                                const maxWc = Math.max(...rows.map(d => d.total_worldcup_points ?? 0));
+                                winnerEmails = rows.filter(d => (d.total_worldcup_points ?? 0) === maxWc).map(d => d.useremail);
+                            } else if (scoringMethod === "Pesce") {
+                                const maxSheriff = Math.max(...rows.map(d => d.sheriffCount ?? 0));
+                                if (maxSheriff > 0) {
+                                    winnerEmails = rows.filter(d => (d.sheriffCount ?? 0) === maxSheriff).map(d => d.useremail);
+                                }
+                            } else {
+                                const minScore = Math.min(...rows.map(d => d.gamlescore ?? 0));
+                                winnerEmails = rows.filter(d => (d.gamlescore ?? 0) === minScore).map(d => d.useremail);
+                            }
+                            const isSingleWinner = winnerEmails.length === 1;
+
+                            return sorted.map((data, index) => {
+                                let nowValue = data.gamlescore ?? 0;
+                                let maxValue = (data.totalGamesPlayed || 1) * totalScore;
+                                if (scoringMethod === "World Cup") {
+                                    nowValue = data.total_worldcup_points ?? 0;
+                                    maxValue = (data.totalGamesPlayed || 1) * 3;
+                                } else if (scoringMethod === "Pesce") {
+                                    nowValue = data.sheriffCount ?? 0;
+                                    maxValue = data.totalGamesPlayed || 1;
+                                }
+                                const isWinner = isSingleWinner && winnerEmails[0] === data.useremail;
+                                return (
+                                    <Row key={index} className="justify-content-between align-items-center py-2 px-3 mb-2 rounded bg-light shadow-sm">
+                                        <Col xs={3} className="d-flex align-items-center gap-2">
+                                            <img
+                                                src={data.avatar ? `${baseURL}/user/uploads/${data.avatar}` : `${baseURL}/user/uploads/default_avatar.png`}
+                                                alt="Profile"
+                                                className="rounded-circle"
+                                                style={{ width: '35px', height: '35px', objectFit: 'cover', cursor: 'pointer', border: '2px solid #0d6efd' }}
+                                                onClick={() => handleShowProfile(data)}
+                                            />
+                                        </Col>
+                                        <Col xs={4} className="text-start fw-semibold text-primary" style={{ cursor: 'pointer' }} onClick={() => handleShowProfile(data)}>
+                                            {data.username}
+                                        </Col>
+                                        <Col xs={5}>
+                                            <Row className="align-items-center">
+                                                <Col md={7} xs={6}>
+                                                    <ProgressBar
+                                                        className={`${game}-progressbar`}
+                                                        variant="success"
+                                                        now={maxValue > 0 ? (nowValue / maxValue) * 100 : 0}
+                                                    />
+                                                </Col>
+                                                <Col md={5} xs={6} className="fw-bold">
+                                                    {nowValue}
+                                                    {isWinner && (scoringMethod === "Pesce" ? " 🤠" : " 🏆")}
+                                                </Col>
+                                            </Row>
+                                        </Col>
+                                    </Row>
+                                );
+                            });
+                        })()
+                    )}
+                </Col>
+            </Row>
+
+            {latestJoinDate && (
+                <p className="text-center text-muted mb-4">
+                    Start Date: {dayjs(latestJoinDate).format("MMMM D, YYYY")}
+                </p>
+            )}
 
             <Modal show={showModal} onHide={handleCloseModal} centered>
                 <Modal.Header closeButton>
