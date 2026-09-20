@@ -474,12 +474,12 @@ function MessageLeaderboard({ latestJoinDate, setSelectedMember, setShowProfile,
                                                         src={data.avatar ? `${baseURL}/user/uploads/${data.avatar}` : `${baseURL}/user/uploads/default_avatar.png`}
                                                         alt="Profile"
                                                         className="rounded-circle mb-1"
-                                                        style={{ width: '35px', height: '35px', objectFit: 'cover' }}
+                                                        style={{ width: '35px', height: '35px', objectFit: 'cover', border: '2px solid #0d6efd' }}
                                                     />
                                                 </div>
                                             </Col>
 
-                                            <Col xs={4} className="text-start fw-semibold" onClick={() => handleShowProfile(data)} style={{ cursor: 'pointer' }}>
+                                            <Col xs={4} className="text-start fw-semibold text-primary" onClick={() => handleShowProfile(data)} style={{ cursor: 'pointer' }}>
                                                 {data.username}
                                                 {/* <p>Score is:{data.gamlescore}</p> */}
                                             </Col>

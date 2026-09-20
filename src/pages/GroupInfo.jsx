@@ -256,7 +256,7 @@ function GroupInfo() {
                                     }
                                     alt="Profile"
                                     className="rounded-circle mb-1"
-                                    style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                                    style={{ width: '50px', height: '50px', objectFit: 'cover', border: '2px solid #0d6efd' }}
                                     />
                                     <span
                                     className={`badge ${member.is_paused ? 'bg-danger' : 'bg-success'}`}
@@ -273,7 +273,7 @@ function GroupInfo() {
                                     </span>
                                 </div>
 
-                                <h6 className="mt-1 mb-0">
+                                <h6 className="mt-1 mb-0 text-primary">
                                     {member.username} {member.member_id === captainid && <strong><sup>*</sup></strong>}
                                 </h6>
                                 </div>
