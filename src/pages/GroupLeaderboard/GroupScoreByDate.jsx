@@ -1095,7 +1095,7 @@ useEffect(() => {
             )}
 
             {/* Weekly Leaderboard */}
-            <Row className="justify-content-center leaderboard mt-5 pt-4 border-top">
+            <Row className="justify-content-center leaderboard mt-5 pt-4">
                 <Col md={5}>
                     <div className="d-flex align-items-center justify-content-center gap-3 text-lg font-medium">
                         <button
@@ -1203,7 +1203,7 @@ useEffect(() => {
             </Row>
 
             {/* Monthly Leaderboard */}
-            <Row className="justify-content-center leaderboard mt-5 pt-4 border-top">
+            <Row className="justify-content-center leaderboard mt-5 pt-4">
                 <Col md={5}>
                     <div className="d-flex align-items-center justify-content-center gap-3 text-lg font-medium">
                         <button
@@ -1308,7 +1308,7 @@ useEffect(() => {
             </Row>
 
             {/* Yearly Leaderboard */}
-            <Row className="justify-content-center leaderboard mt-5 pt-4 border-top">
+            <Row className="justify-content-center leaderboard mt-5 pt-4">
                 <Col md={5}>
                     <div className="d-flex align-items-center justify-content-center gap-3 text-lg font-medium">
                         <button
@@ -1409,7 +1409,7 @@ useEffect(() => {
             </Row>
 
             {latestJoinDate && (
-                <p className="text-center text-muted mb-4 mt-5 pt-4 border-top">
+                <p className="text-center text-muted mb-4 mt-5 pt-4">
                     Start Date: {dayjs(latestJoinDate).format("MMMM D, YYYY")}
                 </p>
             )}
