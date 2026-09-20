@@ -491,9 +491,9 @@ useEffect(() => {
     // Function to get the max possible score for a game
     const getTotalScore = (gameName) => {
         const cleanedName = gameName ? gameName.trim().toLowerCase() : "";
-        return cleanedName === "wordle" ? 7 :
-            cleanedName === "connections" ? 4 :
-            cleanedName === "phrazle" ? 7 :
+        return cleanedName === "wordle" ? 8 :
+            cleanedName === "connections" ? 5 :
+            cleanedName === "phrazle" ? 8 :
             cleanedName === "quordle" ? 35 :
             cleanedName === "octordle" ? 113 :
             1; // Default to 1 if unknown
