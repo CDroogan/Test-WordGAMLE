@@ -37,9 +37,6 @@ function GroupScoreByDate({ latestJoinDate, setSelectedMember, setShowProfile, m
     const [totalGames, settotalGames] = useState('');
     const [cumulativeAverageScore, setcumulativeAverageScore] = useState([]);
     const [cumulativeDailyScore, setcumulativeDailyScore] = useState([]);
-    // Temporary diagnostic - remove once the Cumulative Leaderboard mismatch
-    // is confirmed fixed.
-    const [cumulativeDebug, setCumulativeDebug] = useState(null);
     const [missedScore, setMissedScore] = useState([]);
     const [dataFetched, setDataFetched] = useState(false);
     const [startDate, setStartDate] = useState(new Date());
@@ -478,7 +475,6 @@ useEffect(() => {
         settotalGames(cumulativeDailyResponse.data.totalGames || []);
         setcumulativeAverageScore(cumulativeAverageResponse.data.data || []);
         setcumulativeDailyScore(cumulativeDailyResponse.data.data || []);
-        setCumulativeDebug(cumulativeDailyResponse.data._debug || null);
         setDataFetched(true);
         scrollToDailyLeaderboardIfNeeded();
     } catch (error) {
@@ -1059,22 +1055,6 @@ useEffect(() => {
                             <h4 className="py-3 text-center">
                                 Cumulative Leaderboard
                             </h4>
-
-                            {/* TEMPORARY DIAGNOSTIC BLOCK - safe to screenshot,
-                                will be removed once the mismatch is fixed. */}
-                            {cumulativeDebug && (
-                                <div style={{ background: '#fff3cd', border: '1px solid #ffc107', borderRadius: '6px', padding: '10px', marginBottom: '15px', fontSize: '0.8rem', textAlign: 'left', whiteSpace: 'pre-wrap' }}>
-                                    <strong>DEBUG (temporary):</strong>
-                                    {Object.entries(cumulativeDebug).map(([email, info]) => (
-                                        <div key={email} style={{ marginTop: '6px' }}>
-                                            <strong>{email}</strong> — total: {info.sum}
-                                            {info.days.map((d, i) => (
-                                                <div key={i}>&nbsp;&nbsp;{d}</div>
-                                            ))}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
 
                             {cumulativeDailyScore &&
                             cumulativeDailyScore.length > 0 &&
