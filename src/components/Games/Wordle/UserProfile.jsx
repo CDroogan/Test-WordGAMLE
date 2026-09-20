@@ -27,6 +27,7 @@ function UserProfile() {
     const cropperRef = useRef(null);
     const [errors, setErrors] = useState({});
     const [isPaused, setIsPaused] = useState(false);
+    const [showPauseConfirm, setShowPauseConfirm] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth'));
@@ -403,10 +404,17 @@ function UserProfile() {
                         <p className="small">
                          {isPaused ? "Account active, but not visible to other Gamlers - unable to be invited into groups and will not appear in Leaderboards." : " Keep my account active, but hide from group Invitations and Leaderboards."}
                          </p>
-                        <Button 
-                        variant={isPaused ? "success" : "warning"} 
-                        className="w-100" 
-                        onClick={handlePauseToggle}
+                        <Button
+                        variant={isPaused ? "success" : "warning"}
+                        className="w-100"
+                        onClick={() => {
+                            if (isPaused) {
+                                handlePauseToggle();
+                            } else {
+                                setShowManage(false);
+                                setShowPauseConfirm(true);
+                            }
+                        }}
                         >
                         {isPaused ? "Account Paused" : "Pause Account"}
                         </Button>
@@ -428,6 +436,41 @@ function UserProfile() {
                     
 
                 </Modal.Body>
+            </Modal>
+            <Modal
+            show={showPauseConfirm}
+            onHide={() => {
+                setShowPauseConfirm(false);
+                setShowManage(true);
+            }}
+            centered
+            >
+            <Modal.Header closeButton>
+                <Modal.Title>Confirm Pause</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <p>Are you sure you want to pause your account? You'll be hidden from group invitations and Leaderboards until you unpause.</p>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button
+                variant="secondary"
+                onClick={() => {
+                    setShowPauseConfirm(false);
+                    setShowManage(true);
+                }}
+                >
+                Cancel
+                </Button>
+                <Button
+                variant="warning"
+                onClick={() => {
+                    handlePauseToggle();
+                    setShowPauseConfirm(false);
+                }}
+                >
+                Yes, Pause
+                </Button>
+            </Modal.Footer>
             </Modal>
             <Modal
             show={showDeleteConfirm}
