@@ -29,6 +29,8 @@ function UserProfile() {
     const [isPaused, setIsPaused] = useState(false);
     const [showPauseConfirm, setShowPauseConfirm] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deletePassword, setDeletePassword] = useState('');
+    const [deleteError, setDeleteError] = useState('');
 
     const USER_AUTH_DATA = JSON.parse(localStorage.getItem('auth'));
     const loginuserEmail = USER_AUTH_DATA?.email;
@@ -199,12 +201,20 @@ function UserProfile() {
     };
 
     const handleDeleteAccount = async () => {
+        setDeleteError('');
         try {
-            await Axios.post(`${baseURL}/user/delete-user.php`, { user_id: userData.id });
+            const response = await Axios.post(`${baseURL}/user/delete-user.php`, {
+                user_id: userData.id,
+                password: deletePassword,
+            });
+            if (!response.data.success) {
+                setDeleteError(response.data.message || "Failed to delete account.");
+                return;
+            }
             localStorage.removeItem('auth');
             navigate('/');
         } catch (error) {
-            toast.error("Failed to delete account.");
+            setDeleteError("Failed to delete account.");
         }
     };
 
@@ -476,6 +486,8 @@ function UserProfile() {
             onHide={() => {
                 setShowDeleteConfirm(false);
                 setShowManage(true);
+                setDeletePassword('');
+                setDeleteError('');
             }}
             centered
             >
@@ -484,6 +496,21 @@ function UserProfile() {
             </Modal.Header>
             <Modal.Body>
                 <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                <Form.Group>
+                    <Form.Label>Enter your password to confirm</Form.Label>
+                    <Form.Control
+                        type="password"
+                        value={deletePassword}
+                        onChange={(e) => {
+                            setDeletePassword(e.target.value);
+                            setDeleteError('');
+                        }}
+                        isInvalid={!!deleteError}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                        {deleteError}
+                    </Form.Control.Feedback>
+                </Form.Group>
             </Modal.Body>
             <Modal.Footer>
                 <Button
@@ -491,11 +518,13 @@ function UserProfile() {
                 onClick={() => {
                     setShowDeleteConfirm(false);
                     setShowManage(true);
+                    setDeletePassword('');
+                    setDeleteError('');
                 }}
                 >
                 Cancel
                 </Button>
-                <Button variant="danger" onClick={handleDeleteAccount}>
+                <Button variant="danger" onClick={handleDeleteAccount} disabled={!deletePassword}>
                 Yes, Delete
                 </Button>
             </Modal.Footer>
