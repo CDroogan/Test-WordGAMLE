@@ -400,9 +400,9 @@ function UserProfile() {
                 </Modal.Header>
                 <Modal.Body>
                     <div className='mb-4'>
-                        <h6>Pause Play</h6>
+                        <h6>{isPaused ? "Your account is Paused" : "Your account is Active"}</h6>
                         <p className="small">
-                         {isPaused ? "Account active, but not visible to other Gamlers - unable to be invited into groups and will not appear in Leaderboards." : " Keep my account active, but hide from group Invitations and Leaderboards."}
+                         {isPaused ? "Your account is active, but not visible to other Gamlers – unable to be invited into groups and will not appear in Leaderboards." : "Pausing your account will make it invisible to other Gamlers – for invitations into groups and Leaderboards."}
                          </p>
                         <Button
                         variant={isPaused ? "success" : "warning"}
@@ -416,12 +416,11 @@ function UserProfile() {
                             }
                         }}
                         >
-                        {isPaused ? "Account Paused" : "Pause Account"}
+                        {isPaused ? "Re-activate Account" : "Pause Account"}
                         </Button>
-                    </div>      
+                    </div>
                     <div>
-                        <h6>Delete Account</h6>
-                        <p className="small">Delete your account permanently. This cannot be undone.</p>
+                        <p className="small">Deleting your account will permanently remove your account and game-related information from WordGAMLE.</p>
                         <Button
                         variant="danger"
                         className="w-100" 
