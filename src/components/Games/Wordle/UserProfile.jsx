@@ -402,7 +402,7 @@ function UserProfile() {
                     <div className='mb-4'>
                         <h6>{isPaused ? "Your account is Paused" : "Your account is Active"}</h6>
                         <p className="small">
-                         {isPaused ? "Your account is active, but not visible to other Gamlers – unable to be invited into groups and will not appear in Leaderboards." : "Pausing your account will make it invisible to other Gamlers – for invitations into groups and Leaderboards."}
+                         {isPaused ? "Your account is active, but Paused. You are not visible to other Gamlers, unable to be invited into groups and will not appear in Leaderboards." : "Pausing your account will make it invisible to other Gamlers – for invitations into groups and Leaderboards."}
                          </p>
                         <Button
                         variant={isPaused ? "success" : "warning"}
