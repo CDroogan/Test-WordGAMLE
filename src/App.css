@@ -19,6 +19,21 @@ body{
   background-color: var(--wordgamle-accent) !important;
   border-color: var(--wordgamle-accent) !important;
 }
+/* Outline-style buttons (group name buttons, etc.) - accent color for
+   just the outline and text, filling solid only on hover/active. */
+.btn-outline-primary{
+  color: var(--wordgamle-accent) !important;
+  border-color: var(--wordgamle-accent) !important;
+  background-color: transparent !important;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active{
+  color: #fff !important;
+  background-color: var(--wordgamle-accent) !important;
+  border-color: var(--wordgamle-accent) !important;
+}
 /* Checkboxes/radios (leaderboard game selection, scoring method) - brand
    accent instead of Bootstrap's default blue. Left as blue on purpose:
    actual text links (Invite Friends, feedback, etc.), since blue is a
